@@ -1,0 +1,9 @@
+[package]
+name = "coolcats2"
+version = "0.1.0"
+authors = ["Michael Goldman <mike.goldman@allstreets.org>"]
+edition = "2018"
+
+[dependencies]
+yew = {git = "https://github.com/DenisKolodin/yew"}
+# stdweb = "0.4.10"
