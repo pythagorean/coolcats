@@ -5,26 +5,8 @@ use yew::prelude::*;
 mod components;
 use self::components::modal::{BACKDROP_STYLE, MODAL_STYLE};
 
-pub struct SettingsContainer {}
-
-impl Component for SettingsContainer {
-    type Message = Msg;
-    type Properties = ();
-
-    fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
-        SettingsContainer {}
-    }
-
-    fn update(&mut self, _msg: Self::Message) -> ShouldRender {
-        true
-    }
-}
-
-impl Renderable<SettingsContainer> for SettingsContainer {
-    fn view(&self) -> Html<Self> {
-        html! { </> }
-    }
-}
+mod settings;
+use self::settings::Settings;
 
 const DEFAULT_PROFILE_PIC: &str = "/cat-eating-bird-circle.png";
 
@@ -62,7 +44,7 @@ impl Renderable<AppModel> for AppModel {
                         <div align="center",>
                             <p classname="h1",>{"Welcome to Coolcats2!"}</p>
                         </div>
-                        // <SettingsContainer />
+                        <Settings: show={true},/>
                     </div>
                 </div>
             }, _ => html! {
