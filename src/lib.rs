@@ -3,7 +3,28 @@ extern crate yew;
 use yew::prelude::*;
 
 mod components;
-use self::components::modal::Modal;
+use self::components::modal::{BACKDROP_STYLE, MODAL_STYLE};
+
+pub struct SettingsContainer {}
+
+impl Component for SettingsContainer {
+    type Message = Msg;
+    type Properties = ();
+
+    fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
+        SettingsContainer {}
+    }
+
+    fn update(&mut self, _msg: Self::Message) -> ShouldRender {
+        true
+    }
+}
+
+impl Renderable<SettingsContainer> for SettingsContainer {
+    fn view(&self) -> Html<Self> {
+        html! { </> }
+    }
+}
 
 const DEFAULT_PROFILE_PIC: &str = "/cat-eating-bird-circle.png";
 
@@ -36,11 +57,13 @@ impl Renderable<AppModel> for AppModel {
         let profile_pic = "";
         match modal_is_open {
             true => html! {
-                <div>
-                    //<Modal show={modal_is_open}>
-                    //    <SettingsContainer />
-                    //</Modal>
-                    <Modal: show={modal_is_open},/>
+                <div style={BACKDROP_STYLE},>
+                    <div style={MODAL_STYLE},>
+                        <div align="center",>
+                            <p classname="h1",>{"Welcome to Coolcats2!"}</p>
+                        </div>
+                        // <SettingsContainer />
+                    </div>
                 </div>
             }, _ => html! {
                 <div className="container",>
