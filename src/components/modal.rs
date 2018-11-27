@@ -11,8 +11,8 @@ pub const BACKDROP_STYLE: &str = "\
 // The modal "window"
 pub const MODAL_STYLE: &str = "\
     background-color: #fff; \
-    borderRadius: 5; \
-    maxWidth: 500; \
-    minHeight: 200; \
+    border-radius: 5; \
+    max-width: 500; \
+    min-height: 200; \
     margin: 0 auto; \
     padding: 30;";

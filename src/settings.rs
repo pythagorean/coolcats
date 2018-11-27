@@ -40,6 +40,50 @@ impl Renderable<Settings> for Settings {
         if !self.show {
             return html! { </> };
         }
-        html! { <p>{"Hello from Settings"}</p> }
+        html! {
+            <div className="panel panel-default",>
+                <div className="panel-body",>
+                    <div style="padding-left: 30; padding-bottom: 10;",>
+                        <p
+                            className="text-info",
+                            style={"display: inline;"},
+                        >
+                            {"Set your handle to get meowing"}
+                        </p>
+                    </div>
+                    <div style="padding-left: 30; padding-bottom: 10;",>
+                        <p
+                            className="text-danger",
+                            style={"display: none;"},
+                        >
+                            {"This handle already has a home, try something else!"}
+                        </p>
+                    </div>
+                    <form id="handleForm", className="form-group",>
+                        <div className="col-xs-8",>
+                            <div className="form-group input-icon",>
+                                <i>{"@"}</i>
+                                <input
+                                    value={""},
+                                    type="text",
+                                    className="form-control",
+                                    id="myHandle",
+                                    placeholder="handle",
+                                />
+                            </div>
+                        </div>
+                        <div className="col-xs-2",>
+                        <button
+                            id="setHandleButton",
+                            type="submit",
+                            className="btn btn-primary",
+                        >
+                            {"Set Handle"}
+                        </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        }
     }
 }
