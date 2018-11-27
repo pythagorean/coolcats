@@ -40,13 +40,21 @@ impl Renderable<Settings> for Settings {
         if !self.show {
             return html! { </> };
         }
+        let use_handle_text = "";
+        let handle_taken = false;
         html! {
             <div className="panel panel-default",>
                 <div className="panel-body",>
                     <div style="padding-left: 30; padding-bottom: 10;",>
                         <p
                             className="text-info",
-                            style={"display: inline;"},
+                            style={
+                                if use_handle_text.len() == 0 && handle_taken == false {
+                                    "display: inline;"
+                                } else {
+                                    "display: none;"
+                                }
+                            },
                         >
                             {"Set your handle to get meowing"}
                         </p>
@@ -54,7 +62,13 @@ impl Renderable<Settings> for Settings {
                     <div style="padding-left: 30; padding-bottom: 10;",>
                         <p
                             className="text-danger",
-                            style={"display: none;"},
+                            style={
+                                if handle_taken == true {
+                                    "display: inline;"
+                                } else {
+                                    "display: none;"
+                                }
+                            },
                         >
                             {"This handle already has a home, try something else!"}
                         </p>
