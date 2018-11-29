@@ -5,5 +5,8 @@ authors = ["Michael Goldman <mike.goldman@allstreets.org>"]
 edition = "2018"
 
 [dependencies]
+yew = "0.5.0"
+stdweb = "0.4.10"
+
+[patch.crates-io]
 yew = {git = "https://github.com/DenisKolodin/yew"}
-# stdweb = "0.4.10"

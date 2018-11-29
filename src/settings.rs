@@ -4,7 +4,9 @@ pub struct Settings {
     show: bool,
 }
 
-pub enum Msg {}
+pub enum Msg {
+    UpdateHandleText(ChangeData),
+}
 
 #[derive(PartialEq, Clone)]
 pub struct Props {
@@ -29,7 +31,13 @@ impl Component for Settings {
         }
     }
 
-    fn update(&mut self, _msg: Self::Message) -> ShouldRender {
+    fn update(&mut self, msg: Self::Message) -> ShouldRender {
+        match msg {
+            Msg::UpdateHandleText(ChangeData::Value(handle)) => {
+                js! { alert(@{handle}) };
+            },
+            _ => (),
+        };
         true
     }
 }
@@ -43,11 +51,11 @@ impl Renderable<Settings> for Settings {
         let use_handle_text = "";
         let handle_taken = false;
         html! {
-            <div className="panel panel-default",>
-                <div className="panel-body",>
+            <div classname="panel panel-default",>
+                <div classname="panel-body",>
                     <div style="padding-left: 30; padding-bottom: 10;",>
                         <p
-                            className="text-info",
+                            classname="text-info",
                             style={
                                 if use_handle_text.len() == 0 && handle_taken == false {
                                     "display: inline;"
@@ -61,7 +69,7 @@ impl Renderable<Settings> for Settings {
                     </div>
                     <div style="padding-left: 30; padding-bottom: 10;",>
                         <p
-                            className="text-danger",
+                            classname="text-danger",
                             style={
                                 if handle_taken == true {
                                     "display: inline;"
@@ -73,27 +81,31 @@ impl Renderable<Settings> for Settings {
                             {"This handle already has a home, try something else!"}
                         </p>
                     </div>
-                    <form id="handleForm", className="form-group",>
-                        <div className="col-xs-8",>
-                            <div className="form-group input-icon",>
+                    <form
+                        id="handleForm",
+                        classname="form-group",
+                    >
+                        <div classname="col-xs-8",>
+                            <div classname="form-group input-icon",>
                                 <i>{"@"}</i>
                                 <input
-                                    value={""},
+                                    value=use_handle_text,
+                                    onchange=|input| Msg::UpdateHandleText(input),
                                     type="text",
-                                    className="form-control",
+                                    classname="form-control",
                                     id="myHandle",
                                     placeholder="handle",
                                 />
                             </div>
                         </div>
-                        <div className="col-xs-2",>
-                        <button
-                            id="setHandleButton",
-                            type="submit",
-                            className="btn btn-primary",
-                        >
-                            {"Set Handle"}
-                        </button>
+                        <div classname="col-xs-2",>
+                            <button
+                                id="setHandleButton",
+                                type="submit",
+                                classname="btn btn-primary",
+                            >
+                                {"Set Handle"}
+                            </button>
                         </div>
                     </form>
                 </div>

@@ -3,6 +3,9 @@
 extern crate yew;
 use yew::prelude::*;
 
+#[macro_use]
+extern crate stdweb;
+
 mod components;
 use self::components::modal::{BACKDROP_STYLE, MODAL_STYLE};
 
@@ -45,17 +48,17 @@ impl Renderable<AppModel> for AppModel {
                         <div align="center",>
                             <p classname="h1",>{"Welcome to Coolcats2!"}</p>
                         </div>
-                        <Settings: show={true},/>
+                        <Settings: show=true,/>
                     </div>
                 </div>
             }, _ => html! {
-                <div className="container",>
-                    <div className="spinner transition500",/>
-                    <div className="error transition500",/>
-                    <div className="row first",>
-                        <div className="fixed-area",>
-                            <div className="col-sm-2 contentcontainer",>
-                                <div className="logo",>
+                <div classname="container",>
+                    <div classname="spinner transition500",/>
+                    <div classname="error transition500",/>
+                    <div classname="row first",>
+                        <div classname="fixed-area",>
+                            <div classname="col-sm-2 contentcontainer",>
+                                <div classname="logo",>
                                     <img
                                         src={
                                             if !profile_pic.is_empty() {profile_pic}
