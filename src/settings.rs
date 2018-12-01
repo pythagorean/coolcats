@@ -1,13 +1,33 @@
 use yew::prelude::*;
 
+const MAX_HANDLE_LENGTH: usize = 20;
+
 pub struct Settings {
     show: bool,
     use_handle_text: String,
 }
 
+impl Settings {
+    fn on_handle_submit(&mut self) {
+        let use_handle_text = &self.use_handle_text;
+
+        // empty string given as input
+        if use_handle_text.len() == 0 { return };
+
+        // max characters exceeded
+        if use_handle_text.len() > MAX_HANDLE_LENGTH {
+            self.use_handle_text = String::from("");
+            return
+        }
+
+        js! { alert(@{use_handle_text}) };
+    }
+}
+
 pub enum Msg {
     UpdateHandleText(ChangeData),
     OnHandleSubmit,
+    Nope,
 }
 
 #[derive(PartialEq, Clone)]
@@ -38,9 +58,10 @@ impl Component for Settings {
         match msg {
             Msg::UpdateHandleText(ChangeData::Value(handle_text)) => {
                 self.use_handle_text = handle_text;
+                return false;
             },
             Msg::OnHandleSubmit => {
-                js! { alert(@{&self.use_handle_text}) };
+                self.on_handle_submit();
             }
             _ => (),
         };
@@ -93,6 +114,10 @@ impl Renderable<Settings> for Settings {
                             <input
                                 value=use_handle_text,
                                 onchange=|input| Msg::UpdateHandleText(input),
+                                onkeypress=|pressed| {
+                                    if pressed.key() == "Enter" { Msg::OnHandleSubmit }
+                                    else { Msg::Nope }
+                                },
                                 type="text",
                                 classname="form-control",
                                 id="myHandle",

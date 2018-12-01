@@ -1,0 +1,14 @@
+{
+  "name": "Coolcats2",
+  "description": "Rust port of Clutter, a fully distributed social messaging app built on Holochain",
+  "authors": [
+    {
+      "identifier": "Michael Goldman <mike.goldman@allstreets.org>",
+      "public_key_source": "",
+      "signature": ""
+    }
+  ],
+  "version": "0.1.0",
+  "dht": {},
+  "properties": null
+}
