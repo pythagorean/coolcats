@@ -1,15 +1,35 @@
+#![feature(try_from)]
 #[macro_use]
 extern crate hdk;
 extern crate serde;
+#[macro_use]
 extern crate serde_derive;
+#[macro_use]
 extern crate serde_json;
+#[macro_use]
+extern crate holochain_core_types_derive;
 
-// see https://developer.holochain.org/api/0.0.2/hdk/ for info on using the hdk library
+mod clutter;
 
 define_zome! {
-    entries: []
+    entries: [
+		clutter::handle_definition()
+	]
 
     genesis: || { Ok(()) }
 
-    functions: {}
+    functions: {
+        main (Public) {
+            get_handle: {
+                inputs: | |,
+                outputs: |result: JsonString|,
+                handler: clutter::handle_get_handle
+            }
+            use_handle: {
+                inputs: |handle: String|,
+                outputs: |result: JsonString|,
+                handler: clutter::handle_use_handle
+            }
+        }
+    }
 }

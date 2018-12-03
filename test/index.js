@@ -9,14 +9,20 @@ const app = Container.instanceFromNameAndDna("app", "dist/bundle.json")
 // activate the new instance
 app.start()
 
-test('description of example test', (t) => {
-  // Make a call to a Zome function
-  // indicating the capability and function, and passing it an input
-  // const result = app.call("zome-name", "capability-name", "function-name", {})
+test("If there is no handle set returns ''", (t) => {
+  const result = app.call("coolcats", "main", "get_handle", {})
+  t.equal(result[0], "")
+  t.end()
+})
 
-  // check for equality of the actual and expected results
-  // t.equal(result, "expected result!")
+test("We can create a new handle", (t) => {
+  const result = app.call("coolcats", "main", "use_handle", {handle: "buffaloBill"})
+  console.log(result)
+  t.end()
+})
 
-  // ends this test
+test("We can retrieve the new handle", (t) => {
+  const result = app.call("coolcats", "main", "get_handle", {})
+  t.equal(result[0], "buffaloBill")
   t.end()
 })

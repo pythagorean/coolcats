@@ -4,3 +4,5 @@ Cargo.lock
 dist/
 node_modules/
 target/
+package-lock.json
+bundle.json
