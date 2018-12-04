@@ -13,7 +13,8 @@ mod clutter;
 
 define_zome! {
     entries: [
-		clutter::handle_definition()
+		clutter::handle_definition(),
+        clutter::anchor_definition()
 	]
 
     genesis: || { Ok(()) }

@@ -1,11 +1,21 @@
 use hdk::{
     self,
+    AGENT_ADDRESS,
     entry_definition::ValidatingEntryType,
-    error::ZomeApiResult,
-    holochain_core_types::dna::zome::entry_types::Sharing,
-    holochain_core_types::entry::{entry_type::EntryType, Entry},
-    holochain_core_types::error::HolochainError,
-    holochain_core_types::json::JsonString,
+    error::{
+        ZomeApiResult,
+        ZomeApiError,
+    },
+    holochain_core_types::{
+        dna::zome::entry_types::Sharing,
+        entry::{
+            Entry,
+            entry_type::EntryType,
+        },
+        error::HolochainError,
+        hash::HashString,
+        json::JsonString,
+    },
 };
 
 #[derive(Serialize, Deserialize, Debug, Clone, DefaultJson)]
@@ -31,8 +41,7 @@ pub fn handle_definition() -> ValidatingEntryType {
 }
 
 pub fn handle_use_handle(handle: String) -> JsonString {
-    let entry = Entry::new(EntryType::App("handle".into()), StoreHandle { handle });
-    match hdk::commit_entry(&entry) {
+    match use_handle(handle) {
         Ok(address) => json!({ "address": address }).into(),
         Err(hdk_err) => hdk_err.into(),
     }
@@ -45,6 +54,57 @@ pub fn handle_get_handle() -> JsonString {
     }
 }
 
+fn use_handle(handle: String) -> ZomeApiResult<HashString> {
+    hdk::debug(format!("use_handle('{}')", handle)).unwrap();
+    hdk::debug(format!("AGENT_ADDRESS = {}", AGENT_ADDRESS.to_string())).unwrap();
+    let result = hdk::get_links(&AGENT_ADDRESS, "handle")?;
+    let handles = result.addresses();
+    if handles.len() > 0 {
+        return Err(ZomeApiError::ValidationFailed("HandleInUse".into()));
+    }
+    if anchor_exists("handle", &handle) {
+        return Err(ZomeApiError::ValidationFailed("HandleInUse".into()));
+    }
+    let entry = Entry::new(EntryType::App("handle".into()), StoreHandle { handle });
+    hdk::commit_entry(&entry)
+}
+
 fn get_handle() -> ZomeApiResult<Vec<String>> {
-    Ok([String::from("")].to_vec())
+    Ok(["".into()].to_vec())
+}
+
+#[derive(Serialize, Deserialize, Debug, DefaultJson)]
+pub struct StoreAnchor {
+    anchor_type: String,
+    anchor_text: String,
+}
+
+pub fn anchor_definition() -> ValidatingEntryType {
+    entry!(
+        name: "anchor",
+        description: "An anchor type",
+        sharing: Sharing::Public,
+        native_type: StoreAnchor,
+
+        validation_package: || {
+            hdk::ValidationPackageDefinition::Entry
+        },
+
+        validation: |_anchor: StoreAnchor, _ctx: hdk::ValidationData| {
+            Ok(())
+        }
+    )
+}
+
+fn anchor_exists(anchor_type: &str, anchor_text: &str) -> bool {
+    let entry = Entry::new(EntryType::App("anchor".into()), StoreAnchor {
+        anchor_type: anchor_type.into(),
+        anchor_text: anchor_text.into(),
+    });
+    match hdk::get_entry(
+        hdk::entry_address(&entry).unwrap()
+    ).unwrap() {
+        Some(_value) => true,
+        None => false
+    }
 }
