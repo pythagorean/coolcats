@@ -10,11 +10,13 @@ extern crate serde_json;
 extern crate holochain_core_types_derive;
 
 mod clutter;
+mod anchors;
 
 define_zome! {
     entries: [
 		clutter::handle_definition(),
-        clutter::anchor_definition()
+        anchors::anchor_definition(),
+        anchors::anchor_links_definition()
 	]
 
     genesis: || { Ok(()) }
