@@ -14,22 +14,36 @@ use hdk::{
     },
 };
 
+use crate::utils::{
+    address_exists,
+    entry_exists
+};
+
+use crate::links::{
+    Link,
+    Links
+};
+
 #[derive(Serialize, Deserialize, Debug, DefaultJson)]
 pub struct Anchor {
     anchor_type: String,
     anchor_text: String,
 }
 
-#[derive(Serialize, Deserialize, Debug, DefaultJson)]
-pub struct AnchorLink {
-    base: HashString,
-    link: HashString,
-    tag: String,
-}
+impl Anchor {
+    pub fn new(anchor_type: &str, anchor_text: &str) -> Anchor {
+        Anchor {
+            anchor_type: anchor_type.to_owned(),
+            anchor_text: anchor_text.to_owned(),
+        }
+    }
 
-#[derive(Serialize, Deserialize, Debug, DefaultJson)]
-pub struct AnchorLinks {
-    links: Vec<AnchorLink>,
+    pub fn entry(anchor_type: &str, anchor_text: &str) -> Entry {
+        Entry::new(
+            EntryType::App("anchor".into()),
+            Anchor::new(anchor_type, anchor_text)
+        )
+    }
 }
 
 pub fn anchor_definition() -> ValidatingEntryType {
@@ -43,79 +57,40 @@ pub fn anchor_definition() -> ValidatingEntryType {
             hdk::ValidationPackageDefinition::Entry
         },
 
-        validation: |_anchor: Anchor, _ctx: hdk::ValidationData| {
-            Ok(())
-        }
-    )
-}
-
-pub fn anchor_links_definition() -> ValidatingEntryType {
-    entry!(
-        name: "anchor_links",
-        description: "A list of anchor link types",
-        sharing: Sharing::Public,
-        native_type: AnchorLinks,
-
-        validation_package: || {
-            hdk::ValidationPackageDefinition::Entry
-        },
-
-        validation: |_anchor_links: AnchorLinks, _ctx: hdk::ValidationData| {
+        validation: |_anchor: crate::anchors::Anchor, _ctx: hdk::ValidationData| {
             Ok(())
         }
     )
 }
 
 pub fn anchor(anchor_type: &str, anchor_text: &str) -> ZomeApiResult<HashString> {
-    let anchor_entry = Entry::new(EntryType::App("anchor".into()), Anchor {
-        anchor_type: anchor_type.into(),
-        anchor_text: anchor_text.into()
-    });
+    let anchor_entry = Anchor::entry(anchor_type, anchor_text);
     let anchor_address = hdk::entry_address(&anchor_entry)?;
-    if hdk::get_entry(anchor_address.clone())?.is_some() {
+    if address_exists(&anchor_address)? {
         return Ok(anchor_address);
     }
-
-    let anchor_type_entry = Entry::new(EntryType::App("anchor".into()), Anchor {
-        anchor_type: anchor_type.into(),
-        anchor_text: "".into()
-    });
+    let anchor_type_entry = Anchor::entry(anchor_type, "");
     let anchor_type_address = hdk::entry_address(&anchor_type_entry)?;
-    if hdk::get_entry(anchor_type_address.clone())?.is_none() {
-        let root_anchor_type_entry = Entry::new(EntryType::App("anchor".into()), Anchor {
-            anchor_type: "anchor_types".into(),
-            anchor_text: "".into()
-        });
+    if !address_exists(&anchor_type_address)? {
+        let root_anchor_type_entry = Anchor::entry("anchor_types", "");
         let root_anchor_type_address = hdk::entry_address(&root_anchor_type_entry)?;
-        if hdk::get_entry(root_anchor_type_address.clone())?.is_none() {
+        if !address_exists(&root_anchor_type_address)? {
             hdk::commit_entry(&root_anchor_type_entry)?;
         }
-
-        let anchor_link_entry = Entry::new(EntryType::App("anchor_links".into()), AnchorLinks {
-            links: vec![ AnchorLink {
-                base: root_anchor_type_address.clone(),
-                link: anchor_type_address.clone(),
-                tag: anchor_type.into()
-            }]
-        });
-        hdk::commit_entry(&anchor_link_entry)?;
+        let anchor_type_links_entry = Links::entry(
+            Link::new(&root_anchor_type_address, &anchor_type_address, &anchor_type)
+        );
         hdk::commit_entry(&anchor_type_entry)?;
+        hdk::commit_entry(&anchor_type_links_entry)?;
     }
-    let anchor_link_entry = Entry::new(EntryType::App("anchor_links".into()), AnchorLinks {
-        links: vec![ AnchorLink {
-            base: anchor_type_address.clone(),
-            link: anchor_address.clone(),
-            tag: anchor_text.into()
-        }]
-    });
-    hdk::commit_entry(&anchor_link_entry)?;
-    hdk::commit_entry(&anchor_entry)
+    let anchor_links_entry = Links::entry(
+        Link::new(&anchor_type_address, &anchor_address, &anchor_text)
+    );
+    hdk::commit_entry(&anchor_entry)?;
+    hdk::commit_entry(&anchor_links_entry)?;
+    Ok(anchor_address)
 }
 
 pub fn anchor_exists(anchor_type: &str, anchor_text: &str) -> ZomeApiResult<bool> {
-    let entry = Entry::new(EntryType::App("anchor".into()), Anchor {
-        anchor_type: anchor_type.into(),
-        anchor_text: anchor_text.into(),
-    });
-    Ok(hdk::get_entry(hdk::entry_address(&entry)?)?.is_some())
+    entry_exists(&Anchor::entry(anchor_type, anchor_text))
 }

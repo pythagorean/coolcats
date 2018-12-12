@@ -11,12 +11,14 @@ extern crate holochain_core_types_derive;
 
 mod clutter;
 mod anchors;
+mod links;
+mod utils;
 
 define_zome! {
     entries: [
 		clutter::handle_definition(),
         anchors::anchor_definition(),
-        anchors::anchor_links_definition()
+        links::links_definition()
 	]
 
     genesis: || { Ok(()) }
