@@ -16,9 +16,9 @@ mod utils;
 
 define_zome! {
     entries: [
-		clutter::handle_definition(),
-        anchors::anchor_definition(),
-        links::links_definition()
+		clutter::Handle::definition(),
+        anchors::Anchor::definition(),
+        links::Links::definition()
 	]
 
     genesis: || { Ok(()) }

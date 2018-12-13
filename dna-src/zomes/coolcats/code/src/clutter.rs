@@ -12,7 +12,6 @@ use hdk::{
             Entry,
             entry_type::EntryType,
         },
-        error::HolochainError,
         hash::HashString,
         json::JsonString,
     },
@@ -23,26 +22,37 @@ use super::anchors::{
     anchor_exists,
 };
 
-#[derive(Serialize, Deserialize, Debug, Clone, DefaultJson)]
-pub struct StoreHandle {
-    handle: String,
-}
+use crate::links::{
+    Link,
+    Links
+};
 
-pub fn handle_definition() -> ValidatingEntryType {
-    entry!(
-        name: "handle",
-        description: "A user handle for posting meows",
-        sharing: Sharing::Public,
-        native_type: StoreHandle,
+pub struct Handle {}
 
-        validation_package: || {
-            hdk::ValidationPackageDefinition::Entry
-        },
+impl Handle {
+    pub fn definition() -> ValidatingEntryType {
+        entry!(
+            name: "handle",
+            description: "A user handle for posting meows",
+            sharing: Sharing::Public,
+            native_type: HashString,
 
-        validation: |_handle: StoreHandle, _ctx: hdk::ValidationData| {
-            Ok(())
-        }
-    )
+            validation_package: || {
+                hdk::ValidationPackageDefinition::Entry
+            },
+
+            validation: |_handle_anchor: HashString, _ctx: hdk::ValidationData| {
+                Ok(())
+            }
+        )
+    }
+
+    pub fn entry(handle: &str) -> ZomeApiResult<Entry> {
+        Ok(Entry::new(
+            EntryType::App("handle".into()),
+            anchor("handle", handle)?
+        ))
+    }
 }
 
 pub fn handle_use_handle(handle: String) -> JsonString {
@@ -70,10 +80,14 @@ fn use_handle(handle: String) -> ZomeApiResult<HashString> {
     if anchor_exists("handle", &handle)? {
         return Err(ZomeApiError::ValidationFailed("HandleInUse".into()));
     }
-    let _handle_anchor = anchor("handle", &handle)?;
-    //use_handle_key = hc_commit('handle', anchor('handle', handle))
-    let entry = Entry::new(EntryType::App("handle".into()), StoreHandle { handle });
-    hdk::commit_entry(&entry)
+    let handle_address = hdk::commit_entry(&Handle::entry(&handle)?)?;
+    hdk::commit_entry(&Links::entry("handle_links",
+        Link::new(&AGENT_ADDRESS, &handle_address, "handle")
+    ))?;
+    hdk::commit_entry(&Links::entry("directory_links",
+        Link::new(&AGENT_ADDRESS, &handle_address, "directory")
+    ))?;
+    Ok(handle_address)
 }
 
 fn get_handle() -> ZomeApiResult<Vec<String>> {

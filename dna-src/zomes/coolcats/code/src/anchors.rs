@@ -31,6 +31,23 @@ pub struct Anchor {
 }
 
 impl Anchor {
+    pub fn definition() -> ValidatingEntryType {
+        entry!(
+            name: "anchor",
+            description: "An anchor type",
+            sharing: Sharing::Public,
+            native_type: Anchor,
+
+            validation_package: || {
+                hdk::ValidationPackageDefinition::Entry
+            },
+
+            validation: |_anchor: Anchor, _ctx: hdk::ValidationData| {
+                Ok(())
+            }
+        )
+    }
+
     pub fn new(anchor_type: &str, anchor_text: &str) -> Anchor {
         Anchor {
             anchor_type: anchor_type.to_owned(),
@@ -44,23 +61,6 @@ impl Anchor {
             Anchor::new(anchor_type, anchor_text)
         )
     }
-}
-
-pub fn anchor_definition() -> ValidatingEntryType {
-    entry!(
-        name: "anchor",
-        description: "An anchor type",
-        sharing: Sharing::Public,
-        native_type: Anchor,
-
-        validation_package: || {
-            hdk::ValidationPackageDefinition::Entry
-        },
-
-        validation: |_anchor: crate::anchors::Anchor, _ctx: hdk::ValidationData| {
-            Ok(())
-        }
-    )
 }
 
 pub fn anchor(anchor_type: &str, anchor_text: &str) -> ZomeApiResult<HashString> {
@@ -77,13 +77,13 @@ pub fn anchor(anchor_type: &str, anchor_text: &str) -> ZomeApiResult<HashString>
         if !address_exists(&root_anchor_type_address)? {
             hdk::commit_entry(&root_anchor_type_entry)?;
         }
-        let anchor_type_links_entry = Links::entry(
+        let anchor_type_links_entry = Links::entry("anchor_links",
             Link::new(&root_anchor_type_address, &anchor_type_address, &anchor_type)
         );
         hdk::commit_entry(&anchor_type_entry)?;
         hdk::commit_entry(&anchor_type_links_entry)?;
     }
-    let anchor_links_entry = Links::entry(
+    let anchor_links_entry = Links::entry("anchor_links",
         Link::new(&anchor_type_address, &anchor_address, &anchor_text)
     );
     hdk::commit_entry(&anchor_entry)?;

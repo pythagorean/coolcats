@@ -22,6 +22,7 @@ pub struct Link {
 
 #[derive(Serialize, Deserialize, Debug, DefaultJson)]
 pub struct Links {
+    name: String,
     links: Vec<Link>,
 }
 
@@ -36,33 +37,34 @@ impl Link {
 }
 
 impl Links {
-    pub fn new(link: Link) -> Links {
+    pub fn definition() -> ValidatingEntryType {
+        entry!(
+            name: "links",
+            description: "A list of link types",
+            sharing: Sharing::Public,
+            native_type: Links,
+
+            validation_package: || {
+                hdk::ValidationPackageDefinition::Entry
+            },
+
+            validation: |_links: Links, _ctx: hdk::ValidationData| {
+                Ok(())
+            }
+        )
+    }
+
+    pub fn new(name: &str, link: Link) -> Links {
         Links {
+            name: name.to_owned(),
             links: vec![link],
         }
     }
 
-    pub fn entry(link: Link) -> Entry {
+    pub fn entry(name: &str, link: Link) -> Entry {
         Entry::new(
             EntryType::App("links".into()),
-            Links::new(link)
+            Links::new(name, link)
         )
     }
-}
-
-pub fn links_definition() -> ValidatingEntryType {
-    entry!(
-        name: "links",
-        description: "A list of link types",
-        sharing: Sharing::Public,
-        native_type: Links,
-
-        validation_package: || {
-            hdk::ValidationPackageDefinition::Entry
-        },
-
-        validation: |_links: crate::links::Links, _ctx: hdk::ValidationData| {
-            Ok(())
-        }
-    )
 }
