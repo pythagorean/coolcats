@@ -12,6 +12,7 @@ use hdk::{
             Entry,
             entry_type::EntryType,
         },
+        cas::content::Address,
         hash::HashString,
         json::JsonString,
     },
@@ -20,11 +21,6 @@ use hdk::{
 use super::anchors::{
     anchor,
     anchor_exists,
-};
-
-use crate::links::{
-    Link,
-    Links
 };
 
 pub struct Handle {}
@@ -43,7 +39,34 @@ impl Handle {
 
             validation: |_handle_anchor: HashString, _ctx: hdk::ValidationData| {
                 Ok(())
-            }
+            },
+
+            links: [
+                from!(
+                    "%agent_id",
+                    tag: "handle",
+
+                    validation_package: || {
+                        hdk::ValidationPackageDefinition::ChainFull
+                    },
+
+                    validation: |_source: Address, _target: Address, _ctx: hdk::ValidationData| {
+                        Ok(())
+                    }
+                ),
+                from!(
+                    "%agent_id",
+                    tag: "directory",
+
+                    validation_package: || {
+                        hdk::ValidationPackageDefinition::ChainFull
+                    },
+
+                    validation: |_source: Address, _target: Address, _ctx: hdk::ValidationData| {
+                        Ok(())
+                    }
+                )
+            ]
         )
     }
 
@@ -69,9 +92,9 @@ pub fn handle_get_handle() -> JsonString {
     }
 }
 
+// incomplete
 fn use_handle(handle: String) -> ZomeApiResult<HashString> {
     hdk::debug(format!("use_handle('{}')", handle))?;
-    hdk::debug(format!("AGENT_ADDRESS = {}", AGENT_ADDRESS.to_string()))?;
     let result = hdk::get_links(&AGENT_ADDRESS, "handle")?;
     let handles = result.addresses();
     if handles.len() > 0 {
@@ -81,15 +104,28 @@ fn use_handle(handle: String) -> ZomeApiResult<HashString> {
         return Err(ZomeApiError::ValidationFailed("HandleInUse".into()));
     }
     let handle_address = hdk::commit_entry(&Handle::entry(&handle)?)?;
-    hdk::commit_entry(&Links::entry("handle_links",
-        Link::new(&AGENT_ADDRESS, &handle_address, "handle")
-    ))?;
-    hdk::commit_entry(&Links::entry("directory_links",
-        Link::new(&AGENT_ADDRESS, &handle_address, "directory")
-    ))?;
+    hdk::link_entries(&AGENT_ADDRESS, &handle_address, "handle")?;
+    hdk::link_entries(&AGENT_ADDRESS, &handle_address, "directory")?;
     Ok(handle_address)
 }
 
 fn get_handle() -> ZomeApiResult<Vec<String>> {
+    hdk::debug(format!("get_handle(): {}", AGENT_ADDRESS.to_string()))?;
+    let links = hdk::get_links(&AGENT_ADDRESS, "handle")?;
+    let handles = links.addresses();
+    if handles.len() > 0 {
+        if let Some(handle_entry) = hdk::get_entry(handles[0].to_owned())? {
+            let anchor_address = Address::from(
+                handle_entry.value().to_string().trim_matches('"')
+            );
+            if let Some(anchor_entry) = hdk::get_entry(anchor_address)? {
+                let anchor: serde_json::Value = serde_json::from_str(
+                    &anchor_entry.value().to_string()
+                ).unwrap();
+                let anchor_text = anchor["anchor_text"].to_string();
+                return Ok([anchor_text.trim_matches('"').into()].to_vec());
+            }
+        }
+    }
     Ok(["".into()].to_vec())
 }
