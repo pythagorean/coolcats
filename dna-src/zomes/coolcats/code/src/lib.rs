@@ -11,14 +11,12 @@ extern crate holochain_core_types_derive;
 
 mod clutter;
 mod anchors;
-mod links;
 mod utils;
 
 define_zome! {
     entries: [
 		clutter::Handle::definition(),
-        anchors::Anchor::definition(),
-        links::Links::definition()
+        anchors::Anchor::definition()
 	]
 
     genesis: || { Ok(()) }
@@ -34,6 +32,11 @@ define_zome! {
                 inputs: |handle: String|,
                 outputs: |result: JsonString|,
                 handler: clutter::handle_use_handle
+            }
+            log_out: {
+                inputs: | |,
+                outputs: |result: JsonString|,
+                handler: clutter::handle_log_out
             }
         }
     }

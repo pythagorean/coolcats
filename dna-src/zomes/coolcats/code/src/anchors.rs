@@ -19,11 +19,6 @@ use crate::utils::{
     entry_exists
 };
 
-use crate::links::{
-    Link,
-    Links
-};
-
 #[derive(Serialize, Deserialize, Debug, DefaultJson)]
 pub struct Anchor {
     anchor_type: String,
@@ -63,6 +58,7 @@ impl Anchor {
     }
 }
 
+// incomplete: not storing links at present
 pub fn anchor(anchor_type: &str, anchor_text: &str) -> ZomeApiResult<HashString> {
     let anchor_entry = Anchor::entry(anchor_type, anchor_text);
     let anchor_address = hdk::entry_address(&anchor_entry)?;
@@ -77,17 +73,9 @@ pub fn anchor(anchor_type: &str, anchor_text: &str) -> ZomeApiResult<HashString>
         if !address_exists(&root_anchor_type_address)? {
             hdk::commit_entry(&root_anchor_type_entry)?;
         }
-        let anchor_type_links_entry = Links::entry("anchor_links",
-            Link::new(&root_anchor_type_address, &anchor_type_address, &anchor_type)
-        );
         hdk::commit_entry(&anchor_type_entry)?;
-        hdk::commit_entry(&anchor_type_links_entry)?;
     }
-    let anchor_links_entry = Links::entry("anchor_links",
-        Link::new(&anchor_type_address, &anchor_address, &anchor_text)
-    );
     hdk::commit_entry(&anchor_entry)?;
-    hdk::commit_entry(&anchor_links_entry)?;
     Ok(anchor_address)
 }
 

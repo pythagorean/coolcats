@@ -11,18 +11,28 @@ app.start()
 
 test("If there is no handle set returns ''", (t) => {
   const result = app.call("coolcats", "main", "get_handle", {})
-  t.equal(result[0], "")
+  console.log(result)
+  t.equal(result.value, "")
   t.end()
 })
 
 test("We can create a new handle", (t) => {
   const result = app.call("coolcats", "main", "use_handle", {handle: "buffaloBill"})
   console.log(result)
+  t.equal(result.value, "QmdG4gpbEbcsK15ophm46DaAqS8j2uaTUe5qHH88Ygkbka")
   t.end()
 })
 
 test("We can retrieve the new handle", (t) => {
   const result = app.call("coolcats", "main", "get_handle", {})
-  t.equal(result[0], "buffaloBill")
+  console.log(result)
+  t.equal(result.value, "buffaloBill")
+  t.end()
+})
+
+test("Trying to use a handle that another person is using returns 'handle_in_use'", (t) => {
+  const result = app.call("coolcats", "main", "use_handle", {handle: "buffaloBill"})
+  console.log(result)
+  t.equal(result.error.ValidationFailed, "handle_in_use")
   t.end()
 })
