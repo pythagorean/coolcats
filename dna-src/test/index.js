@@ -9,30 +9,36 @@ const app = Container.instanceFromNameAndDna("app", "dist/bundle.json")
 // activate the new instance
 app.start()
 
+function display(result) {
+  process.stdout.write(" ".repeat(2))
+  console.log(result)
+  process.stdout.write(" ".repeat(4))
+}
+
 test("If there is no handle set returns ''", (t) => {
   const result = app.call("coolcats", "main", "get_handle", {})
-  console.log(result)
+  display(result)
   t.equal(result.value, "")
   t.end()
 })
 
 test("We can create a new handle", (t) => {
   const result = app.call("coolcats", "main", "use_handle", {handle: "buffaloBill"})
-  console.log(result)
+  display(result)
   t.equal(result.value, "QmdG4gpbEbcsK15ophm46DaAqS8j2uaTUe5qHH88Ygkbka")
   t.end()
 })
 
 test("We can retrieve the new handle", (t) => {
   const result = app.call("coolcats", "main", "get_handle", {})
-  console.log(result)
+  display(result)
   t.equal(result.value, "buffaloBill")
   t.end()
 })
 
 test("Trying to use a handle that another person is using returns 'handle_in_use'", (t) => {
   const result = app.call("coolcats", "main", "use_handle", {handle: "buffaloBill"})
-  console.log(result)
+  display(result)
   t.equal(result.error.ValidationFailed, "handle_in_use")
   t.end()
 })

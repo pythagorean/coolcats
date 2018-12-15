@@ -11,13 +11,11 @@ use hdk::{
         error::HolochainError,
         hash::HashString,
         json::JsonString,
+        cas::content::Address,
     },
 };
 
-use crate::utils::{
-    address_exists,
-    entry_exists
-};
+use crate::utils::address_exists;
 
 #[derive(Serialize, Deserialize, Debug, DefaultJson)]
 pub struct Anchor {
@@ -79,6 +77,17 @@ pub fn anchor(anchor_type: &str, anchor_text: &str) -> ZomeApiResult<HashString>
     Ok(anchor_address)
 }
 
-pub fn anchor_exists(anchor_type: &str, anchor_text: &str) -> ZomeApiResult<bool> {
-    entry_exists(&Anchor::entry(anchor_type, anchor_text))
+pub fn anchor_text(anchor_address: Address) -> ZomeApiResult<Option<String>> {
+    if let Some(anchor_entry) = hdk::get_entry(anchor_address)? {
+        let anchor: serde_json::Value = serde_json::from_str(
+            &anchor_entry.value().to_string()
+        ).unwrap();
+        let anchor_text = anchor["anchor_text"].to_string();
+        return Ok(Some(anchor_text.trim_matches('"').into()))
+    }
+    Ok(None)
 }
+
+//pub fn anchor_exists(anchor_type: &str, anchor_text: &str) -> ZomeApiResult<bool> {
+//    entry_exists(&Anchor::entry(anchor_type, anchor_text))
+//}

@@ -7,6 +7,13 @@ pub struct Settings {
     use_handle_text: String,
 }
 
+fn use_handle(_handle_text: &str) {}
+fn get_first_name() -> Option<String> { Some("".into()) }
+fn set_first_name(name: &str) {
+    js! { alert("set_first_name: " + @{name}) }
+}
+fn toggle_modal() {}
+
 impl Settings {
     fn on_handle_submit(&mut self) {
         let use_handle_text = &self.use_handle_text;
@@ -20,7 +27,15 @@ impl Settings {
             return
         }
 
-        js! { alert(@{use_handle_text}) };
+        use_handle(use_handle_text);
+
+        // check if a name has been set, and if not default to handle
+        match get_first_name() {
+            Some(ref first_name) if first_name.len() > 1 => (),
+            _ => set_first_name(use_handle_text),
+        };
+
+        toggle_modal();
     }
 }
 
