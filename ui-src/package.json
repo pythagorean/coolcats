@@ -1,0 +1,14 @@
+{
+    "name": "coolcats2",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "build": "webpack; cargo web build",
+        "start": "webpack; cargo web start"
+    },
+    "dependencies": {
+        "@holochain/hc-redux-middleware": "^1.0.7",
+        "webpack": "^4.27.1",
+        "webpack-cli": "^3.1.2"
+    }
+}

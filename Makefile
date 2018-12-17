@@ -21,13 +21,14 @@ dna-clean:
 	find . -name bundle.json -exec rm {} +
 
 ui:
-	(cd ui-src; cargo web build --release)
+	(cd ui-src; yarn; yarn build)
 
-ui-start:
-	(cd ui-src; cargo web start --release)
+ui-start: ui
+	(cd ui-src; yarn start)
 
 ui-update:
 	(cd ui-src; cargo update)
 
 ui-clean:
 	(cd ui-src; cargo clean)
+	(cd ui-src; rm -rf node_modules yarn.lock)

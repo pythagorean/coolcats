@@ -6,6 +6,11 @@ use yew::prelude::*;
 #[macro_use]
 extern crate stdweb;
 
+extern crate failure;
+
+#[macro_use]
+extern crate serde_derive;
+
 mod components;
 use self::components::modal::{BACKDROP_STYLE, MODAL_STYLE};
 
