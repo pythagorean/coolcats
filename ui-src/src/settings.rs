@@ -93,9 +93,6 @@ impl Component for Settings {
                 return false;
             },
             Msg::OnHandleSubmit => {
-                js! {
-                    assert.strictEqual(1,2);
-                }
                 self.on_handle_submit();
             },
             Msg::WsReady(_response) => {

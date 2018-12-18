@@ -12,6 +12,9 @@ dna:
 dna-test:
 	(cd dna-src; hc test)
 
+dna-start: dna
+	(cd dna-src; hc run)
+
 dna-update:
 	(cd dna-src/zomes/coolcats/code; cargo update)
 
@@ -23,8 +26,8 @@ dna-clean:
 ui:
 	(cd ui-src; yarn; yarn build)
 
-ui-start: ui
-	(cd ui-src; yarn start)
+ui-start:
+	(cd ui-src; yarn; yarn start)
 
 ui-update:
 	(cd ui-src; cargo update)

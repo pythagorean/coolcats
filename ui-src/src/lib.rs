@@ -11,6 +11,8 @@ extern crate failure;
 #[macro_use]
 extern crate serde_derive;
 
+pub mod redux;
+
 mod components;
 use self::components::modal::{BACKDROP_STYLE, MODAL_STYLE};
 
