@@ -1,7 +1,8 @@
-import { Client } from 'rpc-websockets'
-import { holochainMiddleware } from '@holochain/hc-redux-middleware'
+// Any Javascript library imports and Typescript initialization code can go here
 
-// borrowed from https://github.com/holochain/holochain-ui/blob/develop/ui-src/src/utils/hc-web-client.ts
+import { Client } from 'rpc-websockets'
+
+// Borrowed from https://github.com/holochain/holochain-ui/blob/develop/ui-src/src/utils/hc-web-client.ts
 const connect = (url: string): any => new Promise((fulfill, reject) => {
   const ws = new Client(url)
   ws.on('open', () => {
@@ -14,6 +15,6 @@ const connect = (url: string): any => new Promise((fulfill, reject) => {
   })
 })
 
-// export to redux.rs
-declare var hcMw: any
-hcMw = holochainMiddleware(connect('ws://localhost:8888'))
+// Export to Rust
+declare var holoclient: any
+holoclient = holoclient || {connect}

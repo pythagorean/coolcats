@@ -2,12 +2,12 @@ extern crate yew;
 extern crate coolcats2;
 
 use yew::prelude::App;
-use coolcats2::AppModel;
-use coolcats2::redux::Redux;
+use coolcats2::Model;
+use coolcats2::holoclient::HoloclientService;
 
 fn main() {
-    Redux::create("testing");
+    HoloclientService::new().connect();
     yew::initialize();
-    App::<AppModel>::new().mount_to_body();
+    App::<Model>::new().mount_to_body();
     yew::run_loop();
 }
