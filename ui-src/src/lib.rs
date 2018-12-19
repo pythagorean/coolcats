@@ -6,18 +6,18 @@ use yew::prelude::*;
 #[macro_use]
 extern crate stdweb;
 
-extern crate failure;
-
 #[macro_use]
 extern crate serde_derive;
 
-pub mod holoclient;
-
-mod app;
 mod components;
 mod settings;
+mod holoclient;
+mod app;
 
-use crate::app::App;
+use crate::{
+    holoclient::Holoclient,
+    app::App,
+};
 
 pub struct Model;
 
@@ -39,7 +39,8 @@ impl Component for Model {
 impl Renderable<Model> for Model {
     fn view(&self) -> Html<Self> {
         html! {
-            <App: show=true,/>
+            <Holoclient: show=true,/>
+            //<App: show=true,/>
         }
     }
 }

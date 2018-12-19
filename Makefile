@@ -6,8 +6,12 @@ update: dna-update ui-update
 
 clean: dna-clean ui-clean
 
+build: dna-build ui-build
+
 dna:
 	(cd dna-src; hc package)
+
+dna-build: dna
 
 dna-test:
 	(cd dna-src; hc test)
@@ -25,6 +29,8 @@ dna-clean:
 
 ui:
 	(cd ui-src; yarn; yarn build)
+
+ui-build: ui
 
 ui-start:
 	(cd ui-src; yarn; yarn start)

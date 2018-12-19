@@ -1,23 +1,10 @@
-use failure::Error;
-
-use yew::{
-    prelude::*,
-    format::Json,
-    services::websocket::{
-        WebSocketService,
-        WebSocketTask,
-        WebSocketStatus,
-    },
-};
+use yew::prelude::*;
 
 const MAX_HANDLE_LENGTH: usize = 20;
 
 pub struct Settings {
     show: bool,
     use_handle_text: String,
-    ws_service: WebSocketService,
-    link: ComponentLink<Settings>,
-    ws: Option<WebSocketTask>
 }
 
 fn get_first_name() -> Option<String> { Some("".into()) }
@@ -28,33 +15,10 @@ fn set_first_name(name: &str) {
 
 fn toggle_modal() {}
 
-//type AsBinary = bool;
-
-pub enum WsAction {
-    Connect,
-    //SendData(AsBinary),
-    //Disconnect,
-    Lost,
-}
-
-/// This type is an expected response from a websocket connection.
-#[derive(Deserialize, Debug)]
-pub struct WsResponse {
-    value: u32,
-}
-
 pub enum Msg {
     UpdateHandleText(ChangeData),
     OnHandleSubmit,
-    WsAction(WsAction),
-    WsReady(Result<WsResponse, Error>),
     Ignore,
-}
-
-impl From<WsAction> for Msg {
-    fn from(action: WsAction) -> Self {
-        Msg::WsAction(action)
-    }
 }
 
 #[derive(PartialEq, Clone)]
@@ -74,16 +38,11 @@ impl Component for Settings {
     type Message = Msg;
     type Properties = Props;
 
-    fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
-        let mut settings = Settings {
+    fn create(props: Self::Properties, _: ComponentLink<Self>) -> Self {
+        Settings {
             show: props.show,
             use_handle_text: String::from(""),
-            ws_service: WebSocketService::new(),
-            link,
-            ws: None,
-        };
-        settings.update(WsAction::Connect.into());
-        settings
+        }
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
@@ -92,32 +51,11 @@ impl Component for Settings {
                 self.use_handle_text = handle_text;
                 return false;
             },
+            Msg::UpdateHandleText(_) => (),
             Msg::OnHandleSubmit => {
                 self.on_handle_submit();
             },
-            Msg::WsReady(_response) => {
-                js! { alert("WsReady") }
-            },
-            Msg::WsAction(action) => {
-                match action {
-                    WsAction::Connect => {
-                        let callback = self.link.send_back(|Json(data)| Msg::WsReady(data));
-                        let notification = self.link.send_back(|status| {
-                            match status {
-                                WebSocketStatus::Opened => Msg::Ignore,
-                                WebSocketStatus::Closed | WebSocketStatus::Error => WsAction::Lost.into(),
-                            }
-                        });
-                        let task = self.ws_service.connect("ws://localhost:8888", callback, notification);
-                        self.ws = Some(task);
-                    },
-                    WsAction::Lost => {
-                        self.ws = None;
-                    }
-                }
-            },
             Msg::Ignore => (),
-            _ => ()
         };
         true
     }
