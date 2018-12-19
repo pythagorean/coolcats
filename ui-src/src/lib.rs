@@ -1,7 +1,10 @@
 #![recursion_limit="128"]
 #[macro_use]
 extern crate yew;
-use yew::prelude::*;
+use yew::{
+    prelude::*,
+    html::Scope,
+};
 
 #[macro_use]
 extern crate stdweb;
@@ -19,28 +22,54 @@ use crate::{
     app::App,
 };
 
-pub struct Model;
+pub enum ModelType {
+    Holoclient,
+    App
+}
 
-pub enum Msg {}
+pub struct Model {
+    show: Option<ModelType>,
+    partner: Option<Scope<Model>>,
+}
+
+pub enum Msg {
+    SetModel(ModelType, Scope<Model>),
+}
 
 impl Component for Model {
     type Message = Msg;
     type Properties = ();
 
     fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
-        Model {}
+        Model {
+            show: None,
+            partner: None,
+        }
     }
 
-    fn update(&mut self, _msg: Self::Message) -> ShouldRender {
+    fn update(&mut self, msg: Self::Message) -> ShouldRender {
+        match msg {
+            Msg::SetModel(show, partner) => {
+                self.show = Some(show);
+                self.partner = Some(partner);
+            }
+        }
         true
     }
 }
 
 impl Renderable<Model> for Model {
     fn view(&self) -> Html<Self> {
-        html! {
-            <Holoclient: show=true,/>
-            //<App: show=true,/>
+        match self.show {
+            Some(ModelType::Holoclient) => html! {
+                <Holoclient: show=true,/>
+            },
+
+            Some(ModelType::App) => html! {
+                <App: show=true,/>
+            },
+
+            None => html! { <div /> }
         }
     }
 }
