@@ -6,20 +6,22 @@ use crate::settings::Settings;
 const DEFAULT_PROFILE_PIC: &str = "/cat-eating-bird-circle.png";
 
 pub struct App {
-    show: bool,
+    to_model: Option<Callback<String>>,
 }
 
-pub enum Msg {}
+pub enum Msg {
+    ToModel(String),
+}
 
 #[derive(PartialEq, Clone)]
 pub struct Props {
-    pub show: bool,
+    pub to_model: Option<Callback<String>>,
 }
 
 impl Default for Props {
     fn default() -> Self {
         Props {
-            show: false,
+            to_model: None,
         }
     }
 }
@@ -30,17 +32,35 @@ impl Component for App {
 
     fn create(props: Self::Properties, _: ComponentLink<Self>) -> Self {
         App {
-            show: props.show,
+            to_model: props.to_model,
         }
     }
 
-    fn update(&mut self, _msg: Self::Message) -> ShouldRender {
+    fn update(&mut self, msg: Self::Message) -> ShouldRender {
+        match msg {
+            Msg::ToModel(text) => {
+                if let Some(ref mut to_model) = self.to_model {
+                    to_model.emit(text);
+                }
+            }
+        }
         true
+    }
+
+    fn change(&mut self, _props: Self::Properties) -> ShouldRender {
+        //self.to_model = props.to_model;
+        false
     }
 }
 
 impl Renderable<App> for App {
     fn view(&self) -> Html<Self> {
+        return html! {
+            <div>
+                <button onclick=|_| Msg::ToModel("Test".into()),>{ "Test" }</button>
+            </div>
+        };
+
         let modal_is_open = true; // self.modal_is_open;
         let profile_pic = "";
         match modal_is_open {
@@ -50,7 +70,7 @@ impl Renderable<App> for App {
                         <div align="center",>
                             <p classname="h1",>{"Welcome to Coolcats2!"}</p>
                         </div>
-                        <Settings: show=true,/>
+                        <Settings:/>
                     </div>
                 </div>
             }, _ => html! {
@@ -70,7 +90,7 @@ impl Renderable<App> for App {
                                     />
                                 </div>
                                 <div id="displayName",>
-                                    {&format!("show: {}", self.show)}
+                                    {&format!("show: {}", true)}
                                 </div>
                             </div>
                         </div>

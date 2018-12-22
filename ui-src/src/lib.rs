@@ -34,6 +34,10 @@ pub struct Model {
 
 pub enum Msg {
     SetModel(ModelType, Scope<Model>),
+    ToPartner(String),
+    FromPartner(String),
+    Holoclient(String),
+    App(String),
 }
 
 impl Component for Model {
@@ -52,7 +56,25 @@ impl Component for Model {
             Msg::SetModel(show, partner) => {
                 self.show = Some(show);
                 self.partner = Some(partner);
-            }
+            },
+            Msg::ToPartner(text) => {
+                self.partner.as_mut().unwrap().send_message(Msg::FromPartner(text));
+            },
+            Msg::FromPartner(text) => {
+                js! { alert(@{
+                    format!{"{}", text}
+                })};
+            },
+            Msg::Holoclient(text) => {
+                js! { alert(@{
+                    format!{"Holoclient: {}", text}
+                })};
+            },
+            Msg::App(text) => {
+                js! { alert(@{
+                    format!{"App: {}", text}
+                })};
+            },
         }
         true
     }
@@ -62,11 +84,14 @@ impl Renderable<Model> for Model {
     fn view(&self) -> Html<Self> {
         match self.show {
             Some(ModelType::Holoclient) => html! {
-                <Holoclient: show=true,/>
+                <Holoclient: to_model=|data| Msg::Holoclient(data),/>
             },
 
             Some(ModelType::App) => html! {
-                <App: show=true,/>
+                <App: to_model=|data| Msg::App(data),/>
+                //<div>
+                //    <button onclick=|_| Msg::ToPartner("Test".into()),>{ "Test" }</button>
+                //</div>
             },
 
             None => html! { <div /> }

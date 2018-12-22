@@ -13,25 +13,29 @@ use yew::{
 const HOLOCHAIN_SERVER: &str = "ws://localhost:8888";
 
 pub struct Holoclient {
-    show: bool,
     ws_service: WebSocketService,
     link: ComponentLink<Holoclient>,
-    ws: Option<WebSocketTask>
+    ws: Option<WebSocketTask>,
+    to_model: Option<Callback<String>>,
 }
 
-//type AsBinary = bool;
-
-pub enum WsAction {
-    Connect,
-    //SendData(AsBinary),
-    //Disconnect,
-    Lost,
+/// This type is used as a request which sent to websocket connection.
+#[derive(Serialize, Debug)]
+pub struct WsRequest {
+    value: u32,
 }
 
 /// This type is an expected response from a websocket connection.
 #[derive(Deserialize, Debug)]
 pub struct WsResponse {
     value: u32,
+}
+
+pub enum WsAction {
+    Connect,
+    SendData(WsRequest),
+    //Disconnect,
+    Lost,
 }
 
 pub enum Msg {
@@ -48,13 +52,13 @@ impl From<WsAction> for Msg {
 
 #[derive(PartialEq, Clone)]
 pub struct Props {
-    pub show: bool,
+    pub to_model: Option<Callback<String>>,
 }
 
 impl Default for Props {
     fn default() -> Self {
         Props {
-            show: false,
+            to_model: None,
         }
     }
 }
@@ -65,10 +69,10 @@ impl Component for Holoclient {
 
     fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
         let mut holoclient = Holoclient {
-            show: props.show,
             ws_service: WebSocketService::new(),
             link,
             ws: None,
+            to_model: props.to_model,
         };
         holoclient.update(WsAction::Connect.into());
         holoclient
@@ -91,7 +95,15 @@ impl Component for Holoclient {
                         });
                         let task = self.ws_service.connect(HOLOCHAIN_SERVER, callback, notification);
                         self.ws = Some(task);
+                        //let request = WsRequest { value: 420 };
+                        //self.update(WsAction::SendData(request).into());
+                        if let Some(ref mut to_model) = self.to_model {
+                            to_model.emit("We Get Signal!".into());
+                        }
                     },
+                    WsAction::SendData(request) => {
+                        self.ws.as_mut().unwrap().send(Json(&request));
+                    }
                     WsAction::Lost => {
                         self.ws = None;
                     }
@@ -101,16 +113,15 @@ impl Component for Holoclient {
         };
         true
     }
+
+    fn change(&mut self, _props: Self::Properties) -> ShouldRender {
+        //self.to_model = props.to_model;
+        false
+    }
 }
 
 impl Renderable<Holoclient> for Holoclient {
     fn view(&self) -> Html<Self> {
-        // Render nothing if the "show" prop is false
-        if !self.show {
-            return html! { <div /> };
-        }
-        html! {
-            <div />
-        }
+        html! { <div /> }
     }
 }

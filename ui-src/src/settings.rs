@@ -3,7 +3,6 @@ use yew::prelude::*;
 const MAX_HANDLE_LENGTH: usize = 20;
 
 pub struct Settings {
-    show: bool,
     use_handle_text: String,
 }
 
@@ -21,26 +20,12 @@ pub enum Msg {
     Ignore,
 }
 
-#[derive(PartialEq, Clone)]
-pub struct Props {
-    pub show: bool,
-}
-
-impl Default for Props {
-    fn default() -> Self {
-        Props {
-            show: false,
-        }
-    }
-}
-
 impl Component for Settings {
     type Message = Msg;
-    type Properties = Props;
+    type Properties = ();
 
-    fn create(props: Self::Properties, _: ComponentLink<Self>) -> Self {
+    fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
         Settings {
-            show: props.show,
             use_handle_text: String::from(""),
         }
     }
@@ -52,9 +37,11 @@ impl Component for Settings {
                 return false;
             },
             Msg::UpdateHandleText(_) => (),
+
             Msg::OnHandleSubmit => {
                 self.on_handle_submit();
             },
+
             Msg::Ignore => (),
         };
         true
@@ -91,10 +78,6 @@ impl Settings {
 
 impl Renderable<Settings> for Settings {
     fn view(&self) -> Html<Self> {
-        // Render nothing if the "show" prop is false
-        if !self.show {
-            return html! { </> };
-        }
         let use_handle_text = &self.use_handle_text;
         let handle_taken = false;
         html! {

@@ -6,9 +6,7 @@
         "build": "webpack; cargo web build",
         "start": "webpack; cargo web start"
     },
-    "dependencies": {
-        "rpc-websockets": "^4.3.5"
-    },
+    "dependencies": {},
     "devDependencies": {
         "ts-loader": "^5.3.1",
         "typescript": "^3.2.2",

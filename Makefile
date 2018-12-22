@@ -3,6 +3,7 @@ all:	dna ui
 test: dna-test
 
 update: dna-update ui-update
+	rustup update
 
 clean: dna-clean ui-clean
 
