@@ -2,20 +2,27 @@ use yew::prelude::*;
 
 use crate::components::modal::{BACKDROP_STYLE, MODAL_STYLE};
 use crate::settings::Settings;
+use crate::ToHoloclient;
 
 const DEFAULT_PROFILE_PIC: &str = "/cat-eating-bird-circle.png";
 
 pub struct App {
-    to_model: Option<Callback<String>>,
+    to_model: Option<Callback<ToHoloclient>>,
 }
 
 pub enum Msg {
-    ToModel(String),
+    ToModel(ToHoloclient),
+}
+
+impl From<ToHoloclient> for Msg {
+    fn from(msg: ToHoloclient) -> Self {
+        Msg::ToModel(msg)
+    }
 }
 
 #[derive(PartialEq, Clone)]
 pub struct Props {
-    pub to_model: Option<Callback<String>>,
+    pub to_model: Option<Callback<ToHoloclient>>,
 }
 
 impl Default for Props {
@@ -38,9 +45,9 @@ impl Component for App {
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Msg::ToModel(text) => {
+            Msg::ToModel(msg) => {
                 if let Some(ref mut to_model) = self.to_model {
-                    to_model.emit(text);
+                    to_model.emit(msg);
                 }
             }
         }
@@ -57,7 +64,11 @@ impl Renderable<App> for App {
     fn view(&self) -> Html<Self> {
         return html! {
             <div>
-                <button onclick=|_| Msg::ToModel("Test".into()),>{ "Test" }</button>
+                <button
+                    onclick=|_| ToHoloclient::Msg("Test".into()).into(),
+                >
+                    { "Test" }
+                </button>
             </div>
         };
 

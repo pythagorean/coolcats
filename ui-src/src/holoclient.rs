@@ -16,7 +16,7 @@ pub struct Holoclient {
     ws_service: WebSocketService,
     link: ComponentLink<Holoclient>,
     ws: Option<WebSocketTask>,
-    to_model: Option<Callback<String>>,
+    root_callback: Option<Callback<String>>,
 }
 
 /// This type is used as a request which sent to websocket connection.
@@ -52,13 +52,15 @@ impl From<WsAction> for Msg {
 
 #[derive(PartialEq, Clone)]
 pub struct Props {
-    pub to_model: Option<Callback<String>>,
+    pub params: String,
+    pub root_callback: Option<Callback<String>>,
 }
 
 impl Default for Props {
     fn default() -> Self {
         Props {
-            to_model: None,
+            params: "".into(),
+            root_callback: None,
         }
     }
 }
@@ -72,7 +74,7 @@ impl Component for Holoclient {
             ws_service: WebSocketService::new(),
             link,
             ws: None,
-            to_model: props.to_model,
+            root_callback: props.root_callback,
         };
         holoclient.update(WsAction::Connect.into());
         holoclient
@@ -97,8 +99,8 @@ impl Component for Holoclient {
                         self.ws = Some(task);
                         //let request = WsRequest { value: 420 };
                         //self.update(WsAction::SendData(request).into());
-                        if let Some(ref mut to_model) = self.to_model {
-                            to_model.emit("We Get Signal!".into());
+                        if let Some(ref mut root_callback) = self.root_callback {
+                            root_callback.emit("We Get Signal!".into());
                         }
                     },
                     WsAction::SendData(request) => {
@@ -114,8 +116,12 @@ impl Component for Holoclient {
         true
     }
 
-    fn change(&mut self, _props: Self::Properties) -> ShouldRender {
-        //self.to_model = props.to_model;
+    fn change(&mut self, props: Self::Properties) -> ShouldRender {
+        if !props.params.is_empty() {
+            js! { alert(@{
+                format!{"Holoclient params: {}", props.params}
+            })};
+        }
         false
     }
 }

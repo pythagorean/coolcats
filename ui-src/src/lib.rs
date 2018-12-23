@@ -28,16 +28,21 @@ pub enum ModelType {
 }
 
 pub struct Model {
-    show: Option<ModelType>,
+    model_type: Option<ModelType>,
     partner: Option<Scope<Model>>,
+    params: String,
+}
+
+#[derive(Debug)]
+pub enum ToHoloclient {
+    Msg(String),
 }
 
 pub enum Msg {
     SetModel(ModelType, Scope<Model>),
-    ToPartner(String),
-    FromPartner(String),
-    Holoclient(String),
-    App(String),
+    FromHoloclient(String),
+    FromApp(ToHoloclient),
+    ToHoloclient(ToHoloclient),
 }
 
 impl Component for Model {
@@ -46,34 +51,39 @@ impl Component for Model {
 
     fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
         Model {
-            show: None,
+            model_type: None,
             partner: None,
+            params: "".into(),
         }
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Msg::SetModel(show, partner) => {
-                self.show = Some(show);
+            Msg::SetModel(model_type, partner) => {
+                self.model_type = Some(model_type);
                 self.partner = Some(partner);
             },
-            Msg::ToPartner(text) => {
-                self.partner.as_mut().unwrap().send_message(Msg::FromPartner(text));
-            },
-            Msg::FromPartner(text) => {
-                js! { alert(@{
-                    format!{"{}", text}
-                })};
-            },
-            Msg::Holoclient(text) => {
+            Msg::FromHoloclient(text) => {
                 js! { alert(@{
                     format!{"Holoclient: {}", text}
                 })};
             },
-            Msg::App(text) => {
-                js! { alert(@{
-                    format!{"App: {}", text}
-                })};
+            Msg::FromApp(msg) => {
+                if let Some(ModelType::App) = self.model_type {
+                    self.partner.as_mut().unwrap().send_message(Msg::ToHoloclient(msg));
+                    return false;
+                } else {
+                    panic!("FromApp not sent from App");
+                }
+            },
+            Msg::ToHoloclient(msg_from_app) => {
+                if let Some(ModelType::Holoclient) = self.model_type {
+                    match msg_from_app {
+                        ToHoloclient::Msg(msg) => self.params = msg,
+                    }
+                } else {
+                    panic!("ToHoloclient not sent to Holoclient");
+                }
             },
         }
         true
@@ -82,16 +92,16 @@ impl Component for Model {
 
 impl Renderable<Model> for Model {
     fn view(&self) -> Html<Self> {
-        match self.show {
+        match self.model_type {
             Some(ModelType::Holoclient) => html! {
-                <Holoclient: to_model=|data| Msg::Holoclient(data),/>
+                <Holoclient:
+                    params = self.params.clone(),
+                    root_callback = |data| Msg::FromHoloclient(data),
+                />
             },
 
             Some(ModelType::App) => html! {
-                <App: to_model=|data| Msg::App(data),/>
-                //<div>
-                //    <button onclick=|_| Msg::ToPartner("Test".into()),>{ "Test" }</button>
-                //</div>
+                <App: to_model=|data| Msg::FromApp(data),/>
             },
 
             None => html! { <div /> }
