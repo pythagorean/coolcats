@@ -7,28 +7,30 @@ use crate::ToHoloclient;
 const DEFAULT_PROFILE_PIC: &str = "/cat-eating-bird-circle.png";
 
 pub struct App {
-    to_model: Option<Callback<ToHoloclient>>,
+    root_callback: Option<Callback<ToHoloclient>>,
 }
 
 pub enum Msg {
-    ToModel(ToHoloclient),
+    ToRoot(ToHoloclient),
 }
 
 impl From<ToHoloclient> for Msg {
     fn from(msg: ToHoloclient) -> Self {
-        Msg::ToModel(msg)
+        Msg::ToRoot(msg)
     }
 }
 
 #[derive(PartialEq, Clone)]
 pub struct Props {
-    pub to_model: Option<Callback<ToHoloclient>>,
+    pub params: String,
+    pub root_callback: Option<Callback<ToHoloclient>>,
 }
 
 impl Default for Props {
     fn default() -> Self {
         Props {
-            to_model: None,
+            params: "".into(),
+            root_callback: None,
         }
     }
 }
@@ -39,15 +41,15 @@ impl Component for App {
 
     fn create(props: Self::Properties, _: ComponentLink<Self>) -> Self {
         App {
-            to_model: props.to_model,
+            root_callback: props.root_callback,
         }
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Msg::ToModel(msg) => {
-                if let Some(ref mut to_model) = self.to_model {
-                    to_model.emit(msg);
+            Msg::ToRoot(msg) => {
+                if let Some(ref mut root_callback) = self.root_callback {
+                    root_callback.emit(msg);
                 }
             }
         }

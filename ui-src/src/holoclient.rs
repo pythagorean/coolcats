@@ -82,8 +82,10 @@ impl Component for Holoclient {
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Msg::WsReady(_response) => {
-                js! { alert("WsReady") }
+            Msg::WsReady(response) => {
+                if let Some(ref mut root_callback) = self.root_callback {
+                    root_callback.emit(format!("WsReady: {:?}", response))
+                }
             },
             Msg::WsAction(action) => {
                 match action {
@@ -97,11 +99,6 @@ impl Component for Holoclient {
                         });
                         let task = self.ws_service.connect(HOLOCHAIN_SERVER, callback, notification);
                         self.ws = Some(task);
-                        //let request = WsRequest { value: 420 };
-                        //self.update(WsAction::SendData(request).into());
-                        if let Some(ref mut root_callback) = self.root_callback {
-                            root_callback.emit("We Get Signal!".into());
-                        }
                     },
                     WsAction::SendData(request) => {
                         self.ws.as_mut().unwrap().send(Json(&request));
@@ -118,9 +115,8 @@ impl Component for Holoclient {
 
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
         if !props.params.is_empty() {
-            js! { alert(@{
-                format!{"Holoclient params: {}", props.params}
-            })};
+            let request = WsRequest { value: 420 };
+            self.update(WsAction::SendData(request).into());
         }
         false
     }

@@ -33,16 +33,21 @@ pub struct Model {
     params: String,
 }
 
-#[derive(Debug)]
 pub enum ToHoloclient {
+    Msg(String),
+}
+
+#[derive(Debug)]
+pub enum ToApp {
     Msg(String),
 }
 
 pub enum Msg {
     SetModel(ModelType, Scope<Model>),
-    FromHoloclient(String),
     FromApp(ToHoloclient),
     ToHoloclient(ToHoloclient),
+    FromHoloclient(String),
+    ToApp(String),
 }
 
 impl Component for Model {
@@ -63,28 +68,40 @@ impl Component for Model {
                 self.model_type = Some(model_type);
                 self.partner = Some(partner);
             },
-            Msg::FromHoloclient(text) => {
-                js! { alert(@{
-                    format!{"Holoclient: {}", text}
-                })};
-            },
             Msg::FromApp(msg) => {
                 if let Some(ModelType::App) = self.model_type {
                     self.partner.as_mut().unwrap().send_message(Msg::ToHoloclient(msg));
                     return false;
                 } else {
-                    panic!("FromApp not sent from App");
+                    panic!("Msg::FromApp not received in App");
                 }
             },
             Msg::ToHoloclient(msg_from_app) => {
                 if let Some(ModelType::Holoclient) = self.model_type {
-                    match msg_from_app {
-                        ToHoloclient::Msg(msg) => self.params = msg,
-                    }
+                    let ToHoloclient::Msg(msg) = msg_from_app;
+                    self.params = msg;
                 } else {
-                    panic!("ToHoloclient not sent to Holoclient");
+                    panic!("Msg::ToHoloclient not received in Holoclient");
                 }
             },
+            Msg::FromHoloclient(text) => {
+                if let Some(ModelType::Holoclient) = self.model_type {
+                    self.partner.as_mut().unwrap().send_message(Msg::ToApp(text));
+                    self.params = "".into();
+                } else {
+                    panic!("Msg::FromHoloclient not received in Holoclient");
+                }
+            },
+            Msg::ToApp(msg_from_holoclient) => {
+                if let Some(ModelType::App) = self.model_type {
+                    let text = msg_from_holoclient;
+                    js! { alert(@{
+                        format!{"Msg::ToApp received {:?}", text}
+                    })};
+                } else {
+                    panic!("Msg::ToApp not received in App");
+                }
+            }
         }
         true
     }
@@ -101,7 +118,10 @@ impl Renderable<Model> for Model {
             },
 
             Some(ModelType::App) => html! {
-                <App: to_model=|data| Msg::FromApp(data),/>
+                <App:
+                    params = self.params.clone(),
+                    root_callback = |data| Msg::FromApp(data),
+                />
             },
 
             None => html! { <div /> }
