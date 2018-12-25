@@ -10,25 +10,27 @@ use yew::{
     },
 };
 
+use crate::app::ToApp;
+
 const HOLOCHAIN_SERVER: &str = "ws://localhost:8888";
 
 pub struct Holoclient {
     ws_service: WebSocketService,
     link: ComponentLink<Holoclient>,
     ws: Option<WebSocketTask>,
-    root_callback: Option<Callback<String>>,
+    callback: Option<Callback<ToApp>>,
 }
 
 /// This type is used as a request which sent to websocket connection.
 #[derive(Serialize, Debug)]
 pub struct WsRequest {
-    value: u32,
+    value: String,
 }
 
 /// This type is an expected response from a websocket connection.
 #[derive(Deserialize, Debug)]
 pub struct WsResponse {
-    value: u32,
+    value: String,
 }
 
 pub enum WsAction {
@@ -39,9 +41,16 @@ pub enum WsAction {
 }
 
 pub enum Msg {
+    Callback(ToApp),
     WsAction(WsAction),
     WsReady(Result<WsResponse, Error>),
     Ignore,
+}
+
+impl From<ToApp> for Msg {
+    fn from(msg: ToApp) -> Self {
+        Msg::Callback(msg)
+    }
 }
 
 impl From<WsAction> for Msg {
@@ -50,17 +59,23 @@ impl From<WsAction> for Msg {
     }
 }
 
+pub type Params = Vec<String>;
+
+pub enum ToHoloclient {
+    Msg(Params),
+}
+
 #[derive(PartialEq, Clone)]
 pub struct Props {
-    pub params: String,
-    pub root_callback: Option<Callback<String>>,
+    pub params: Params,
+    pub callback: Option<Callback<ToApp>>,
 }
 
 impl Default for Props {
     fn default() -> Self {
         Props {
-            params: "".into(),
-            root_callback: None,
+            params: Params::new(),
+            callback: None,
         }
     }
 }
@@ -74,7 +89,7 @@ impl Component for Holoclient {
             ws_service: WebSocketService::new(),
             link,
             ws: None,
-            root_callback: props.root_callback,
+            callback: props.callback,
         };
         holoclient.update(WsAction::Connect.into());
         holoclient
@@ -82,11 +97,18 @@ impl Component for Holoclient {
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Msg::WsReady(response) => {
-                if let Some(ref mut root_callback) = self.root_callback {
-                    root_callback.emit(format!("WsReady: {:?}", response))
+            Msg::Callback(msg) => {
+                if let Some(ref mut callback) = self.callback {
+                    callback.emit(msg);
                 }
             },
+
+            Msg::WsReady(response) => {
+                self.update(ToApp::Msg(
+                    format!{"WsReady: {:?}", response}
+                ).into());
+            },
+
             Msg::WsAction(action) => {
                 match action {
                     WsAction::Connect => {
@@ -100,14 +122,17 @@ impl Component for Holoclient {
                         let task = self.ws_service.connect(HOLOCHAIN_SERVER, callback, notification);
                         self.ws = Some(task);
                     },
+
                     WsAction::SendData(request) => {
                         self.ws.as_mut().unwrap().send(Json(&request));
                     }
+
                     WsAction::Lost => {
                         self.ws = None;
                     }
                 }
             },
+
             Msg::Ignore => (),
         };
         true
@@ -115,7 +140,8 @@ impl Component for Holoclient {
 
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
         if !props.params.is_empty() {
-            let request = WsRequest { value: 420 };
+            let value = props.params.join("/");
+            let request = WsRequest { value };
             self.update(WsAction::SendData(request).into());
         }
         false

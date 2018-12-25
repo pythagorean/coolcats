@@ -1,36 +1,44 @@
 use yew::prelude::*;
 
-use crate::components::modal::{BACKDROP_STYLE, MODAL_STYLE};
-use crate::settings::Settings;
-use crate::ToHoloclient;
+use crate::{
+    components::modal::{BACKDROP_STYLE, MODAL_STYLE},
+    settings::Settings,
+    holoclient::ToHoloclient,
+};
 
 const DEFAULT_PROFILE_PIC: &str = "/cat-eating-bird-circle.png";
 
 pub struct App {
-    root_callback: Option<Callback<ToHoloclient>>,
+    callback: Option<Callback<ToHoloclient>>,
 }
 
 pub enum Msg {
-    ToRoot(ToHoloclient),
+    Callback(ToHoloclient),
 }
 
 impl From<ToHoloclient> for Msg {
     fn from(msg: ToHoloclient) -> Self {
-        Msg::ToRoot(msg)
+        Msg::Callback(msg)
     }
+}
+
+pub type Params = String;
+
+pub enum ToApp {
+    Msg(Params),
 }
 
 #[derive(PartialEq, Clone)]
 pub struct Props {
-    pub params: String,
-    pub root_callback: Option<Callback<ToHoloclient>>,
+    pub params: Params,
+    pub callback: Option<Callback<ToHoloclient>>,
 }
 
 impl Default for Props {
     fn default() -> Self {
         Props {
-            params: "".into(),
-            root_callback: None,
+            params: Params::new(),
+            callback: None,
         }
     }
 }
@@ -41,23 +49,27 @@ impl Component for App {
 
     fn create(props: Self::Properties, _: ComponentLink<Self>) -> Self {
         App {
-            root_callback: props.root_callback,
+            callback: props.callback,
         }
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Msg::ToRoot(msg) => {
-                if let Some(ref mut root_callback) = self.root_callback {
-                    root_callback.emit(msg);
+            Msg::Callback(msg) => {
+                if let Some(ref mut callback) = self.callback {
+                    callback.emit(msg);
                 }
             }
         }
         true
     }
 
-    fn change(&mut self, _props: Self::Properties) -> ShouldRender {
-        //self.to_model = props.to_model;
+    fn change(&mut self, props: Self::Properties) -> ShouldRender {
+        if !props.params.is_empty() {
+            js! { alert(@{
+                format!{"App received {:?}", props.params}
+            })};
+        }
         false
     }
 }
@@ -67,7 +79,9 @@ impl Renderable<App> for App {
         return html! {
             <div>
                 <button
-                    onclick=|_| ToHoloclient::Msg("Test".into()).into(),
+                    onclick=|_| ToHoloclient::Msg(vec!{
+                        "Test".into(), "Abcde".into(),
+                    }).into(),
                 >
                     { "Test" }
                 </button>
