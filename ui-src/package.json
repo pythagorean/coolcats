@@ -3,8 +3,8 @@
     "version": "0.1.0",
     "private": true,
     "scripts": {
-        "build": "webpack; cargo web build",
-        "start": "webpack; cargo web start"
+        "build": "webpack; cargo +stable web build",
+        "start": "webpack; cargo +stable web start"
     },
     "dependencies": {},
     "devDependencies": {

@@ -25,7 +25,7 @@ impl From<ToHoloclient> for Msg {
 pub type Params = String;
 
 pub enum ToApp {
-    Msg(Params),
+    Response(Params),
 }
 
 #[derive(PartialEq, Clone)]
@@ -65,9 +65,10 @@ impl Component for App {
     }
 
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        if !props.params.is_empty() {
+        let holoclient_response = props.params;
+        if !holoclient_response.is_empty() {
             js! { alert(@{
-                format!{"App received {:?}", props.params}
+                format!{"App received {:?}", holoclient_response}
             })};
         }
         false
@@ -78,11 +79,7 @@ impl Renderable<App> for App {
     fn view(&self) -> Html<Self> {
         return html! {
             <div>
-                <button
-                    onclick=|_| ToHoloclient::Msg(vec!{
-                        "Test".into(), "Abcde".into(),
-                    }).into(),
-                >
+                <button onclick=|_| ToHoloclient::Call("info/instances".into()).into(),>
                     { "Test" }
                 </button>
             </div>

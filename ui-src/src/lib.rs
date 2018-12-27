@@ -58,8 +58,12 @@ impl Component for Model {
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
             Msg::SetModel(model_type, partner) => {
-                self.model_type = Some(model_type);
-                self.partner = Some(partner);
+                if self.model_type.is_none() {
+                    self.model_type = Some(model_type);
+                    self.partner = Some(partner);
+                } else {
+                    panic! { "Msg::SetModel received within already defined model" };
+                }
             },
 
             Msg::FromApp(msg) => {
@@ -67,16 +71,16 @@ impl Component for Model {
                     self.app_params.clear();
                     self.partner.as_mut().unwrap().send_message(Msg::ToHoloclient(msg));
                 } else {
-                    panic!("Msg::FromApp not received in App");
+                    panic! { "Msg::FromApp not received in App" };
                 }
             },
 
-            Msg::ToHoloclient(msg_from_app) => {
+            Msg::ToHoloclient(params_from_app) => {
                 if let Some(ModelType::Holoclient) = self.model_type {
-                    let ToHoloclient::Msg(msg) = msg_from_app;
-                    self.holoclient_params = msg;
+                    let ToHoloclient::Call(params) = params_from_app;
+                    self.holoclient_params = params;
                 } else {
-                    panic!("Msg::ToHoloclient not received in Holoclient");
+                    panic! { "Msg::ToHoloclient not received in Holoclient" };
                 }
             },
 
@@ -85,16 +89,16 @@ impl Component for Model {
                     self.holoclient_params.clear();
                     self.partner.as_mut().unwrap().send_message(Msg::ToApp(msg));
                 } else {
-                    panic!("Msg::FromHoloclient not received in Holoclient");
+                    panic! { "Msg::FromHoloclient not received in Holoclient" };
                 }
             },
 
-            Msg::ToApp(msg_from_holoclient) => {
+            Msg::ToApp(params_from_holoclient) => {
                 if let Some(ModelType::App) = self.model_type {
-                    let ToApp::Msg(msg) = msg_from_holoclient;
-                    self.app_params = msg;
+                    let ToApp::Response(params) = params_from_holoclient;
+                    self.app_params = params;
                 } else {
-                    panic!("Msg::ToApp not received in App");
+                    panic! { "Msg::ToApp not received in App" };
                 }
             }
         }

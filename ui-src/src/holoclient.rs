@@ -21,13 +21,14 @@ pub struct Holoclient {
     callback: Option<Callback<ToApp>>,
 }
 
-/// This type is used as a request which sent to websocket connection.
 #[derive(Serialize, Debug)]
-pub struct WsRequest {
-    value: String,
+pub struct WsRPC {
+    method: String,
+    params: Vec<String>,
+    timeout: usize,
+    ws_opts: String,
 }
 
-/// This type is an expected response from a websocket connection.
 #[derive(Deserialize, Debug)]
 pub struct WsResponse {
     value: String,
@@ -35,8 +36,7 @@ pub struct WsResponse {
 
 pub enum WsAction {
     Connect,
-    SendData(WsRequest),
-    //Disconnect,
+    Call(WsRPC),
     Lost,
 }
 
@@ -59,10 +59,77 @@ impl From<WsAction> for Msg {
     }
 }
 
-pub type Params = Vec<String>;
+#[derive(PartialEq, Clone, Debug)]
+pub struct Call {
+    method: String,
+    params: Vec<String>,
+}
+
+impl Call {
+    pub fn new() -> Self {
+        Call {
+            method: String::new(),
+            params: Vec::new(),
+        }
+    }
+
+    pub fn clear(&mut self) {
+        self.method.clear();
+        self.params.clear();
+    }
+}
+
+impl From<&str> for Call {
+    fn from(method: &str) -> Self {
+        Call {
+            method: method.into(),
+            params: Vec::new(),
+        }
+    }
+}
+
+impl From<(&str, Vec<String>)> for Call {
+    fn from(args: (&str, Vec<String>)) -> Self {
+        Call {
+            method: args.0.into(),
+            params: args.1,
+        }
+    }
+}
+
+impl From<Vec<String>> for Call {
+    fn from(method: Vec<String>) -> Self {
+        Call {
+            method: method.join("/"),
+            params: Vec::new(),
+        }
+    }
+}
+
+impl From<(Vec<String>, Vec<String>)> for Call {
+    fn from(vecs: (Vec<String>, Vec<String>)) -> Self {
+        Call {
+            method: vecs.0.join("/"),
+            params: vecs.1,
+        }
+    }
+}
+
+impl From<Call> for WsRPC {
+    fn from(call: Call) -> Self {
+        WsRPC {
+            method: call.method,
+            params: call.params,
+            timeout: 0,
+            ws_opts: String::new(),
+        }
+    }
+}
+
+pub type Params = Call;
 
 pub enum ToHoloclient {
-    Msg(Params),
+    Call(Params),
 }
 
 #[derive(PartialEq, Clone)]
@@ -97,6 +164,8 @@ impl Component for Holoclient {
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
+            Msg::Ignore => (),
+
             Msg::Callback(msg) => {
                 if let Some(ref mut callback) = self.callback {
                     callback.emit(msg);
@@ -104,7 +173,7 @@ impl Component for Holoclient {
             },
 
             Msg::WsReady(response) => {
-                self.update(ToApp::Msg(
+                self.update(ToApp::Response(
                     format!{"WsReady: {:?}", response}
                 ).into());
             },
@@ -112,6 +181,7 @@ impl Component for Holoclient {
             Msg::WsAction(action) => {
                 match action {
                     WsAction::Connect => {
+                        if self.ws.is_some() { return false; }
                         let callback = self.link.send_back(|Json(data)| Msg::WsReady(data));
                         let notification = self.link.send_back(|status| {
                             match status {
@@ -123,26 +193,29 @@ impl Component for Holoclient {
                         self.ws = Some(task);
                     },
 
-                    WsAction::SendData(request) => {
-                        self.ws.as_mut().unwrap().send(Json(&request));
-                    }
+                    WsAction::Call(rpc) => {
+                        js! {
+                            alert(@{
+                                format! { "WsAction::Call({:?})", rpc }
+                            })
+                        }
+                        self.ws.as_mut().unwrap().send(Json(&rpc));
+                    },
 
                     WsAction::Lost => {
                         self.ws = None;
-                    }
+                    },
                 }
             },
-
-            Msg::Ignore => (),
         };
-        true
+        false
     }
 
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        if !props.params.is_empty() {
-            let value = props.params.join("/");
-            let request = WsRequest { value };
-            self.update(WsAction::SendData(request).into());
+        let call = props.params;
+        if !call.method.is_empty() {
+            let rpc = WsRPC::from(call);
+            self.update(WsAction::Call(rpc).into());
         }
         false
     }
