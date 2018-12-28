@@ -19,14 +19,23 @@ pub struct Holoclient {
     link: ComponentLink<Holoclient>,
     ws: Option<WebSocketTask>,
     callback: Option<Callback<ToApp>>,
+    rpc_id: u32,
 }
 
 #[derive(Serialize, Debug)]
 pub struct WsRPC {
+    jsonrpc: String,
     method: String,
     params: Vec<String>,
-    timeout: usize,
-    ws_opts: String,
+    id: u32,
+}
+
+#[derive(Serialize, Debug)]
+pub struct WsRPCNoParams {
+    jsonrpc: String,
+    method: String,
+    params: Option<String>,
+    id: u32,
 }
 
 #[derive(Deserialize, Debug)]
@@ -115,13 +124,24 @@ impl From<(Vec<String>, Vec<String>)> for Call {
     }
 }
 
-impl From<Call> for WsRPC {
-    fn from(call: Call) -> Self {
+impl From<(Call, u32)> for WsRPC {
+    fn from(call_id: (Call, u32)) -> Self {
         WsRPC {
-            method: call.method,
-            params: call.params,
-            timeout: 0,
-            ws_opts: String::new(),
+            jsonrpc: "2.0".into(),
+            method: call_id.0.method,
+            params: call_id.0.params,
+            id: call_id.1,
+        }
+    }
+}
+
+impl From<WsRPC> for WsRPCNoParams {
+    fn from(rpc: WsRPC) -> Self {
+        WsRPCNoParams {
+            jsonrpc: rpc.jsonrpc,
+            method: rpc.method,
+            params: None,
+            id: rpc.id,
         }
     }
 }
@@ -157,6 +177,7 @@ impl Component for Holoclient {
             link,
             ws: None,
             callback: props.callback,
+            rpc_id: 0,
         };
         holoclient.update(WsAction::Connect.into());
         holoclient
@@ -194,12 +215,20 @@ impl Component for Holoclient {
                     },
 
                     WsAction::Call(rpc) => {
-                        js! {
-                            alert(@{
-                                format! { "WsAction::Call({:?})", rpc }
-                            })
+                        if rpc.params.is_empty() {
+                            let rpc = WsRPCNoParams::from(rpc);
+                            let json = serde_json::to_string(&rpc).unwrap();
+                            js! { alert(@{
+                                format! { "RPC: {}", json }
+                            })};
+                            self.ws.as_mut().unwrap().send(Json(&rpc));
+                        } else {
+                            let json = serde_json::to_string(&rpc).unwrap();
+                            js! { alert(@{
+                                format! { "RPC: {}", json }
+                            })};
+                            self.ws.as_mut().unwrap().send(Json(&rpc));
                         }
-                        self.ws.as_mut().unwrap().send(Json(&rpc));
                     },
 
                     WsAction::Lost => {
@@ -214,7 +243,8 @@ impl Component for Holoclient {
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
         let call = props.params;
         if !call.method.is_empty() {
-            let rpc = WsRPC::from(call);
+            self.rpc_id = self.rpc_id + 1;
+            let rpc = WsRPC::from((call, self.rpc_id));
             self.update(WsAction::Call(rpc).into());
         }
         false
