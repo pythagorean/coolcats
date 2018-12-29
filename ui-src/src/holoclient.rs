@@ -1,29 +1,108 @@
-use failure::Error;
-
 use yew::{
     prelude::*,
-    format::Json,
-    services::websocket::{
-        WebSocketService,
-        WebSocketTask,
-        WebSocketStatus,
+    services::Task,
+};
+
+use stdweb::{
+    web::{
+        WebSocket,
+        SocketReadyState,
+        IEventTarget,
+        event::{
+            SocketOpenEvent,
+            SocketCloseEvent,
+            SocketErrorEvent,
+            SocketMessageEvent,
+        },
     },
+    traits::IMessageEvent,
 };
 
 use crate::app::ToApp;
 
+pub enum WebSocketStatus {
+    Opened,
+    Closed,
+    Error,
+}
+
+pub struct WebSocketService {
+    ws: WebSocket,
+    notification: Callback<WebSocketStatus>,
+}
+
 const HOLOCHAIN_SERVER: &str = "ws://localhost:8888";
 
+impl WebSocketService {
+    pub fn new(
+        server: &str,
+        callback: Callback<String>,
+        notification: Callback<WebSocketStatus>
+    ) -> Self {
+        let ws = WebSocket::new(server).expect("Unable to connect to websocket");
+
+        let n = notification.clone();
+        ws.add_event_listener(move |_: SocketOpenEvent| {
+            n.emit(WebSocketStatus::Opened);
+        });
+
+        let n = notification.clone();
+        ws.add_event_listener(move |_: SocketCloseEvent| {
+            n.emit(WebSocketStatus::Closed);
+        });
+
+        let n = notification.clone();
+        ws.add_event_listener(move |_: SocketErrorEvent| {
+            n.emit(WebSocketStatus::Error);
+        });
+
+        ws.add_event_listener(move |event: SocketMessageEvent| {
+            if let Some(data) = event.data().into_text() {
+                callback.emit(data.into());
+            }
+        });
+
+        Self { ws, notification }
+    }
+
+    pub fn send(&mut self, json: &str) {
+        if self.ws.send_text(json).is_err() {
+            self.notification.emit(WebSocketStatus::Error);
+        } else {
+            js! { alert(@{
+                format! { "Sent: {}", json }
+            })};
+        }
+    }
+}
+
+impl Task for WebSocketService {
+    fn is_active(&self) -> bool {
+        self.ws.ready_state() == SocketReadyState::Open
+    }
+
+    fn cancel(&mut self) {
+        self.ws.close();
+    }
+}
+
+impl Drop for WebSocketService {
+    fn drop(&mut self) {
+        if self.is_active() {
+            self.cancel();
+        }
+    }
+}
+
 pub struct Holoclient {
-    ws_service: WebSocketService,
+    ws_service: Option<WebSocketService>,
     link: ComponentLink<Holoclient>,
-    ws: Option<WebSocketTask>,
     callback: Option<Callback<ToApp>>,
     rpc_id: u32,
 }
 
 #[derive(Serialize, Debug)]
-pub struct WsRPC {
+pub struct WsRpc {
     jsonrpc: String,
     method: String,
     params: Vec<String>,
@@ -31,7 +110,7 @@ pub struct WsRPC {
 }
 
 #[derive(Serialize, Debug)]
-pub struct WsRPCNoParams {
+pub struct WsRpcNoParams {
     jsonrpc: String,
     method: String,
     params: Option<String>,
@@ -45,14 +124,14 @@ pub struct WsResponse {
 
 pub enum WsAction {
     Connect,
-    Call(WsRPC),
+    Call(WsRpc),
     Lost,
 }
 
 pub enum Msg {
     Callback(ToApp),
     WsAction(WsAction),
-    WsReady(Result<WsResponse, Error>),
+    WsReady(String),
     Ignore,
 }
 
@@ -124,9 +203,9 @@ impl From<(Vec<String>, Vec<String>)> for Call {
     }
 }
 
-impl From<(Call, u32)> for WsRPC {
+impl From<(Call, u32)> for WsRpc {
     fn from(call_id: (Call, u32)) -> Self {
-        WsRPC {
+        WsRpc {
             jsonrpc: "2.0".into(),
             method: call_id.0.method,
             params: call_id.0.params,
@@ -135,9 +214,9 @@ impl From<(Call, u32)> for WsRPC {
     }
 }
 
-impl From<WsRPC> for WsRPCNoParams {
-    fn from(rpc: WsRPC) -> Self {
-        WsRPCNoParams {
+impl From<WsRpc> for WsRpcNoParams {
+    fn from(rpc: WsRpc) -> Self {
+        WsRpcNoParams {
             jsonrpc: rpc.jsonrpc,
             method: rpc.method,
             params: None,
@@ -173,9 +252,8 @@ impl Component for Holoclient {
 
     fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
         let mut holoclient = Holoclient {
-            ws_service: WebSocketService::new(),
+            ws_service: None,
             link,
-            ws: None,
             callback: props.callback,
             rpc_id: 0,
         };
@@ -195,44 +273,38 @@ impl Component for Holoclient {
 
             Msg::WsReady(response) => {
                 self.update(ToApp::Response(
-                    format!{"WsReady: {:?}", response}
+                    format!{"WsReady: {}", response}
                 ).into());
             },
 
             Msg::WsAction(action) => {
                 match action {
                     WsAction::Connect => {
-                        if self.ws.is_some() { return false; }
-                        let callback = self.link.send_back(|Json(data)| Msg::WsReady(data));
+                        if self.ws_service.is_some() { return false; }
+                        let callback = self.link.send_back(|data| Msg::WsReady(data));
                         let notification = self.link.send_back(|status| {
                             match status {
                                 WebSocketStatus::Opened => Msg::Ignore,
                                 WebSocketStatus::Closed | WebSocketStatus::Error => WsAction::Lost.into(),
                             }
                         });
-                        let task = self.ws_service.connect(HOLOCHAIN_SERVER, callback, notification);
-                        self.ws = Some(task);
+                        let service = WebSocketService::new(HOLOCHAIN_SERVER, callback, notification);
+                        self.ws_service = Some(service);
                     },
 
                     WsAction::Call(rpc) => {
+                        let json: String;
                         if rpc.params.is_empty() {
-                            let rpc = WsRPCNoParams::from(rpc);
-                            let json = serde_json::to_string(&rpc).unwrap();
-                            js! { alert(@{
-                                format! { "RPC: {}", json }
-                            })};
-                            self.ws.as_mut().unwrap().send(Json(&rpc));
+                            let rpc = WsRpcNoParams::from(rpc);
+                            json = serde_json::to_string(&rpc).unwrap();
                         } else {
-                            let json = serde_json::to_string(&rpc).unwrap();
-                            js! { alert(@{
-                                format! { "RPC: {}", json }
-                            })};
-                            self.ws.as_mut().unwrap().send(Json(&rpc));
+                            json = serde_json::to_string(&rpc).unwrap();
                         }
+                        self.ws_service.as_mut().unwrap().send(&json);
                     },
 
                     WsAction::Lost => {
-                        self.ws = None;
+                        self.ws_service = None;
                     },
                 }
             },
@@ -244,7 +316,7 @@ impl Component for Holoclient {
         let call = props.params;
         if !call.method.is_empty() {
             self.rpc_id = self.rpc_id + 1;
-            let rpc = WsRPC::from((call, self.rpc_id));
+            let rpc = WsRpc::from((call, self.rpc_id));
             self.update(WsAction::Call(rpc).into());
         }
         false
