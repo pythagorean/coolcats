@@ -24,7 +24,7 @@ dna-update:
 	(cd dna-src/zomes/coolcats/code; cargo +nightly update)
 
 dna-clean:
-	(cd dna-src/zomes/coolcats/code; cargo +nightly clean)
+	(cd dna-src/zomes/coolcats/code; cargo +nightly clean && rm -f Cargo.lock)
 	(cd dna-src/test; rm -rf node_modules package-lock.json)
 	find . -name bundle.json -exec rm {} +
 
@@ -40,5 +40,5 @@ ui-update:
 	(cd ui-src; cargo +stable update)
 
 ui-clean:
-	(cd ui-src; cargo +stable clean)
+	(cd ui-src; cargo +stable clean && rm -f Cargo.lock)
 	(cd ui-src; rm -rf node_modules yarn.lock)

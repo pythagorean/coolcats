@@ -188,9 +188,7 @@ impl Component for Holoclient {
             },
 
             Msg::WsReady(response) => {
-                self.update(ToApp::Response(
-                    format!{"WsReady: {}", response}
-                ).into());
+                self.update(ToApp::Response(response).into());
             },
 
             Msg::WsAction(action) => {

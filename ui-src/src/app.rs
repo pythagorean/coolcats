@@ -1,7 +1,7 @@
 use yew::prelude::*;
 
 use crate::{
-    components::modal::{BACKDROP_STYLE, MODAL_STYLE},
+    components::modal,
     settings::Settings,
     holoclient::ToHoloclient,
 };
@@ -68,7 +68,7 @@ impl Component for App {
         let holoclient_response = props.params;
         if !holoclient_response.is_empty() {
             js! { alert(@{
-                format!{"App received {:?}", holoclient_response}
+                format! { "App received: {}", holoclient_response }
             })};
         }
         false
@@ -89,10 +89,10 @@ impl Renderable<App> for App {
         let profile_pic = "";
         match modal_is_open {
             true => html! {
-                <div style={BACKDROP_STYLE},>
-                    <div style={MODAL_STYLE},>
+                <div style={ modal::BACKDROP_STYLE },>
+                    <div style={ modal::MODAL_STYLE },>
                         <div align="center",>
-                            <p classname="h1",>{"Welcome to Coolcats2!"}</p>
+                            <p classname="h1",>{ "Welcome to Coolcats2!" }</p>
                         </div>
                         <Settings:/>
                     </div>
@@ -107,14 +107,14 @@ impl Renderable<App> for App {
                                 <div classname="logo",>
                                     <img
                                         src={
-                                            if !profile_pic.is_empty() {profile_pic}
-                                            else {DEFAULT_PROFILE_PIC}
+                                            if !profile_pic.is_empty() { profile_pic }
+                                            else { DEFAULT_PROFILE_PIC }
                                         },
                                         alt="user-profile",
                                     />
                                 </div>
                                 <div id="displayName",>
-                                    {&format!("show: {}", true)}
+                                    { &format!("show: {}", true) }
                                 </div>
                             </div>
                         </div>

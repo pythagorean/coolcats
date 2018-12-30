@@ -8,6 +8,9 @@
     },
     "dependencies": {},
     "devDependencies": {
+        "css-loader": "^2.1.0",
+        "file-loader": "^3.0.1",
+        "style-loader": "^0.23.1",
         "ts-loader": "^5.3.1",
         "typescript": "^3.2.2",
         "webpack": "^4.27.1",
