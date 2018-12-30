@@ -2,7 +2,7 @@ body {
 	line-height: 1.3em;
 	height: 100%;
 	background-color: #BBB;
-	background-image: url("cats.jpg") ;
+	background-image: url("images/cats.jpg") ;
 	background-attachment: fixed;
 	background-repeat: no-repeat;
 	background-size: cover;
@@ -134,7 +134,7 @@ ul li {
 	line-height: 1.1em;
 	display: block;
 	color: white;
- 	background: url("calico2.png") no-repeat no-repeat stretch;
+ 	/* background: url("calico2.png") no-repeat no-repeat stretch; */
  	-webkit-background-clip: text;
 }
 
