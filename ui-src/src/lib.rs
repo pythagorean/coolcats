@@ -14,6 +14,7 @@ extern crate serde_derive;
 
 extern crate serde_json;
 
+mod services;
 mod components;
 mod settings;
 mod holoclient;
