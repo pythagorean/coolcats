@@ -4,6 +4,7 @@ Cargo.lock
 dist/
 node_modules/
 target/
+static/
 package-lock.json
 yarn.lock
 bundle.json

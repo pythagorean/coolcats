@@ -41,4 +41,4 @@ ui-update:
 
 ui-clean:
 	(cd ui-src; cargo +stable clean && rm -f Cargo.lock)
-	(cd ui-src; rm -rf node_modules yarn.lock)
+	(cd ui-src; rm -rf static node_modules yarn.lock)
