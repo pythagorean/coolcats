@@ -1,6 +1,5 @@
 // Any imports and Typescript initialization code can go here
 declare function require(name: string): string
-require('./index.html')
 require('./app.css')
 
 require('./images/favicon.png')

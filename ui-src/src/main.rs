@@ -24,8 +24,8 @@ fn mount_new_app(selector: &'static str) -> Scope<Model> {
 
 fn main() {
     yew::initialize();
-    let mut to_holoclient = mount_new_app(".holoclient");
-    let mut to_app = mount_new_app(".application");
+    let mut to_holoclient = mount_new_app("#holoclient");
+    let mut to_app = mount_new_app("#application");
     to_holoclient.send_message(Msg::SetModel(
         ModelType::Holoclient,
         to_app.clone()

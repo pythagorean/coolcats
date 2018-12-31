@@ -1,4 +1,6 @@
 const path = require('path');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: './src/runtime.ts',
@@ -14,7 +16,7 @@ module.exports = {
         use: [ 'style-loader', 'css-loader' ]
       },
       {
-        test: /\.(html|png|jpg|gif)$/,
+        test: /\.(png|jpg|gif)$/,
         use: [
           {
             loader: 'file-loader',
@@ -35,5 +37,28 @@ module.exports = {
     filename: 'runtime.js',
     path: path.resolve(__dirname, 'target')
   },
-  mode: 'none'
+  plugins: [
+    new CleanWebpackPlugin(['static']),
+    new HtmlWebpackPlugin({
+      inject: false,
+      template: require('html-webpack-template'),
+      filename: '../static/index.html',
+      title: 'Coolcats2',
+      meta: [{
+        name: 'viewport',
+        content: 'width=device-width, initial-scale=1, shrink-to-fit=no',
+      }],
+      links: [{
+        rel: 'stylesheet',
+        href: 'https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css',
+        integrity: 'sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS',
+        crossorigin: 'anonymous',
+      }],
+      //appMountHtmlSnippet: '<div class="holoclient"></div><div class="application"></div>',
+      appMountIds: ['holoclient', 'application'],
+      scripts: ['coolcats2.js'],
+      chunks: [],
+    }),
+  ],
+  mode: 'none',
 }
