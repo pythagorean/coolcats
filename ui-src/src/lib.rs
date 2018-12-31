@@ -14,14 +14,11 @@ extern crate serde_derive;
 
 extern crate serde_json;
 
-mod services;
-mod components;
-mod settings;
 mod holoclient;
 mod app;
 
 use crate::{
-    holoclient::{Holoclient, ToHoloclient},
+    holoclient::holoclient::{Holoclient, ToHoloclient},
     app::{App, ToApp},
 };
 
@@ -33,7 +30,7 @@ pub enum ModelType {
 pub struct Model {
     model_type: Option<ModelType>,
     partner: Option<Scope<Model>>,
-    holoclient_params: holoclient::Params,
+    holoclient_params: holoclient::holoclient::Params,
     app_params: app::Params,
 }
 
@@ -53,7 +50,7 @@ impl Component for Model {
         Model {
             model_type: None,
             partner: None,
-            holoclient_params: holoclient::Params::new(),
+            holoclient_params: holoclient::holoclient::Params::new(),
             app_params: app::Params::new(),
         }
     }

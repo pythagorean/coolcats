@@ -1,7 +1,7 @@
 use yew::prelude::*;
 
 use crate::{
-    services::websocket::{
+    holoclient::websocket::{
         WebSocketService,
         WebSocketStatus,
     },

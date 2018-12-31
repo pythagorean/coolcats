@@ -1,9 +1,12 @@
+pub mod components;
+pub mod settings;
+
 use yew::prelude::*;
 
 use crate::{
-    components::modal,
-    settings::Settings,
-    holoclient::ToHoloclient,
+    app::components::modal,
+    app::settings::Settings,
+    holoclient::holoclient::ToHoloclient,
 };
 
 const DEFAULT_PROFILE_PIC: &str = "/cat-eating-bird-circle.png";

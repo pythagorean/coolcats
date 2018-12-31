@@ -38,7 +38,7 @@ module.exports = {
     path: path.resolve(__dirname, 'target')
   },
   plugins: [
-    new CleanWebpackPlugin(['static']),
+    new CleanWebpackPlugin([ 'static' ]),
     new HtmlWebpackPlugin({
       inject: false,
       template: require('html-webpack-template'),
@@ -54,10 +54,10 @@ module.exports = {
         integrity: 'sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS',
         crossorigin: 'anonymous',
       }],
-      //appMountHtmlSnippet: '<div class="holoclient"></div><div class="application"></div>',
-      appMountIds: ['holoclient', 'application'],
-      scripts: ['coolcats2.js'],
-      chunks: [],
+      favicon: 'src/app/images/favicon.png',
+      appMountIds: [ 'holoclient', 'application' ],
+      scripts: [ 'coolcats2.js' ],
+      chunks: [ ],
     }),
   ],
   mode: 'none',
