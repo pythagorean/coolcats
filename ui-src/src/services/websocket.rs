@@ -25,7 +25,7 @@ pub enum WebSocketStatus {
 }
 
 pub struct WebSocketService {
-    ws: WebSocket,
+    websocket: WebSocket,
     notification: Callback<WebSocketStatus>,
 }
 
@@ -35,34 +35,34 @@ impl WebSocketService {
         callback: Callback<String>,
         notification: Callback<WebSocketStatus>
     ) -> Self {
-        let ws = WebSocket::new(server).expect("Unable to connect to websocket");
+        let websocket = WebSocket::new(server).expect("Unable to connect to websocket");
 
-        let n = notification.clone();
-        ws.add_event_listener(move |_: SocketOpenEvent| {
-            n.emit(WebSocketStatus::Opened);
+        let notify = notification.clone();
+        websocket.add_event_listener(move |_: SocketOpenEvent| {
+            notify.emit(WebSocketStatus::Opened);
         });
 
-        let n = notification.clone();
-        ws.add_event_listener(move |_: SocketCloseEvent| {
-            n.emit(WebSocketStatus::Closed);
+        let notify = notification.clone();
+        websocket.add_event_listener(move |_: SocketCloseEvent| {
+            notify.emit(WebSocketStatus::Closed);
         });
 
-        let n = notification.clone();
-        ws.add_event_listener(move |_: SocketErrorEvent| {
-            n.emit(WebSocketStatus::Error);
+        let notify = notification.clone();
+        websocket.add_event_listener(move |_: SocketErrorEvent| {
+            notify.emit(WebSocketStatus::Error);
         });
 
-        ws.add_event_listener(move |event: SocketMessageEvent| {
+        websocket.add_event_listener(move |event: SocketMessageEvent| {
             if let Some(data) = event.data().into_text() {
                 callback.emit(data.into());
             }
         });
 
-        Self { ws, notification }
+        Self { websocket, notification }
     }
 
     pub fn send(&mut self, json: &str) {
-        if self.ws.send_text(json).is_err() {
+        if self.websocket.send_text(json).is_err() {
             self.notification.emit(WebSocketStatus::Error);
         } else {
             js! { alert(@{
@@ -74,11 +74,11 @@ impl WebSocketService {
 
 impl Task for WebSocketService {
     fn is_active(&self) -> bool {
-        self.ws.ready_state() == SocketReadyState::Open
+        self.websocket.ready_state() == SocketReadyState::Open
     }
 
     fn cancel(&mut self) {
-        self.ws.close();
+        self.websocket.close();
     }
 }
 

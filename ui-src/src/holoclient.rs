@@ -11,7 +11,7 @@ use crate::{
 const HOLOCHAIN_SERVER: &str = "ws://localhost:8888";
 
 pub struct Holoclient {
-    ws_service: Option<WebSocketService>,
+    websocket: Option<WebSocketService>,
     link: ComponentLink<Holoclient>,
     callback: Option<Callback<ToApp>>,
     rpc_id: u32,
@@ -168,7 +168,7 @@ impl Component for Holoclient {
 
     fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
         let mut holoclient = Holoclient {
-            ws_service: None,
+            websocket: None,
             link,
             callback: props.callback,
             rpc_id: 0,
@@ -194,7 +194,7 @@ impl Component for Holoclient {
             Msg::WsAction(action) => {
                 match action {
                     WsAction::Connect => {
-                        if self.ws_service.is_some() { return false; }
+                        if self.websocket.is_some() { return false; }
                         let callback = self.link.send_back(|data| Msg::WsReady(data));
                         let notification = self.link.send_back(|status| {
                             match status {
@@ -203,7 +203,7 @@ impl Component for Holoclient {
                             }
                         });
                         let service = WebSocketService::new(HOLOCHAIN_SERVER, callback, notification);
-                        self.ws_service = Some(service);
+                        self.websocket = Some(service);
                     },
 
                     WsAction::Call(rpc) => {
@@ -214,11 +214,11 @@ impl Component for Holoclient {
                         } else {
                             json = serde_json::to_string(&rpc).unwrap();
                         }
-                        self.ws_service.as_mut().unwrap().send(&json);
+                        self.websocket.as_mut().unwrap().send(&json);
                     },
 
                     WsAction::Lost => {
-                        self.ws_service = None;
+                        self.websocket = None;
                     },
                 }
             },
