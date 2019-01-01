@@ -1,11 +1,17 @@
 use yew::prelude::*;
 
-use crate::{
-    holoclient::websocket::{
+use crate::app::ToApp;
+
+use super::{
+    websocket::{
         WebSocketService,
         WebSocketStatus,
     },
-    app::ToApp,
+    ws_rpc::{
+        self,
+        WsRpc,
+        WsRpcNoParams,
+    },
 };
 
 const HOLOCHAIN_SERVER: &str = "ws://localhost:8888";
@@ -15,22 +21,6 @@ pub struct Holoclient {
     link: ComponentLink<Holoclient>,
     callback: Option<Callback<ToApp>>,
     rpc_id: u32,
-}
-
-#[derive(Serialize, Debug)]
-pub struct WsRpc {
-    jsonrpc: String,
-    method: String,
-    params: Vec<String>,
-    id: u32,
-}
-
-#[derive(Serialize, Debug)]
-pub struct WsRpcNoParams {
-    jsonrpc: String,
-    method: String,
-    params: Option<String>,
-    id: u32,
 }
 
 #[derive(Deserialize, Debug)]
@@ -63,85 +53,7 @@ impl From<WsAction> for Msg {
     }
 }
 
-#[derive(PartialEq, Clone, Debug)]
-pub struct Call {
-    method: String,
-    params: Vec<String>,
-}
-
-impl Call {
-    pub fn new() -> Self {
-        Call {
-            method: String::new(),
-            params: Vec::new(),
-        }
-    }
-
-    pub fn clear(&mut self) {
-        self.method.clear();
-        self.params.clear();
-    }
-}
-
-impl From<&str> for Call {
-    fn from(method: &str) -> Self {
-        Call {
-            method: method.into(),
-            params: Vec::new(),
-        }
-    }
-}
-
-impl From<(&str, Vec<String>)> for Call {
-    fn from(args: (&str, Vec<String>)) -> Self {
-        Call {
-            method: args.0.into(),
-            params: args.1,
-        }
-    }
-}
-
-impl From<Vec<String>> for Call {
-    fn from(method: Vec<String>) -> Self {
-        Call {
-            method: method.join("/"),
-            params: Vec::new(),
-        }
-    }
-}
-
-impl From<(Vec<String>, Vec<String>)> for Call {
-    fn from(vecs: (Vec<String>, Vec<String>)) -> Self {
-        Call {
-            method: vecs.0.join("/"),
-            params: vecs.1,
-        }
-    }
-}
-
-impl From<(Call, u32)> for WsRpc {
-    fn from(call_id: (Call, u32)) -> Self {
-        WsRpc {
-            jsonrpc: "2.0".into(),
-            method: call_id.0.method,
-            params: call_id.0.params,
-            id: call_id.1,
-        }
-    }
-}
-
-impl From<WsRpc> for WsRpcNoParams {
-    fn from(rpc: WsRpc) -> Self {
-        WsRpcNoParams {
-            jsonrpc: rpc.jsonrpc,
-            method: rpc.method,
-            params: None,
-            id: rpc.id,
-        }
-    }
-}
-
-pub type Params = Call;
+pub type Params = ws_rpc::Call;
 
 pub enum ToHoloclient {
     Call(Params),
@@ -208,10 +120,10 @@ impl Component for Holoclient {
 
                     WsAction::Call(rpc) => {
                         let json: String;
-                        if rpc.params.is_empty() {
-                            let rpc = WsRpcNoParams::from(rpc);
+                        if rpc.has_params() {
                             json = serde_json::to_string(&rpc).unwrap();
                         } else {
+                            let rpc = WsRpcNoParams::from(rpc);
                             json = serde_json::to_string(&rpc).unwrap();
                         }
                         self.websocket.as_mut().unwrap().send(&json);
@@ -228,7 +140,7 @@ impl Component for Holoclient {
 
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
         let call = props.params;
-        if !call.method.is_empty() {
+        if call.has_method() {
             self.rpc_id = self.rpc_id + 1;
             let rpc = WsRpc::from((call, self.rpc_id));
             self.update(WsAction::Call(rpc).into());
