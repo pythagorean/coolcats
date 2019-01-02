@@ -103,36 +103,34 @@ impl Component for Holoclient {
                 self.update(ToApp::Response(response).into());
             },
 
-            Msg::WsAction(action) => {
-                match action {
-                    WsAction::Connect => {
-                        if self.websocket.is_some() { return false; }
-                        let callback = self.link.send_back(|data| Msg::WsReady(data));
-                        let notification = self.link.send_back(|status| {
-                            match status {
-                                WebSocketStatus::Opened => Msg::Ignore,
-                                WebSocketStatus::Closed | WebSocketStatus::Error => WsAction::Lost.into(),
-                            }
-                        });
-                        let service = WebSocketService::new(HOLOCHAIN_SERVER, callback, notification);
-                        self.websocket = Some(service);
-                    },
-
-                    WsAction::Call(rpc) => {
-                        let json: String;
-                        if rpc.has_params() {
-                            json = serde_json::to_string(&rpc).unwrap();
-                        } else {
-                            let rpc = WsRpcNoParams::from(rpc);
-                            json = serde_json::to_string(&rpc).unwrap();
+            Msg::WsAction(action) => match action {
+                WsAction::Connect => {
+                    if self.websocket.is_some() { return false; }
+                    let callback = self.link.send_back(|data| Msg::WsReady(data));
+                    let notification = self.link.send_back(|status| {
+                        match status {
+                            WebSocketStatus::Opened => Msg::Ignore,
+                            WebSocketStatus::Closed | WebSocketStatus::Error => WsAction::Lost.into(),
                         }
-                        self.websocket.as_mut().unwrap().send(&json);
-                    },
+                    });
+                    let service = WebSocketService::new(HOLOCHAIN_SERVER, callback, notification);
+                    self.websocket = Some(service);
+                },
 
-                    WsAction::Lost => {
-                        self.websocket = None;
-                    },
-                }
+                WsAction::Call(rpc) => {
+                    let json: String;
+                    if rpc.has_params() {
+                        json = serde_json::to_string(&rpc).unwrap();
+                    } else {
+                        let rpc = WsRpcNoParams::from(rpc);
+                        json = serde_json::to_string(&rpc).unwrap();
+                    }
+                    self.websocket.as_mut().unwrap().send(&json);
+                },
+
+                WsAction::Lost => {
+                    self.websocket = None;
+                },
             },
         };
         false
@@ -151,6 +149,6 @@ impl Component for Holoclient {
 
 impl Renderable<Holoclient> for Holoclient {
     fn view(&self) -> Html<Self> {
-        html! { <div /> }
+        html! { <></> }
     }
 }

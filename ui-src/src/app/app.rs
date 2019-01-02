@@ -3,23 +3,36 @@ use yew::prelude::*;
 use crate::holoclient::ToHoloclient;
 
 use super::{
+    utils::Dict,
     components::modal,
     settings::Settings,
 };
 
 const DEFAULT_PROFILE_PIC: &str = "/cat-eating-bird-circle.png";
 
+pub enum State {
+    Initialize,
+}
+
 pub struct App {
     callback: Option<Callback<ToHoloclient>>,
+    state: Dict,
 }
 
 pub enum Msg {
     Callback(ToHoloclient),
+    State(State),
 }
 
 impl From<ToHoloclient> for Msg {
     fn from(msg: ToHoloclient) -> Self {
         Msg::Callback(msg)
+    }
+}
+
+impl From<State> for Msg {
+    fn from(action: State) -> Self {
+        Msg::State(action)
     }
 }
 
@@ -49,9 +62,12 @@ impl Component for App {
     type Properties = Props;
 
     fn create(props: Self::Properties, _: ComponentLink<Self>) -> Self {
-        App {
+        let mut app = App {
             callback: props.callback,
-        }
+            state: Dict::new(),
+        };
+        app.update(State::Initialize.into());
+        app
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
@@ -60,8 +76,17 @@ impl Component for App {
                 if let Some(ref mut callback) = self.callback {
                     callback.emit(msg);
                 }
-            }
-        }
+            },
+
+            Msg::State(action) => match action {
+                State::Initialize => {
+                    self.state.clear();
+                    self.state.insert("posts".into(), Dict::new().into());
+                    self.state.insert("modal_is_open".into(), true.into());
+                    self.state.insert("profile_pic".into(), "".into());
+                },
+            },
+        };
         true
     }
 
@@ -78,16 +103,10 @@ impl Component for App {
 
 impl Renderable<App> for App {
     fn view(&self) -> Html<Self> {
-        return html! {
-            <div>
-                <button onclick=|_| ToHoloclient::Call("info/instances".into()).into(),>
-                    { "Test" }
-                </button>
-            </div>
-        };
+        let _posts = self.state.dict("posts".into());
+        let modal_is_open = self.state.bool("modal_is_open".into());
+        let profile_pic = self.state.string("profile_pic".into());
 
-        let modal_is_open = true; // self.modal_is_open;
-        let profile_pic = "";
         match modal_is_open {
             true => html! {
                 <div style={ modal::BACKDROP_STYLE },>
@@ -108,7 +127,7 @@ impl Renderable<App> for App {
                                 <div classname="logo",>
                                     <img
                                         src={
-                                            if !profile_pic.is_empty() { profile_pic }
+                                            if !profile_pic.is_empty() { &profile_pic }
                                             else { DEFAULT_PROFILE_PIC }
                                         },
                                         alt="user-profile",
