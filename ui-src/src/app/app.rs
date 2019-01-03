@@ -3,25 +3,25 @@ use yew::prelude::*;
 use crate::holoclient::ToHoloclient;
 
 use super::{
-    utils::Dict,
+    state::State,
     components::modal,
     settings::Settings,
 };
 
 const DEFAULT_PROFILE_PIC: &str = "/cat-eating-bird-circle.png";
 
-pub enum State {
-    Initialize,
-}
-
 pub struct App {
     callback: Option<Callback<ToHoloclient>>,
-    state: Dict,
+    state: State,
+}
+
+pub enum Action {
+    ResetState,
 }
 
 pub enum Msg {
     Callback(ToHoloclient),
-    State(State),
+    Action(Action),
 }
 
 impl From<ToHoloclient> for Msg {
@@ -30,9 +30,9 @@ impl From<ToHoloclient> for Msg {
     }
 }
 
-impl From<State> for Msg {
-    fn from(action: State) -> Self {
-        Msg::State(action)
+impl From<Action> for Msg {
+    fn from(action: Action) -> Self {
+        Msg::Action(action)
     }
 }
 
@@ -62,12 +62,10 @@ impl Component for App {
     type Properties = Props;
 
     fn create(props: Self::Properties, _: ComponentLink<Self>) -> Self {
-        let mut app = App {
+        App {
             callback: props.callback,
-            state: Dict::new(),
-        };
-        app.update(State::Initialize.into());
-        app
+            state: Default::default(),
+        }
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
@@ -78,12 +76,9 @@ impl Component for App {
                 }
             },
 
-            Msg::State(action) => match action {
-                State::Initialize => {
-                    self.state.clear();
-                    self.state.insert("posts".into(), Dict::new().into());
-                    self.state.insert("modal_is_open".into(), true.into());
-                    self.state.insert("profile_pic".into(), "".into());
+            Msg::Action(action) => match action {
+                Action::ResetState => {
+                    self.state = Default::default();
                 },
             },
         };
@@ -103,9 +98,10 @@ impl Component for App {
 
 impl Renderable<App> for App {
     fn view(&self) -> Html<Self> {
-        let _posts = self.state.dict("posts".into());
-        let modal_is_open = self.state.bool("modal_is_open".into());
-        let profile_pic = self.state.string("profile_pic".into());
+        let _posts = self.state.dict("posts");
+        let _favourites = self.state.vec("favourites");
+        let modal_is_open = self.state.bool("modal_is_open");
+        let profile_pic = self.state.string("profile_pic");
 
         match modal_is_open {
             true => html! {
