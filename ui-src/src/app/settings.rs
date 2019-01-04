@@ -1,9 +1,19 @@
 use yew::prelude::*;
 
+use crate::app::{
+    state::State,
+    Action,
+};
+
 const MAX_HANDLE_LENGTH: usize = 20;
 
+pub const USES_STATE: [&'static str; 1] = [
+    "use_handle_text",
+];
+
 pub struct Settings {
-    use_handle_text: String,
+    substate: State,
+    callback: Option<Callback<Action>>,
 }
 
 fn get_first_name() -> Option<String> { Some("".into()) }
@@ -15,25 +25,55 @@ fn set_first_name(name: &str) {
 fn toggle_modal() {}
 
 pub enum Msg {
+    Callback(Action),
     UpdateHandleText(ChangeData),
     OnHandleSubmit,
     Ignore,
 }
 
+impl From<Action> for Msg {
+    fn from(action: Action) -> Self {
+        Msg::Callback(action)
+    }
+}
+
+#[derive(PartialEq, Clone)]
+pub struct Props {
+    pub substate: State,
+    pub callback: Option<Callback<Action>>,
+}
+
+impl Default for Props {
+    fn default() -> Self {
+        Props {
+            substate: State::unset(),
+            callback: None,
+        }
+    }
+}
+
 impl Component for Settings {
     type Message = Msg;
-    type Properties = ();
+    type Properties = Props;
 
-    fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
+    fn create(props: Self::Properties, _: ComponentLink<Self>) -> Self {
         Settings {
-            use_handle_text: String::from(""),
+            substate: props.substate,
+            callback: props.callback,
         }
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
+            Msg::Callback(msg) => {
+                if let Some(ref mut callback) = self.callback {
+                    callback.emit(msg);
+                    return false;
+                }
+            },
+
             Msg::UpdateHandleText(ChangeData::Value(handle_text)) => {
-                self.use_handle_text = handle_text;
+                self.update(Action::SetString("use_handle_text".into(), handle_text.into()).into());
                 return false;
             },
             Msg::UpdateHandleText(_) => (),
@@ -46,6 +86,11 @@ impl Component for Settings {
         };
         true
     }
+
+    fn change(&mut self, props: Self::Properties) -> ShouldRender {
+        self.substate = props.substate;
+        true
+    }
 }
 
 impl Settings {
@@ -53,23 +98,23 @@ impl Settings {
     }
 
     fn on_handle_submit(&mut self) {
+        let use_handle_text = self.substate.string("use_handle_text");
+
         // empty string given as input
-        if self.use_handle_text.len() == 0 { return };
+        if use_handle_text.len() == 0 { return };
 
         // max characters exceeded
-        if self.use_handle_text.len() > MAX_HANDLE_LENGTH {
-            self.use_handle_text = String::from("");
+        if use_handle_text.len() > MAX_HANDLE_LENGTH {
+            self.update(Action::SetString("use_handle_text".into(), "".into()).into());
             return
         }
 
-        self.use_handle("abc");
-
-        //self.use_handle(self.use_handle_text);
+        self.use_handle(&use_handle_text);
 
         // check if a name has been set, and if not default to handle
         match get_first_name() {
             Some(ref first_name) if first_name.len() > 1 => (),
-            _ => set_first_name(&self.use_handle_text),
+            _ => set_first_name(&use_handle_text),
         };
 
         toggle_modal();
@@ -78,7 +123,7 @@ impl Settings {
 
 impl Renderable<Settings> for Settings {
     fn view(&self) -> Html<Self> {
-        let use_handle_text = &self.use_handle_text;
+        let use_handle_text = self.substate.string("use_handle_text");
         let handle_taken = false;
         html! {
             <div classname="panel panel-default",>

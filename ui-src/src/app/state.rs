@@ -1,6 +1,15 @@
-use super::utils::Dict;
+use super::utils::{ Dict, DictKey };
 
+#[derive(PartialEq)]
 pub struct State(Dict);
+
+pub type Key = DictKey;
+
+impl Clone for State {
+    fn clone(&self) -> Self {
+        State(self.0.clone())
+    }
+}
 
 impl Default for State {
     fn default() -> Self {
@@ -31,8 +40,21 @@ impl Default for State {
 }
 
 impl State {
-    pub fn dict(   &self, key: &str ) -> Dict        { self.0.dict(key)   }
-    pub fn string( &self, key: &str ) -> String      { self.0.string(key) }
-    pub fn bool(   &self, key: &str ) -> bool        { self.0.bool(key)   }
-    pub fn vec(    &self, key: &str ) -> Vec<String> { self.0.vec(key)    }
+    pub fn unset() -> Self {
+        State(Dict::new())
+    }
+
+    pub fn subset(&self, keys: Vec<&str>) -> Self {
+        State(self.0.subset(keys))
+    }
+
+    pub fn dict(   &self, key: &str ) -> Dict         { self.0.dict(key)   }
+    pub fn string( &self, key: &str ) -> String       { self.0.string(key) }
+    pub fn bool(   &self, key: &str ) -> Option<bool> { self.0.bool(key)   }
+    pub fn vec(    &self, key: &str ) -> Vec<String>  { self.0.vec(key)    }
+
+    pub fn set_dict(   &mut self, key: Key, value: Dict )        { self.0.set_dict(key, value)   }
+    pub fn set_string( &mut self, key: Key, value: String )      { self.0.set_string(key, value) }
+    pub fn set_bool(   &mut self, key: Key, value: bool )        { self.0.set_bool(key, value)   }
+    pub fn set_vec(    &mut self, key: Key, value: Vec<String> ) { self.0.set_vec(key, value)    }
 }

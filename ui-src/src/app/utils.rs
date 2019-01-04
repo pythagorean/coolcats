@@ -2,15 +2,18 @@ use std::collections::HashMap;
 
 pub type DictKey = String;
 
+#[derive(PartialEq)]
 pub enum DictValue {
     Dict(Dict),
     String(String),
     Bool(bool),
     Vec(Vec<String>),
+    Undefined,
 }
 
 pub type DictType = HashMap<DictKey, DictValue>;
 
+#[derive(PartialEq)]
 pub struct Dict(DictType);
 
 impl From<Dict> for DictValue {
@@ -50,6 +53,7 @@ impl Clone for DictValue {
             DictValue::String(value) => DictValue::String((*value).clone()),
             DictValue::Bool(value) => DictValue::Bool(*value),
             DictValue::Vec(value) => DictValue::Vec((*value).clone()),
+            DictValue::Undefined => DictValue::Undefined,
         }
     }
 }
@@ -74,38 +78,75 @@ impl Dict {
     }
 
     pub fn dict(&self, key: &str) -> Dict {
-        if let DictValue::Dict(value) = self.get(key) {
-            return (*value).clone();
-        } else {
-            panic! { "Dict::dict called on non-dict key" };
+        match self.get(key) {
+            DictValue::Dict(value) => value,
+            DictValue::Undefined => Dict::new(),
+            _ => panic! {
+                "Dict::dict called on non-dict key"
+            }
         }
+    }
+
+    pub fn set_dict(&mut self, key: DictKey, value: Dict) {
+        self.insert(key, DictValue::Dict(value));
     }
 
     pub fn string(&self, key: &str) -> String {
-        if let DictValue::String(value) = self.get(key) {
-            return (*value).clone();
-        } else {
-            panic! { "Dict::string called on non-string key" };
+        match self.get(key) {
+            DictValue::String(value) => value,
+            DictValue::Undefined => String::new(),
+            _ => panic! {
+                "Dict::string called on non-string key"
+            }
         }
     }
 
-    pub fn bool(&self, key: &str) -> bool {
-        if let DictValue::Bool(value) = self.get(key) {
-            return *value;
-        } else {
-            panic! { "Dict::bool called on non-bool key" };
+    pub fn set_string(&mut self, key: DictKey, value: String) {
+        self.insert(key, DictValue::String(value));
+    }
+
+    pub fn bool(&self, key: &str) -> Option<bool> {
+        match self.get(key) {
+            DictValue::Bool(value) => Some(value),
+            DictValue::Undefined => None,
+            _ => panic! {
+                "Dict::bool called on non-bool key"
+            }
         }
+    }
+
+    pub fn set_bool(&mut self, key: DictKey, value: bool) {
+        self.insert(key, DictValue::Bool(value));
     }
 
     pub fn vec(&self, key: &str) -> Vec<String> {
-        if let DictValue::Vec(value) = self.get(key) {
-            return (*value).clone();
-        } else {
-            panic! { "Dict::vec called on non-vec key" };
+        match self.get(key) {
+            DictValue::Vec(value) => value,
+            DictValue::Undefined => Vec::new(),
+            _ => panic! {
+                "Dict::vec called on non-vec key"
+            }
         }
     }
 
-    fn get(&self, key: &str) -> &DictValue {
-        self.0.get(key).unwrap()
+    pub fn set_vec(&mut self, key: DictKey, value: Vec<String>) {
+        self.insert(key, DictValue::Vec(value));
+    }
+
+    pub fn subset(&self, keys: Vec<&str>) -> Self {
+        let mut dict = Dict::new();
+        for key in keys {
+            if let Some(value) = self.0.get(key) {
+                dict.insert((*key).into(), (*value).clone());
+            }
+        }
+        dict
+    }
+
+    fn get(&self, key: &str) -> DictValue {
+        match self.0.get(key) {
+            Some(value) => value.clone(),
+            None => DictValue::Undefined,
+        }
     }
 }

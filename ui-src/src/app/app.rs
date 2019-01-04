@@ -5,7 +5,7 @@ use crate::holoclient::ToHoloclient;
 use super::{
     state::State,
     components::modal,
-    settings::Settings,
+    settings::{ self, Settings },
 };
 
 const DEFAULT_PROFILE_PIC: &str = "/cat-eating-bird-circle.png";
@@ -17,11 +17,13 @@ pub struct App {
 
 pub enum Action {
     ResetState,
+    SetString(String, String),
 }
 
 pub enum Msg {
     Callback(ToHoloclient),
     Action(Action),
+    FromComponent(Action),
 }
 
 impl From<ToHoloclient> for Msg {
@@ -80,6 +82,14 @@ impl Component for App {
                 Action::ResetState => {
                     self.state = Default::default();
                 },
+
+                Action::SetString(key, value) => {
+                    self.state.set_string(key, value);
+                },
+            },
+
+            Msg::FromComponent(action) => {
+                self.update(action.into());
             },
         };
         true
@@ -98,22 +108,24 @@ impl Component for App {
 
 impl Renderable<App> for App {
     fn view(&self) -> Html<Self> {
-        let _posts = self.state.dict("posts");
-        let _favourites = self.state.vec("favourites");
         let modal_is_open = self.state.bool("modal_is_open");
         let profile_pic = self.state.string("profile_pic");
 
         match modal_is_open {
-            true => html! {
+            Some(true) => html! {
                 <div style={ modal::BACKDROP_STYLE },>
                     <div style={ modal::MODAL_STYLE },>
                         <div align="center",>
                             <p classname="h1",>{ "Welcome to Coolcats2!" }</p>
                         </div>
-                        <Settings:/>
+                        <Settings:
+                            substate = self.state.subset(settings::USES_STATE.to_vec()),
+                            callback = |action| Msg::FromComponent(action),
+                        />
                     </div>
                 </div>
-            }, _ => html! {
+            },
+            Some(false) => html! {
                 <div classname="container",>
                     <div classname="spinner transition500",/>
                     <div classname="error transition500",/>
@@ -136,7 +148,8 @@ impl Renderable<App> for App {
                         </div>
                     </div>
                 </div>
-            }
+            },
+            _ => html! { <></> },
         }
     }
 }
