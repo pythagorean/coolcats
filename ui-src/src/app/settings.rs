@@ -7,22 +7,22 @@ use crate::app::{
 
 const MAX_HANDLE_LENGTH: usize = 20;
 
-pub const USES_STATE: [&'static str; 1] = [
-    "use_handle_text",
+// Declare what state keys will be used by this component
+const GETSTATES: [&'static str; 2] = [
+    "handle_taken",
+    "first_name",
 ];
 
+pub fn getstates() -> Vec<&'static str> {
+    GETSTATES.to_vec()
+}
+
 pub struct Settings {
-    substate: State,
+    getstate: State,
     callback: Option<Callback<Action>>,
+
+    use_handle_text: String,
 }
-
-fn get_first_name() -> Option<String> { Some("".into()) }
-
-fn set_first_name(name: &str) {
-    js! { alert("set_first_name: " + @{name}) }
-}
-
-fn toggle_modal() {}
 
 pub enum Msg {
     Callback(Action),
@@ -39,14 +39,14 @@ impl From<Action> for Msg {
 
 #[derive(PartialEq, Clone)]
 pub struct Props {
-    pub substate: State,
+    pub getstate: State,
     pub callback: Option<Callback<Action>>,
 }
 
 impl Default for Props {
     fn default() -> Self {
         Props {
-            substate: State::unset(),
+            getstate: State::unset(),
             callback: None,
         }
     }
@@ -58,8 +58,10 @@ impl Component for Settings {
 
     fn create(props: Self::Properties, _: ComponentLink<Self>) -> Self {
         Settings {
-            substate: props.substate,
+            getstate: props.getstate,
             callback: props.callback,
+
+            use_handle_text: String::new(),
         }
     }
 
@@ -68,13 +70,11 @@ impl Component for Settings {
             Msg::Callback(msg) => {
                 if let Some(ref mut callback) = self.callback {
                     callback.emit(msg);
-                    return false;
                 }
             },
 
             Msg::UpdateHandleText(ChangeData::Value(handle_text)) => {
-                self.update(Action::SetString("use_handle_text".into(), handle_text.into()).into());
-                return false;
+                self.use_handle_text = handle_text;
             },
             Msg::UpdateHandleText(_) => (),
 
@@ -84,47 +84,56 @@ impl Component for Settings {
 
             Msg::Ignore => (),
         };
-        true
+        false
     }
 
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        self.substate = props.substate;
+        self.getstate = props.getstate;
         true
     }
 }
 
 impl Settings {
-    fn use_handle(&mut self, _handle: &str) {
+    fn use_handle(&mut self, handle: &str) {
+        self.update(Action::UseHandle(handle.into()).into());
+    }
+
+    //fn toggle_modal(&mut self) {
+    //    self.update(Action::ToggleModal.into());
+    //}
+
+    fn set_first_name(&mut self, first_name: &str) {
+        self.update(Action::SetFirstName(first_name.into()).into());
     }
 
     fn on_handle_submit(&mut self) {
-        let use_handle_text = self.substate.string("use_handle_text");
+        let use_handle_text = self.use_handle_text.clone();
 
         // empty string given as input
         if use_handle_text.len() == 0 { return };
 
         // max characters exceeded
         if use_handle_text.len() > MAX_HANDLE_LENGTH {
-            self.update(Action::SetString("use_handle_text".into(), "".into()).into());
+            self.use_handle_text = String::new();
             return
         }
 
         self.use_handle(&use_handle_text);
 
         // check if a name has been set, and if not default to handle
-        match get_first_name() {
-            Some(ref first_name) if first_name.len() > 1 => (),
-            _ => set_first_name(&use_handle_text),
-        };
+        if self.getstate.string("first_name").len() == 0 {
+            self.set_first_name(&use_handle_text);
+        }
 
-        toggle_modal();
+        //self.toggle_modal();
     }
 }
 
 impl Renderable<Settings> for Settings {
     fn view(&self) -> Html<Self> {
-        let use_handle_text = self.substate.string("use_handle_text");
-        let handle_taken = false;
+        let use_handle_text = self.use_handle_text.clone();
+        let handle_taken = self.getstate.bool("handle_taken").unwrap();
+
         html! {
             <div classname="panel panel-default",>
                 <div classname="panel-body",>

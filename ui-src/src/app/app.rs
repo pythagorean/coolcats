@@ -3,6 +3,7 @@ use yew::prelude::*;
 use crate::holoclient::ToHoloclient;
 
 use super::{
+    //utils::Dict,
     state::State,
     components::modal,
     settings::{ self, Settings },
@@ -16,14 +17,21 @@ pub struct App {
 }
 
 pub enum Action {
-    ResetState,
-    SetString(String, String),
+    //SetDict(String, Dict),
+    //SetString(String, String),
+    //SetBool(String, bool),
+    //SetVec(String, Vec<String>),
+
+    //ResetState,
+    //ToggleModal,
+
+    UseHandle(String),
+    SetFirstName(String),
 }
 
 pub enum Msg {
     Callback(ToHoloclient),
     Action(Action),
-    FromComponent(Action),
 }
 
 impl From<ToHoloclient> for Msg {
@@ -76,20 +84,37 @@ impl Component for App {
                 if let Some(ref mut callback) = self.callback {
                     callback.emit(msg);
                 }
+                return false;
             },
 
             Msg::Action(action) => match action {
-                Action::ResetState => {
-                    self.state = Default::default();
-                },
+                //Action::SetDict(   key, value ) => self.state.set_dict(   key, value ),
+                //Action::SetString( key, value ) => self.state.set_string( key, value ),
+                //Action::SetBool(   key, value ) => self.state.set_bool(   key, value ),
+                //Action::SetVec(    key, value ) => self.state.set_vec(    key, value ),
 
-                Action::SetString(key, value) => {
-                    self.state.set_string(key, value);
-                },
-            },
+                //Action::ResetState => {
+                //    self.state = Default::default();
+                //},
 
-            Msg::FromComponent(action) => {
-                self.update(action.into());
+                //Action::ToggleModal => {
+                //    if let Some(modal_is_open) = self.state.bool("modal_is_open") {
+                //        self.state.set_bool("modal_is_open".into(), !modal_is_open);
+                //    }
+                //}
+
+                Action::UseHandle(handle) => {
+                    js! { alert(@{
+                        format! { "UseHandle('{}')", handle }
+                    })};
+                }
+
+                Action::SetFirstName(first_name) => {
+                    js! { alert(@{
+                        format! { "SetFirstName('{}')", first_name }
+                    })};
+                    self.state.set_string("first_name".into(), first_name)
+                }
             },
         };
         true
@@ -108,24 +133,26 @@ impl Component for App {
 
 impl Renderable<App> for App {
     fn view(&self) -> Html<Self> {
+        let app_properties = self.state.dict("app_properties");
         let modal_is_open = self.state.bool("modal_is_open");
         let profile_pic = self.state.string("profile_pic");
 
-        match modal_is_open {
-            Some(true) => html! {
+        if modal_is_open.unwrap() && app_properties.string("Agent_Handle").len() == 0 {
+            html! {
                 <div style={ modal::BACKDROP_STYLE },>
                     <div style={ modal::MODAL_STYLE },>
                         <div align="center",>
                             <p classname="h1",>{ "Welcome to Coolcats2!" }</p>
                         </div>
                         <Settings:
-                            substate = self.state.subset(settings::USES_STATE.to_vec()),
-                            callback = |action| Msg::FromComponent(action),
+                            getstate = self.state.subset(settings::getstates()),
+                            callback = |action| Msg::Action(action),
                         />
                     </div>
                 </div>
-            },
-            Some(false) => html! {
+            }
+        } else {
+            html! {
                 <div classname="container",>
                     <div classname="spinner transition500",/>
                     <div classname="error transition500",/>
@@ -148,8 +175,7 @@ impl Renderable<App> for App {
                         </div>
                     </div>
                 </div>
-            },
-            _ => html! { <></> },
+            }
         }
     }
 }

@@ -87,9 +87,10 @@ impl Dict {
         }
     }
 
-    pub fn set_dict(&mut self, key: DictKey, value: Dict) {
-        self.insert(key, DictValue::Dict(value));
-    }
+    //pub fn set_dict(&mut self, key: DictKey, value: Dict) {
+    //    self.dict(&key); // force panic if key exists and is not dict
+    //    self.insert(key, DictValue::Dict(value));
+    //}
 
     pub fn string(&self, key: &str) -> String {
         match self.get(key) {
@@ -102,6 +103,7 @@ impl Dict {
     }
 
     pub fn set_string(&mut self, key: DictKey, value: String) {
+        self.string(&key); // force panic if key exists and is not string
         self.insert(key, DictValue::String(value));
     }
 
@@ -115,23 +117,25 @@ impl Dict {
         }
     }
 
-    pub fn set_bool(&mut self, key: DictKey, value: bool) {
-        self.insert(key, DictValue::Bool(value));
-    }
+    //pub fn set_bool(&mut self, key: DictKey, value: bool) {
+    //    self.bool(&key); // force panic if key exists and is not bool
+    //    self.insert(key, DictValue::Bool(value));
+    //}
 
-    pub fn vec(&self, key: &str) -> Vec<String> {
-        match self.get(key) {
-            DictValue::Vec(value) => value,
-            DictValue::Undefined => Vec::new(),
-            _ => panic! {
-                "Dict::vec called on non-vec key"
-            }
-        }
-    }
+    //pub fn vec(&self, key: &str) -> Vec<String> {
+    //    match self.get(key) {
+    //        DictValue::Vec(value) => value,
+    //        DictValue::Undefined => Vec::new(),
+    //        _ => panic! {
+    //            "Dict::vec called on non-vec key"
+    //        }
+    //    }
+    //}
 
-    pub fn set_vec(&mut self, key: DictKey, value: Vec<String>) {
-        self.insert(key, DictValue::Vec(value));
-    }
+    //pub fn set_vec(&mut self, key: DictKey, value: Vec<String>) {
+    //    self.vec(&key); // force panic if key exists and is not vec
+    //    self.insert(key, DictValue::Vec(value));
+    //}
 
     pub fn subset(&self, keys: Vec<&str>) -> Self {
         let mut dict = Dict::new();
