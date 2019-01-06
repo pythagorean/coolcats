@@ -86,148 +86,153 @@ impl Call {
     }
 }
 
-impl From<&str> for Call {
-    fn from(method: &str) -> Self {
+impl From<String> for Call {
+    fn from(method: String) -> Self {
         Call {
-            method: method.into(),
+            method: method,
             params: Vec::new(),
         }
+    }
+}
+
+impl From<&str> for Call {
+    fn from(method: &str) -> Self {
+        method.into()
+    }
+}
+
+impl From<Vec<String>> for Call {
+    fn from(method: Vec<String>) -> Self {
+        method.join("/").into()
     }
 }
 
 impl From<Vec<&str>> for Call {
     fn from(method: Vec<&str>) -> Self {
+        method.join("/").into()
+    }
+}
+
+impl From<(String, (String, DictValue))> for Call {
+    fn from(args: (String, (String, DictValue))) -> Self {
         Call {
-            method: method.join("/"),
-            params: Vec::new(),
+            method: args.0,
+            params: vec![((args.1).0, (args.1).1)]
         }
+    }
+}
+
+impl From<(String, (String, String))> for Call {
+    fn from(args: (String, (String, String))) -> Self {
+        (args.0, ((args.1).0, DictValue::String((args.1).1))).into()
     }
 }
 
 impl From<(&str, (&str, &str))> for Call {
     fn from(args: (&str, (&str, &str))) -> Self {
-        Call {
-            method: args.0.into(),
-            params: vec![((args.1).0.into(), (args.1).1.into())],
-        }
-    }
-}
-
-impl From<(&str, (&str, i32))> for Call {
-    fn from(args: (&str, (&str, i32))) -> Self {
-        Call {
-            method: args.0.into(),
-            params: vec![((args.1).0.into(), (args.1).1.into())],
-        }
-    }
-}
-
-impl From<(&str, (&str, bool))> for Call {
-    fn from(args: (&str, (&str, bool))) -> Self {
-        Call {
-            method: args.0.into(),
-            params: vec![((args.1).0.into(), (args.1).1.into())],
-        }
+        (args.0.to_string(), ((args.1).0.to_string(), (args.1).1.to_string())).into()
     }
 }
 
 impl From<(Vec<&str>, (&str, &str))> for Call {
     fn from(args: (Vec<&str>, (&str, &str))) -> Self {
-        Call {
-            method: args.0.join("/"),
-            params: vec![((args.1).0.into(), (args.1).1.into())],
-        }
+        (args.0.join("/"), ((args.1).0.to_string(), (args.1).1.to_string())).into()
     }
 }
 
+impl From<(&str, (&str, DictValue))> for Call {
+    fn from(args: (&str, (&str, DictValue))) -> Self {
+        (args.0.to_string(), ((args.1).0.to_string(), (args.1).1)).into()
+    }
+}
+
+impl From<(&str, (&str, i32))> for Call {
+    fn from(args: (&str, (&str, i32))) -> Self {
+        (args.0.to_string(), ((args.1).0.to_string(), DictValue::Integer((args.1).1))).into()
+    }
+}
 
 impl From<(Vec<&str>, (&str, i32))> for Call {
     fn from(args: (Vec<&str>, (&str, i32))) -> Self {
-        Call {
-            method: args.0.join("/"),
-            params: vec![((args.1).0.into(), (args.1).1.into())],
-        }
+        (args.0.join("/"), ((args.1).0.to_string(), DictValue::Integer((args.1).1))).into()
+    }
+}
+
+impl From<(&str, (&str, bool))> for Call {
+    fn from(args: (&str, (&str, bool))) -> Self {
+        (args.0.to_string(), ((args.1).0.to_string(), DictValue::Bool((args.1).1))).into()
     }
 }
 
 impl From<(Vec<&str>, (&str, bool))> for Call {
     fn from(args: (Vec<&str>, (&str, bool))) -> Self {
-        Call {
-            method: args.0.join("/"),
-            params: vec![((args.1).0.into(), (args.1).1.into())],
-        }
+        (args.0.join("/"), ((args.1).0.to_string(), DictValue::Bool((args.1).1))).into()
     }
 }
 
-impl From<(&str, Vec<(&str, &str)>)> for Call {
-    fn from(args: (&str, Vec<(&str, &str)>)) -> Self {
-        Call {
-            method: args.0.into(),
-            params: match args.1.is_empty() {
-                true => Vec::new(),
-                false => {
-                    let mut params = Vec::new();
-                    for param in args.1 {
-                        params.insert(0, (param.0.into(), param.1.into()));
-                    }
-                    params
-                }
-            },
-        }
+impl From<(String, Vec<(String, String)>)> for Call {
+    fn from(args: (String, Vec<(String, String)>)) -> Self {
+        (args.0, {
+            let mut params = Vec::new();
+            for param in args.1 {
+                params.insert(0, (param.0, param.1.into()));
+            }
+            params
+        }).into()
+    }
+}
+
+impl From<(String, Vec<(&str, &str)>)> for Call {
+    fn from(args: (String, Vec<(&str, &str)>)) -> Self {
+        (args.0, {
+            let mut params = Vec::new();
+            for param in args.1 {
+                params.insert(0, (param.0.to_string(), param.1.into()));
+            }
+            params
+        }).into()
+    }
+}
+
+impl From<(String, Vec<(&str, DictValue)>)> for Call {
+    fn from(args: (String, Vec<(&str, DictValue)>)) -> Self {
+        (args.0, {
+            let mut params = Vec::new();
+            for param in args.1 {
+                params.insert(0, (param.0.into(), param.1));
+            }
+            params
+        }).into()
+    }
+}
+
+impl From<(&str, Vec<(String, DictValue)>)> for Call {
+    fn from(args: (&str, Vec<(String, DictValue)>)) -> Self {
+        (args.0.into(), args.1).into()
     }
 }
 
 impl From<(&str, Vec<(&str, DictValue)>)> for Call {
     fn from(args: (&str, Vec<(&str, DictValue)>)) -> Self {
-        Call {
-            method: args.0.into(),
-            params: match args.1.is_empty() {
-                true => Vec::new(),
-                false => {
-                    let mut params = Vec::new();
-                    for param in args.1 {
-                        params.insert(0, (param.0.into(), param.1));
-                    }
-                    params
-                }
-            },
-        }
+        (args.0.to_string(), args.1).into()
+    }
+}
+
+impl From<(&str, Vec<(&str, &str)>)> for Call {
+    fn from(args: (&str, Vec<(&str, &str)>)) -> Self {
+        (args.0.to_string(), args.1).into()
     }
 }
 
 impl From<(Vec<&str>, Vec<(&str, &str)>)> for Call {
     fn from(args: (Vec<&str>, Vec<(&str, &str)>)) -> Self {
-        Call {
-            method: args.0.join("/"),
-            params: match args.1.is_empty() {
-                true => Vec::new(),
-                false => {
-                    let mut params = Vec::new();
-                    for param in args.1 {
-                        params.insert(0, (param.0.into(), param.1.into()));
-                    }
-                    params
-                }
-            },
-        }
+        (args.0.join("/"), args.1).into()
     }
 }
 
 impl From<(Vec<&str>, Vec<(&str, DictValue)>)> for Call {
     fn from(args: (Vec<&str>, Vec<(&str, DictValue)>)) -> Self {
-        Call {
-            method: args.0.join("/"),
-            params: match args.1.is_empty() {
-                true => Vec::new(),
-                false => {
-                    let mut params = Vec::new();
-                    for param in args.1 {
-                        params.insert(0, (param.0.into(), param.1));
-                    }
-                    params
-                }
-            },
-        }
+        (args.0.join("/"), args.1).into()
     }
 }
 
