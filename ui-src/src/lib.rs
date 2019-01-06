@@ -14,6 +14,7 @@ extern crate serde_derive;
 
 mod holoclient;
 mod app;
+mod utils;
 
 use self::{
     holoclient::{Holoclient, ToHoloclient},

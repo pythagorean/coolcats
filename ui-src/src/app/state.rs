@@ -1,4 +1,4 @@
-use super::utils::{ Dict, DictKey };
+use crate::utils::{ Dict, DictKey };
 
 #[derive(PartialEq)]
 pub struct State(Dict);

@@ -1,6 +1,8 @@
+use crate::utils::DictValue;
+
 pub struct WsRpc {
     method: String,
-    params: Vec<(String, String)>,
+    params: Vec<(String, DictValue)>, // Only handles DictValue::String for now
     id: u32,
 }
 
@@ -15,10 +17,13 @@ impl WsRpc {
             false => {
                 let mut params = Vec::new();
                 for param in &self.params {
-                    params.insert(0, format! {
-                        r#""{}":"{}""#,
-                        param.0, param.1
-                    });
+                    if let DictValue::String(ref value) = param.1 {
+                        let ref key = param.0;
+                        params.insert(0, format! {
+                            r#""{}":"{}""#,
+                            key, value
+                        });
+                    }
                 }
                 format! {
                     r#""params":{{{}}}"#,
@@ -37,10 +42,10 @@ impl WsRpc {
     }
 }
 
-#[derive(PartialEq, Clone, Debug)]
+#[derive(PartialEq, Clone)]
 pub struct Call {
     method: String,
-    params: Vec<(String, String)>,
+    params: Vec<(String, DictValue)>,
 }
 
 impl Call {
