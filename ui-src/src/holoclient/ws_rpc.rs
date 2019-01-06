@@ -1,6 +1,6 @@
 pub struct WsRpc {
     method: String,
-    params: Vec<(String, String)>, // currently only handling first vec element
+    params: Vec<(String, String)>,
     id: u32,
 }
 
@@ -10,15 +10,22 @@ impl WsRpc {
             r#""method":"{}""#,
             self.method
         };
-        let params: String;
-        if self.params.is_empty() {
-            params = r#""params": null"#.into();
-        } else {
-            params = format! {
-                r#""params":{{"{}":"{}"}}"#,
-                self.params[0].0, self.params[0].1
-            };
-        }
+        let params = match self.params.is_empty() {
+            true => r#""params":null"#.into(),
+            false => {
+                let mut params = Vec::new();
+                for param in &self.params {
+                    params.insert(0, format! {
+                        r#""{}":"{}""#,
+                        param.0, param.1
+                    });
+                }
+                format! {
+                    r#""params":{{{}}}"#,
+                    params.join(",")
+                }
+            },
+        };
         let id = format! {
             r#""id":{}"#,
             self.id
@@ -96,7 +103,13 @@ impl From<(Vec<&str>, Vec<(&str, &str)>)> for Call {
             method: args.0.join("/"),
             params: match args.1.is_empty() {
                 true => Vec::new(),
-                false => vec![((args.1[0]).0.into(), (args.1[0]).1.into())],
+                false => {
+                    let mut params = Vec::new();
+                    for param in args.1 {
+                        params.insert(0, (param.0.into(), param.1.into()));
+                    }
+                    params
+                }
             },
         }
     }
