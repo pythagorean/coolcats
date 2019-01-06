@@ -2,7 +2,7 @@ use crate::utils::DictValue;
 
 pub struct WsRpc {
     method: String,
-    params: Vec<(String, DictValue)>, // Only handles DictValue::String for now
+    params: Vec<(String, DictValue)>,
     id: u32,
 }
 
@@ -17,12 +17,32 @@ impl WsRpc {
             false => {
                 let mut params = Vec::new();
                 for param in &self.params {
-                    if let DictValue::String(ref value) = param.1 {
-                        let ref key = param.0;
-                        params.insert(0, format! {
-                            r#""{}":"{}""#,
-                            key, value
-                        });
+                    let ref key = param.0;
+                    match param.1 {
+                        DictValue::String(ref value) => {
+                            params.insert(0, format! {
+                                r#""{}":"{}""#,
+                                key, value
+                            });
+                        },
+                        DictValue::Integer(value) => {
+                            params.insert(0, format! {
+                                r#""{}":{}"#,
+                                key, value
+                            });
+                        },
+                        DictValue::Bool(value) => {
+                            params.insert(0, format! {
+                                r#""{}":{}"#,
+                                key, match value {
+                                    true => "true",
+                                    false => "false",
+                                }
+                            });
+                        },
+                        _ => {
+                            panic! { "Unsupported RPC parameter type" };
+                        },
                     }
                 }
                 format! {
@@ -93,11 +113,84 @@ impl From<(&str, (&str, &str))> for Call {
     }
 }
 
+impl From<(&str, (&str, i32))> for Call {
+    fn from(args: (&str, (&str, i32))) -> Self {
+        Call {
+            method: args.0.into(),
+            params: vec![((args.1).0.into(), (args.1).1.into())],
+        }
+    }
+}
+
+impl From<(&str, (&str, bool))> for Call {
+    fn from(args: (&str, (&str, bool))) -> Self {
+        Call {
+            method: args.0.into(),
+            params: vec![((args.1).0.into(), (args.1).1.into())],
+        }
+    }
+}
+
 impl From<(Vec<&str>, (&str, &str))> for Call {
     fn from(args: (Vec<&str>, (&str, &str))) -> Self {
         Call {
             method: args.0.join("/"),
             params: vec![((args.1).0.into(), (args.1).1.into())],
+        }
+    }
+}
+
+
+impl From<(Vec<&str>, (&str, i32))> for Call {
+    fn from(args: (Vec<&str>, (&str, i32))) -> Self {
+        Call {
+            method: args.0.join("/"),
+            params: vec![((args.1).0.into(), (args.1).1.into())],
+        }
+    }
+}
+
+impl From<(Vec<&str>, (&str, bool))> for Call {
+    fn from(args: (Vec<&str>, (&str, bool))) -> Self {
+        Call {
+            method: args.0.join("/"),
+            params: vec![((args.1).0.into(), (args.1).1.into())],
+        }
+    }
+}
+
+impl From<(&str, Vec<(&str, &str)>)> for Call {
+    fn from(args: (&str, Vec<(&str, &str)>)) -> Self {
+        Call {
+            method: args.0.into(),
+            params: match args.1.is_empty() {
+                true => Vec::new(),
+                false => {
+                    let mut params = Vec::new();
+                    for param in args.1 {
+                        params.insert(0, (param.0.into(), param.1.into()));
+                    }
+                    params
+                }
+            },
+        }
+    }
+}
+
+impl From<(&str, Vec<(&str, DictValue)>)> for Call {
+    fn from(args: (&str, Vec<(&str, DictValue)>)) -> Self {
+        Call {
+            method: args.0.into(),
+            params: match args.1.is_empty() {
+                true => Vec::new(),
+                false => {
+                    let mut params = Vec::new();
+                    for param in args.1 {
+                        params.insert(0, (param.0.into(), param.1));
+                    }
+                    params
+                }
+            },
         }
     }
 }
@@ -112,6 +205,24 @@ impl From<(Vec<&str>, Vec<(&str, &str)>)> for Call {
                     let mut params = Vec::new();
                     for param in args.1 {
                         params.insert(0, (param.0.into(), param.1.into()));
+                    }
+                    params
+                }
+            },
+        }
+    }
+}
+
+impl From<(Vec<&str>, Vec<(&str, DictValue)>)> for Call {
+    fn from(args: (Vec<&str>, Vec<(&str, DictValue)>)) -> Self {
+        Call {
+            method: args.0.join("/"),
+            params: match args.1.is_empty() {
+                true => Vec::new(),
+                false => {
+                    let mut params = Vec::new();
+                    for param in args.1 {
+                        params.insert(0, (param.0.into(), param.1));
                     }
                     params
                 }

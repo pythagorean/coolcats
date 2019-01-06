@@ -6,6 +6,7 @@ pub type DictKey = String;
 pub enum DictValue {
     Dict(Dict),
     String(String),
+    Integer(i32),
     Bool(bool),
     Vec(Vec<String>),
     Undefined,
@@ -34,6 +35,12 @@ impl From<&str> for DictValue {
     }
 }
 
+impl From<i32> for DictValue {
+    fn from(value: i32) -> Self {
+        DictValue::Integer(value)
+    }
+}
+
 impl From<bool> for DictValue {
     fn from(value: bool) -> Self {
         DictValue::Bool(value)
@@ -51,6 +58,7 @@ impl Clone for DictValue {
         match self {
             DictValue::Dict(value) => DictValue::Dict((*value).clone()),
             DictValue::String(value) => DictValue::String((*value).clone()),
+            DictValue::Integer(value) => DictValue::Integer(*value),
             DictValue::Bool(value) => DictValue::Bool(*value),
             DictValue::Vec(value) => DictValue::Vec((*value).clone()),
             DictValue::Undefined => DictValue::Undefined,
