@@ -1,29 +1,39 @@
-#[derive(Serialize, Debug)]
 pub struct WsRpc {
-    jsonrpc: String,
     method: String,
-    params: Vec<String>,
+    params: Vec<(String, String)>, // currently only handling first vec element
     id: u32,
 }
 
 impl WsRpc {
-    pub fn has_params(&self) -> bool {
-        !self.params.is_empty()
+    pub fn json(&self) -> String {
+        let method = format! {
+            r#""method":"{}""#,
+            self.method
+        };
+        let params: String;
+        if self.params.is_empty() {
+            params = r#""params": null"#.into();
+        } else {
+            params = format! {
+                r#""params":{{"{}":"{}"}}"#,
+                self.params[0].0, self.params[0].1
+            };
+        }
+        let id = format! {
+            r#""id":{}"#,
+            self.id
+        };
+        format! {
+            r#"{{"jsonrpc":"2.0",{},{},{}}}"#,
+            method, params, id
+        }
     }
-}
-
-#[derive(Serialize, Debug)]
-pub struct WsRpcNoParams {
-    jsonrpc: String,
-    method: String,
-    params: Option<String>,
-    id: u32,
 }
 
 #[derive(PartialEq, Clone, Debug)]
 pub struct Call {
     method: String,
-    params: Vec<String>,
+    params: Vec<(String, String)>,
 }
 
 impl Call {
@@ -53,17 +63,8 @@ impl From<&str> for Call {
     }
 }
 
-impl From<(&str, Vec<String>)> for Call {
-    fn from(args: (&str, Vec<String>)) -> Self {
-        Call {
-            method: args.0.into(),
-            params: args.1,
-        }
-    }
-}
-
-impl From<Vec<String>> for Call {
-    fn from(method: Vec<String>) -> Self {
+impl From<Vec<&str>> for Call {
+    fn from(method: Vec<&str>) -> Self {
         Call {
             method: method.join("/"),
             params: Vec::new(),
@@ -71,11 +72,32 @@ impl From<Vec<String>> for Call {
     }
 }
 
-impl From<(Vec<String>, Vec<String>)> for Call {
-    fn from(vecs: (Vec<String>, Vec<String>)) -> Self {
+impl From<(&str, (&str, &str))> for Call {
+    fn from(args: (&str, (&str, &str))) -> Self {
         Call {
-            method: vecs.0.join("/"),
-            params: vecs.1,
+            method: args.0.into(),
+            params: vec![((args.1).0.into(), (args.1).1.into())],
+        }
+    }
+}
+
+impl From<(Vec<&str>, (&str, &str))> for Call {
+    fn from(args: (Vec<&str>, (&str, &str))) -> Self {
+        Call {
+            method: args.0.join("/"),
+            params: vec![((args.1).0.into(), (args.1).1.into())],
+        }
+    }
+}
+
+impl From<(Vec<&str>, Vec<(&str, &str)>)> for Call {
+    fn from(args: (Vec<&str>, Vec<(&str, &str)>)) -> Self {
+        Call {
+            method: args.0.join("/"),
+            params: match args.1.is_empty() {
+                true => Vec::new(),
+                false => vec![((args.1[0]).0.into(), (args.1[0]).1.into())],
+            },
         }
     }
 }
@@ -83,21 +105,9 @@ impl From<(Vec<String>, Vec<String>)> for Call {
 impl From<(Call, u32)> for WsRpc {
     fn from(call_id: (Call, u32)) -> Self {
         WsRpc {
-            jsonrpc: "2.0".into(),
             method: call_id.0.method,
             params: call_id.0.params,
             id: call_id.1,
-        }
-    }
-}
-
-impl From<WsRpc> for WsRpcNoParams {
-    fn from(rpc: WsRpc) -> Self {
-        WsRpcNoParams {
-            jsonrpc: rpc.jsonrpc,
-            method: rpc.method,
-            params: None,
-            id: rpc.id,
         }
     }
 }

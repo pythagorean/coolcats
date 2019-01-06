@@ -75,6 +75,7 @@ impl Component for Settings {
 
             Msg::UpdateHandleText(ChangeData::Value(handle_text)) => {
                 self.use_handle_text = handle_text;
+                return true;
             },
             Msg::UpdateHandleText(_) => (),
 

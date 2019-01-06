@@ -12,8 +12,6 @@ extern crate stdweb;
 #[macro_use]
 extern crate serde_derive;
 
-extern crate serde_json;
-
 mod holoclient;
 mod app;
 

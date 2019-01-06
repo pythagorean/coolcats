@@ -10,7 +10,6 @@ use super::{
     ws_rpc::{
         self,
         WsRpc,
-        WsRpcNoParams,
     },
 };
 
@@ -118,14 +117,7 @@ impl Component for Holoclient {
                 },
 
                 WsAction::Call(rpc) => {
-                    let json: String;
-                    if rpc.has_params() {
-                        json = serde_json::to_string(&rpc).unwrap();
-                    } else {
-                        let rpc = WsRpcNoParams::from(rpc);
-                        json = serde_json::to_string(&rpc).unwrap();
-                    }
-                    self.websocket.as_mut().unwrap().send(&json);
+                    self.websocket.as_mut().unwrap().send(&rpc.json());
                 },
 
                 WsAction::Lost => {
