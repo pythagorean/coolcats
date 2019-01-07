@@ -314,96 +314,66 @@ impl From<(&[&str], (&str, bool))> for Call {
 // Positional string params
 impl From<(String, &[String])> for Call {
     fn from(args: (String, &[String])) -> Self {
-        (
-            args.0,
-            {
-                let mut params: Vec<String> = Vec::new();
-                for param in args.1 {
-                    params.insert(0, param.clone().into());
-                }
-                params
-            }.as_slice()
-        ).into()
+        let method = args.0;
+        let params = args.1.iter()
+            .map(|value| DictValue::String(value.to_string()))
+            .rev().collect::<Vec<_>>();
+        (method, params).into()
     }
 }
 
 // Named string params
 impl From<(String, &[(String, String)])> for Call {
     fn from(args: (String, &[(String, String)])) -> Self {
-        (
-            args.0,
-            {
-                let mut params = Vec::new();
-                for param in args.1 {
-                    params.insert(0, (param.0.clone(), param.1.clone().into()));
-                }
-                params
-            }.as_slice()
-        ).into()
+        let method = args.0;
+        let params = args.1.iter()
+            .map(|(key, value)| (key.clone(), DictValue::String(value.to_string())))
+            .rev().collect::<Vec<_>>();
+        (method, params).into()
     }
 }
 
 // Positional string params
 impl From<(String, &[&str])> for Call {
     fn from(args: (String, &[&str])) -> Self {
-        (
-            args.0,
-            {
-                let mut params: Vec<String> = Vec::new();
-                for param in args.1 {
-                    params.insert(0, param.to_string());
-                }
-                params
-            }.as_slice()
-        ).into()
+        let method = args.0;
+        let params = args.1.iter()
+            .map(|value| DictValue::String(value.to_string()))
+            .rev().collect::<Vec<_>>();
+        (method, params).into()
     }
 }
 
 // Named string params
 impl From<(String, &[(&str, &str)])> for Call {
     fn from(args: (String, &[(&str, &str)])) -> Self {
-        (
-            args.0,
-            {
-                let mut params = Vec::new();
-                for param in args.1 {
-                    params.insert(0, (param.0.to_string(), param.1.into()));
-                }
-                params
-            }.as_slice()
-        ).into()
+        let method = args.0;
+        let params = args.1.iter()
+            .map(|(key, value)| (key.to_string(), DictValue::String(value.to_string())))
+            .rev().collect::<Vec<_>>();
+        (method, params).into()
     }
 }
 
 // Positional params
 impl From<(String, &[DictValue])> for Call {
     fn from(args: (String, &[DictValue])) -> Self {
-        (
-            args.0,
-            {
-                let mut params = Vec::new();
-                for param in args.1 {
-                    params.insert(0, param.clone());
-                }
-                params
-            }.as_slice()
-        ).into()
+        let method = args.0;
+        let params = args.1.iter()
+            .map(|value| value.clone())
+            .rev().collect::<Vec<_>>();
+        (method, params).into()
     }
 }
 
 // Named params
 impl From<(String, &[(&str, DictValue)])> for Call {
     fn from(args: (String, &[(&str, DictValue)])) -> Self {
-        (
-            args.0,
-            {
-                let mut params = Vec::new();
-                for param in args.1 {
-                    params.insert(0, (param.0.into(), param.1.clone()));
-                }
-                params
-            }.as_slice()
-        ).into()
+        let method = args.0;
+        let params = args.1.iter()
+            .map(|(key, value)| (key.to_string(), value.clone()))
+            .rev().collect::<Vec<_>>();
+        (method, params).into()
     }
 }
 
