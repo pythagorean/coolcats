@@ -6,9 +6,9 @@ pub type DictKey = String;
 pub enum DictValue {
     Dict(Dict),
     String(String),
+    Strings(Vec<String>),
     Integer(i32),
     Bool(bool),
-    Vec(Vec<String>),
     Undefined,
 }
 
@@ -35,6 +35,12 @@ impl From<&str> for DictValue {
     }
 }
 
+impl From<Vec<String>> for DictValue {
+    fn from(value: Vec<String>) -> Self {
+        DictValue::Strings(value)
+    }
+}
+
 impl From<i32> for DictValue {
     fn from(value: i32) -> Self {
         DictValue::Integer(value)
@@ -47,20 +53,14 @@ impl From<bool> for DictValue {
     }
 }
 
-impl From<Vec<String>> for DictValue {
-    fn from(value: Vec<String>) -> Self {
-        DictValue::Vec(value)
-    }
-}
-
 impl Clone for DictValue {
     fn clone(&self) -> Self {
         match self {
             DictValue::Dict(value) => DictValue::Dict((*value).clone()),
             DictValue::String(value) => DictValue::String((*value).clone()),
+            DictValue::Strings(value) => DictValue::Strings((*value).clone()),
             DictValue::Integer(value) => DictValue::Integer(*value),
             DictValue::Bool(value) => DictValue::Bool(*value),
-            DictValue::Vec(value) => DictValue::Vec((*value).clone()),
             DictValue::Undefined => DictValue::Undefined,
         }
     }
@@ -115,6 +115,36 @@ impl Dict {
         self.insert(key, DictValue::String(value));
     }
 
+    //pub fn strings(&self, key: &str) -> Vec<String> {
+    //    match self.get(key) {
+    //        DictValue::Strings(value) => value,
+    //        DictValue::Undefined => Vec::new(),
+    //        _ => panic! {
+    //            "Dict::strings called on non-strings key"
+    //        }
+    //    }
+    //}
+
+    //pub fn set_strings(&mut self, key: DictKey, value: Vec<String>) {
+    //    self.strings(&key); // force panic if key exists and is not strings
+    //    self.insert(key, DictValue::strings(value));
+    //}
+
+    //pub fn integer(&self, key: &str) -> Option<i32> {
+    //    match self.get(key) {
+    //        DictValue::Integer(value) => Some(value),
+    //        DictValue::Undefined => None,
+    //        _ => panic! {
+    //            "Dict::integer called on non-integer key"
+    //        }
+    //    }
+    //}
+
+    //pub fn set_integer(&mut self, key: DictKey, value: integer) {
+    //    self.integer(&key); // force panic if key exists and is not integer
+    //    self.insert(key, DictValue::Integer(value));
+    //}
+
     pub fn bool(&self, key: &str) -> Option<bool> {
         match self.get(key) {
             DictValue::Bool(value) => Some(value),
@@ -128,21 +158,6 @@ impl Dict {
     //pub fn set_bool(&mut self, key: DictKey, value: bool) {
     //    self.bool(&key); // force panic if key exists and is not bool
     //    self.insert(key, DictValue::Bool(value));
-    //}
-
-    //pub fn vec(&self, key: &str) -> Vec<String> {
-    //    match self.get(key) {
-    //        DictValue::Vec(value) => value,
-    //        DictValue::Undefined => Vec::new(),
-    //        _ => panic! {
-    //            "Dict::vec called on non-vec key"
-    //        }
-    //    }
-    //}
-
-    //pub fn set_vec(&mut self, key: DictKey, value: Vec<String>) {
-    //    self.vec(&key); // force panic if key exists and is not vec
-    //    self.insert(key, DictValue::Vec(value));
     //}
 
     pub fn subset(&self, keys: Vec<&str>) -> Self {
