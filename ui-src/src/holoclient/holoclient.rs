@@ -29,6 +29,7 @@ pub struct WsResponse {
 
 pub enum WsAction {
     Connect,
+    Initialize,
     Call(WsRpc),
     Lost,
 }
@@ -37,7 +38,6 @@ pub enum Msg {
     Callback(ToApp),
     WsAction(WsAction),
     WsReady(String),
-    Ignore,
 }
 
 impl From<ToApp> for Msg {
@@ -90,8 +90,6 @@ impl Component for Holoclient {
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Msg::Ignore => (),
-
             Msg::Callback(msg) => {
                 if let Some(ref mut callback) = self.callback {
                     callback.emit(msg);
@@ -99,7 +97,8 @@ impl Component for Holoclient {
             },
 
             Msg::WsReady(response) => {
-                self.update(ToApp::Response(response).into());
+                let result = &json::parse(&response).unwrap()["result"];
+                self.update(ToApp::Result(result.to_string()).into());
             },
 
             Msg::WsAction(action) => match action {
@@ -108,13 +107,17 @@ impl Component for Holoclient {
                     let callback = self.link.send_back(|data| Msg::WsReady(data));
                     let notification = self.link.send_back(|status| {
                         match status {
-                            WebSocketStatus::Opened => Msg::Ignore,
+                            WebSocketStatus::Opened => WsAction::Initialize.into(),
                             WebSocketStatus::Closed | WebSocketStatus::Error => WsAction::Lost.into(),
                         }
                     });
                     let service = WebSocketService::new(HOLOCHAIN_SERVER, callback, notification);
                     self.websocket = Some(service);
                 },
+
+                WsAction::Initialize => {
+                    self.update(Msg::Callback(ToApp::Initialize.into()));
+                }
 
                 WsAction::Call(rpc) => {
                     self.websocket.as_mut().unwrap().send(&rpc.json());

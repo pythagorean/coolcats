@@ -3,7 +3,6 @@ use yew::prelude::*;
 use crate::holoclient::ToHoloclient;
 
 use super::{
-    //utils::Dict,
     state::State,
     components::modal,
     settings::{ self, Settings },
@@ -13,20 +12,28 @@ const DEFAULT_PROFILE_PIC: &str = "/cat-eating-bird-circle.png";
 
 pub struct App {
     callback: Option<Callback<ToHoloclient>>,
+    onresult: Redux,
     state: State,
+    container: String,
 }
 
 pub enum Action {
     //SetDict(String, Dict),
     //SetString(String, String),
+    //SetStrings(String, Vec<String>),
+    //SetInteger(String, i32),
     //SetBool(String, bool),
-    //SetVec(String, Vec<String>),
 
     //ResetState,
     //ToggleModal,
 
     UseHandle(String),
     SetFirstName(String),
+}
+
+pub enum Redux {
+    None,
+    GetContainer,
 }
 
 pub enum Msg {
@@ -46,11 +53,15 @@ impl From<Action> for Msg {
     }
 }
 
-pub type Params = String;
-
+#[derive(PartialEq, Clone, Debug)]
 pub enum ToApp {
-    Response(Params),
+    None,
+    Initialize,
+    Result(String),
 }
+
+#[derive(PartialEq, Clone)]
+pub struct Params(pub ToApp);
 
 #[derive(PartialEq, Clone)]
 pub struct Props {
@@ -61,7 +72,7 @@ pub struct Props {
 impl Default for Props {
     fn default() -> Self {
         Props {
-            params: Params::new(),
+            params: Params(ToApp::None),
             callback: None,
         }
     }
@@ -74,7 +85,9 @@ impl Component for App {
     fn create(props: Self::Properties, _: ComponentLink<Self>) -> Self {
         App {
             callback: props.callback,
+            onresult: Redux::None,
             state: Default::default(),
+            container: String::new(),
         }
     }
 
@@ -88,10 +101,11 @@ impl Component for App {
             },
 
             Msg::Action(action) => match action {
-                //Action::SetDict(   key, value ) => self.state.set_dict(   key, value ),
-                //Action::SetString( key, value ) => self.state.set_string( key, value ),
-                //Action::SetBool(   key, value ) => self.state.set_bool(   key, value ),
-                //Action::SetVec(    key, value ) => self.state.set_vec(    key, value ),
+                //Action::SetDict(   key, value) => self.state.set_dict(   key, value),
+                //Action::SetString( key, value) => self.state.set_string( key, value),
+                //Action::SetStrings(key, value) => self.state.set_strings(key, value),
+                //Action::SetInteger(key, value) => self.state.set_integer(key, value),
+                //Action::SetBool(   key, value) => self.state.set_bool(   key, value),
 
                 //Action::ResetState => {
                 //    self.state = Default::default();
@@ -104,9 +118,7 @@ impl Component for App {
                 //}
 
                 Action::UseHandle(handle) => {
-                    js! { alert(@{
-                        format! { "UseHandle('{}')", handle }
-                    })};
+                    self.holochain("use_handle", ("handle", &*handle));
                 }
 
                 Action::SetFirstName(first_name) => {
@@ -121,13 +133,42 @@ impl Component for App {
     }
 
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        let holoclient_response = props.params;
-        if !holoclient_response.is_empty() {
-            js! { alert(@{
-                format! { "App received: {}", holoclient_response }
-            })};
+        let holoclient_msg = props.params.0;
+        match holoclient_msg {
+            ToApp::Initialize => {
+                self.onresult = Redux::GetContainer;
+                self.update(ToHoloclient::Call("info/instances".into()).into());
+            },
+
+            ToApp::Result(result) => {
+                match self.onresult {
+                    Redux::GetContainer => {
+                        let json = &json::parse(&result).unwrap();
+                        let container = json.entries().next().unwrap().0;
+                        self.container = container.to_string();
+                    },
+
+                    Redux::None => {
+                        js! { alert(@{
+                            format!("NoRedux: {}", result)
+                        })}
+                    },
+                }
+                self.onresult = Redux::None;
+            },
+
+            ToApp::None => (),
         }
         false
+    }
+}
+
+impl App {
+    fn holochain(&mut self, method: &str, params: (&str, &str)) {
+        self.update(ToHoloclient::Call((
+            vec![self.container.as_str(), "coolcats", "main", method].as_slice(),
+            params
+        ).into()).into());
     }
 }
 

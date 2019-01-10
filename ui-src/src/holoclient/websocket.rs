@@ -64,10 +64,6 @@ impl WebSocketService {
     pub fn send(&mut self, json: &str) {
         if self.websocket.send_text(json).is_err() {
             self.notification.emit(WebSocketStatus::Error);
-        } else {
-            js! { alert(@{
-                format! { "Sent: {}", json }
-            })};
         }
     }
 }

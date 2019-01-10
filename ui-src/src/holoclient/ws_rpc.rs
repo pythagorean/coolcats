@@ -37,24 +37,24 @@ impl WsRpc {
         };
         let params = match &self.params {
             Params::Unspecified => {
-                r#""params":null"#.into()
+                r#""params":null"#.to_string()
             },
             Params::Positional(positional_params) => {
                 let mut params = Vec::new();
                 for param in positional_params {
                     match param {
                         DictValue::String(ref value) => {
-                            params.insert(0, format! {
+                            params.push(format! {
                                 r#""{}""#, value
                             });
                         },
                         DictValue::Integer(value) => {
-                            params.insert(0, format! {
+                            params.push(format! {
                                 "{}", value
                             });
                         },
                         DictValue::Bool(value) => {
-                            params.insert(0, format! {
+                            params.push(format! {
                                 "{}", match value {
                                     true => "true",
                                     false => "false",
@@ -77,19 +77,19 @@ impl WsRpc {
                     let ref key = param.0;
                     match param.1 {
                         DictValue::String(ref value) => {
-                            params.insert(0, format! {
+                            params.push(format! {
                                 r#""{}":"{}""#,
                                 key, value
                             });
                         },
                         DictValue::Integer(value) => {
-                            params.insert(0, format! {
+                            params.push(format! {
                                 r#""{}":{}"#,
                                 key, value
                             });
                         },
                         DictValue::Bool(value) => {
-                            params.insert(0, format! {
+                            params.push(format! {
                                 r#""{}":{}"#,
                                 key, match value {
                                     true => "true",
@@ -167,7 +167,7 @@ impl From<(String, Vec<(String, DictValue)>)> for Call {
 // No params
 impl From<&str> for Call {
     fn from(method: &str) -> Self {
-        method.into()
+        method.to_string().into()
     }
 }
 
@@ -315,9 +315,20 @@ impl From<(&[&str], (&str, bool))> for Call {
 impl From<(String, &[String])> for Call {
     fn from(args: (String, &[String])) -> Self {
         let method = args.0;
-        let params = args.1.iter()
+        let params: Vec<_> = args.1.iter()
             .map(|value| DictValue::String(value.to_string()))
-            .rev().collect::<Vec<_>>();
+            .collect();
+        (method, params).into()
+    }
+}
+
+// Positional integer params
+impl From<(String, &[i32])> for Call {
+    fn from(args: (String, &[i32])) -> Self {
+        let method = args.0;
+        let params: Vec<_> = args.1.iter()
+            .map(|value| DictValue::Integer(*value))
+            .collect();
         (method, params).into()
     }
 }
@@ -326,9 +337,9 @@ impl From<(String, &[String])> for Call {
 impl From<(String, &[(String, String)])> for Call {
     fn from(args: (String, &[(String, String)])) -> Self {
         let method = args.0;
-        let params = args.1.iter()
+        let params: Vec<_> = args.1.iter()
             .map(|(key, value)| (key.clone(), DictValue::String(value.to_string())))
-            .rev().collect::<Vec<_>>();
+            .collect();
         (method, params).into()
     }
 }
@@ -337,9 +348,9 @@ impl From<(String, &[(String, String)])> for Call {
 impl From<(String, &[&str])> for Call {
     fn from(args: (String, &[&str])) -> Self {
         let method = args.0;
-        let params = args.1.iter()
+        let params: Vec<_> = args.1.iter()
             .map(|value| DictValue::String(value.to_string()))
-            .rev().collect::<Vec<_>>();
+            .collect();
         (method, params).into()
     }
 }
@@ -348,9 +359,9 @@ impl From<(String, &[&str])> for Call {
 impl From<(String, &[(&str, &str)])> for Call {
     fn from(args: (String, &[(&str, &str)])) -> Self {
         let method = args.0;
-        let params = args.1.iter()
+        let params: Vec<_> = args.1.iter()
             .map(|(key, value)| (key.to_string(), DictValue::String(value.to_string())))
-            .rev().collect::<Vec<_>>();
+            .collect();
         (method, params).into()
     }
 }
@@ -359,9 +370,9 @@ impl From<(String, &[(&str, &str)])> for Call {
 impl From<(String, &[DictValue])> for Call {
     fn from(args: (String, &[DictValue])) -> Self {
         let method = args.0;
-        let params = args.1.iter()
+        let params: Vec<_> = args.1.iter()
             .map(|value| value.clone())
-            .rev().collect::<Vec<_>>();
+            .collect();
         (method, params).into()
     }
 }
@@ -370,9 +381,9 @@ impl From<(String, &[DictValue])> for Call {
 impl From<(String, &[(&str, DictValue)])> for Call {
     fn from(args: (String, &[(&str, DictValue)])) -> Self {
         let method = args.0;
-        let params = args.1.iter()
+        let params: Vec<_> = args.1.iter()
             .map(|(key, value)| (key.to_string(), value.clone()))
-            .rev().collect::<Vec<_>>();
+            .collect();
         (method, params).into()
     }
 }
@@ -405,6 +416,13 @@ impl From<(&str, &[&str])> for Call {
     }
 }
 
+// Positional integer params
+impl From<(&str, &[i32])> for Call {
+    fn from(args: (&str, &[i32])) -> Self {
+        (args.0.to_string(), args.1).into()
+    }
+}
+
 // Named string params
 impl From<(&str, &[(&str, &str)])> for Call {
     fn from(args: (&str, &[(&str, &str)])) -> Self {
@@ -415,6 +433,13 @@ impl From<(&str, &[(&str, &str)])> for Call {
 // Positional string params
 impl From<(&[&str], &[&str])> for Call {
     fn from(args: (&[&str], &[&str])) -> Self {
+        (args.0.join("/"), args.1).into()
+    }
+}
+
+// Positional integer params
+impl From<(&[&str], &[i32])> for Call {
+    fn from(args: (&[&str], &[i32])) -> Self {
         (args.0.join("/"), args.1).into()
     }
 }

@@ -12,6 +12,8 @@ extern crate stdweb;
 #[macro_use]
 extern crate serde_derive;
 
+extern crate json;
+
 mod holoclient;
 mod app;
 mod utils;
@@ -50,7 +52,7 @@ impl Component for Model {
             model_type: None,
             partner: None,
             holoclient_params: holoclient::Params::new(),
-            app_params: app::Params::new(),
+            app_params: app::Params(ToApp::None),
         }
     }
 
@@ -67,7 +69,7 @@ impl Component for Model {
 
             Msg::FromApp(msg) => {
                 if let Some(ModelType::App) = self.model_type {
-                    self.app_params.clear();
+                    self.app_params = app::Params(ToApp::None);
                     self.partner.as_mut().unwrap().send_message(Msg::ToHoloclient(msg));
                 } else {
                     panic! { "Msg::FromApp not received in App" };
@@ -94,8 +96,7 @@ impl Component for Model {
 
             Msg::ToApp(params_from_holoclient) => {
                 if let Some(ModelType::App) = self.model_type {
-                    let ToApp::Response(params) = params_from_holoclient;
-                    self.app_params = params;
+                    self.app_params = app::Params(params_from_holoclient);
                 } else {
                     panic! { "Msg::ToApp not received in App" };
                 }
