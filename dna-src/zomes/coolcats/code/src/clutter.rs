@@ -85,15 +85,22 @@ impl Handle {
     }
 }
 
+pub fn handle_app_property(name: String) -> JsonString {
+    match app_property(&name) {
+        Ok(value) => json!({ "value": value }).into(),
+        Err(hdk_err) => json!({ "error": hdk_err }).into(),
+    }
+}
+
 pub fn handle_use_handle(handle: String) -> JsonString {
-    match use_handle(handle) {
+    match use_handle(&handle) {
         Ok(address) => json!({ "value": address }).into(),
         Err(hdk_err) => json!({ "error": hdk_err }).into(),
     }
 }
 
-pub fn handle_get_handle() -> JsonString {
-    match get_handle() {
+pub fn handle_get_handle(address: String) -> JsonString {
+    match get_handle(&address.into()) {
         Ok(handle) => json!({ "value": handle }).into(),
         Err(hdk_err) => json!({ "error": hdk_err }).into(),
     }
@@ -107,7 +114,18 @@ pub fn handle_log_out() -> JsonString {
 }
 
 // incomplete
-fn use_handle(handle: String) -> ZomeApiResult<HashString> {
+fn app_property(name: &str) -> ZomeApiResult<String> {
+    match name {
+        "Agent_Handle" => get_handle(&AGENT_ADDRESS),
+        "Agent_Address" => Ok(AGENT_ADDRESS.to_string()),
+        _ => Err(ZomeApiError::ValidationFailed(
+            format!("No App Property with name: {}", name)
+        )),
+    }
+}
+
+// incomplete
+fn use_handle(handle: &str) -> ZomeApiResult<HashString> {
     let links = hdk::get_links(&AGENT_ADDRESS, "handle")?;
     let addresses = links.addresses();
     if addresses.len() > 0 {
@@ -124,8 +142,8 @@ fn use_handle(handle: String) -> ZomeApiResult<HashString> {
     Ok(handle_address)
 }
 
-fn get_handle() -> ZomeApiResult<String> {
-    let links = hdk::get_links(&AGENT_ADDRESS, "handle")?;
+fn get_handle(address: &HashString) -> ZomeApiResult<String> {
+    let links = hdk::get_links(address, "handle")?;
     let addresses = links.addresses();
     if addresses.len() < 1 {
         return Ok("".into())

@@ -23,15 +23,20 @@ define_zome! {
 
     functions: {
         main (Public) {
-            get_handle: {
-                inputs: | |,
+            app_property: {
+                inputs: |name: String|,
                 outputs: |result: JsonString|,
-                handler: clutter::handle_get_handle
+                handler: clutter::handle_app_property
             }
             use_handle: {
                 inputs: |handle: String|,
                 outputs: |result: JsonString|,
                 handler: clutter::handle_use_handle
+            }
+            get_handle: {
+                inputs: |address: String|,
+                outputs: |result: JsonString|,
+                handler: clutter::handle_get_handle
             }
             log_out: {
                 inputs: | |,
