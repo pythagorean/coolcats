@@ -10,7 +10,7 @@ pub enum Params {
 pub struct WsRpc {
     method: String,
     params: Params,
-    id: u32,
+    id: String,
 }
 
 #[derive(PartialEq, Clone)]
@@ -21,6 +21,16 @@ pub struct Call {
 
 impl From<(Call, u32)> for WsRpc {
     fn from(call_id: (Call, u32)) -> Self {
+        WsRpc {
+            method: call_id.0.method,
+            params: call_id.0.params,
+            id: call_id.1.to_string(),
+        }
+    }
+}
+
+impl From<(Call, String)> for WsRpc {
+    fn from(call_id: (Call, String)) -> Self {
         WsRpc {
             method: call_id.0.method,
             params: call_id.0.params,
@@ -109,7 +119,7 @@ impl WsRpc {
             },
         };
         let id = format! {
-            r#""id":{}"#,
+            r#""id":"{}""#,
             self.id
         };
         format! {

@@ -95,10 +95,10 @@ impl Dict {
         }
     }
 
-    //pub fn set_dict(&mut self, key: DictKey, value: Dict) {
-    //    self.dict(&key); // force panic if key exists and is not dict
-    //    self.insert(key, DictValue::Dict(value));
-    //}
+    pub fn set_dict(&mut self, key: DictKey, value: Dict) {
+        self.dict(&key); // force panic if key exists and is not dict
+        self.insert(key, DictValue::Dict(value));
+    }
 
     pub fn string(&self, key: &str) -> String {
         match self.get(key) {
@@ -155,10 +155,10 @@ impl Dict {
         }
     }
 
-    //pub fn set_bool(&mut self, key: DictKey, value: bool) {
-    //    self.bool(&key); // force panic if key exists and is not bool
-    //    self.insert(key, DictValue::Bool(value));
-    //}
+    pub fn set_bool(&mut self, key: DictKey, value: bool) {
+        self.bool(&key); // force panic if key exists and is not bool
+        self.insert(key, DictValue::Bool(value));
+    }
 
     pub fn subset(&self, keys: Vec<&str>) -> Self {
         let mut dict = Dict::new();

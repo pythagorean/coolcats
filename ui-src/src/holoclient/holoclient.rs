@@ -52,7 +52,56 @@ impl From<WsAction> for Msg {
     }
 }
 
-pub type Params = ws_rpc::Call;
+#[derive(PartialEq, Clone)]
+pub struct Params {
+    rpc: ws_rpc::Call,
+    redux: String,
+}
+
+impl From<&str> for Params {
+    fn from(method: &str) -> Self {
+        let rpc: ws_rpc::Call = method.into();
+        let redux = String::new();
+        Params { rpc, redux }
+    }
+}
+
+impl From<(&[&str], (&str, &str))> for Params {
+    fn from(args: (&[&str], (&str, &str))) -> Self {
+        let rpc: ws_rpc::Call = args.into();
+        let redux = String::new();
+        Params { rpc, redux }
+    }
+}
+
+impl From<(&[&str], (&str, &str), &str)> for Params {
+    fn from(args: (&[&str], (&str, &str), &str)) -> Self {
+        let rpc: ws_rpc::Call = (args.0, args.1).into();
+        let redux = args.2.into();
+        Params { rpc, redux }
+    }
+}
+
+impl Params {
+    pub fn new() -> Self {
+        let rpc = ws_rpc::Call::new();
+        let redux = String::new();
+        Params { rpc, redux }
+    }
+
+    pub fn clear(&mut self) {
+        self.rpc.clear();
+        self.redux.clear();
+    }
+
+    pub fn has_method(&self) -> bool {
+        self.rpc.has_method()
+    }
+
+    pub fn has_redux(&self) -> bool {
+        !self.redux.is_empty()
+    }
+}
 
 pub enum ToHoloclient {
     Call(Params),
@@ -97,8 +146,13 @@ impl Component for Holoclient {
             },
 
             Msg::WsReady(response) => {
-                let result = &json::parse(&response).unwrap()["result"];
-                self.update(ToApp::Result(result.to_string()).into());
+                let response = &json::parse(&response).unwrap();
+                let result = response["result"].to_string();
+                let id = response["id"].to_string();
+                match id.parse::<u32>().is_ok() {
+                    true => self.update(ToApp::Result(result).into()),
+                    false => self.update(ToApp::Redux(result, id).into()),
+                };
             },
 
             Msg::WsAction(action) => match action {
@@ -134,8 +188,13 @@ impl Component for Holoclient {
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
         let call = props.params;
         if call.has_method() {
-            self.rpc_id = self.rpc_id + 1;
-            let rpc = WsRpc::from((call, self.rpc_id));
+            let rpc: WsRpc = match call.has_redux() {
+                true => (call.rpc, call.redux).into(),
+                false => {
+                    self.rpc_id = self.rpc_id + 1;
+                    (call.rpc, self.rpc_id).into()
+                }
+            };
             self.update(WsAction::Call(rpc).into());
         }
         false

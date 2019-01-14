@@ -18,15 +18,9 @@ pub struct App {
 }
 
 pub enum Action {
-    //SetDict(String, Dict),
-    //SetString(String, String),
-    //SetStrings(String, Vec<String>),
-    //SetInteger(String, i32),
-    //SetBool(String, bool),
-
+    GetReady,
     //ResetState,
     //ToggleModal,
-
     UseHandle(String),
     SetFirstName(String),
 }
@@ -58,6 +52,7 @@ pub enum ToApp {
     None,
     Initialize,
     Result(String),
+    Redux(String, String),
 }
 
 #[derive(PartialEq, Clone)]
@@ -101,11 +96,14 @@ impl Component for App {
             },
 
             Msg::Action(action) => match action {
-                //Action::SetDict(   key, value) => self.state.set_dict(   key, value),
-                //Action::SetString( key, value) => self.state.set_string( key, value),
-                //Action::SetStrings(key, value) => self.state.set_strings(key, value),
-                //Action::SetInteger(key, value) => self.state.set_integer(key, value),
-                //Action::SetBool(   key, value) => self.state.set_bool(   key, value),
+                Action::GetReady => {
+                    // this fetches the hash which represents the active users userHash
+                    self.get_my_handle();
+                    //self.get_handles();
+                    //self.get_profile_pic();
+                    //self.get_first_name();
+                    //self.interval = setInterval(self.props.getHandles, 2000)
+                },
 
                 //Action::ResetState => {
                 //    self.state = Default::default();
@@ -118,7 +116,7 @@ impl Component for App {
                 //}
 
                 Action::UseHandle(handle) => {
-                    self.holochain("use_handle", ("handle", &*handle));
+                    self.coolcats("use_handle", ("handle", &*handle), "Use_Handle");
                 }
 
                 Action::SetFirstName(first_name) => {
@@ -137,15 +135,18 @@ impl Component for App {
         match holoclient_msg {
             ToApp::Initialize => {
                 self.onresult = Redux::GetContainer;
-                self.update(ToHoloclient::Call("info/instances".into()).into());
+                self.update(ToHoloclient::Call(
+                    "info/instances".into()
+                ).into());
             },
 
             ToApp::Result(result) => {
+                let result = &json::parse(&result).unwrap();
                 match self.onresult {
                     Redux::GetContainer => {
-                        let json = &json::parse(&result).unwrap();
-                        let container = json.entries().next().unwrap().0;
+                        let container = result.entries().next().unwrap().0;
                         self.container = container.to_string();
+                        self.update(Action::GetReady.into());
                     },
 
                     Redux::None => {
@@ -157,6 +158,56 @@ impl Component for App {
                 self.onresult = Redux::None;
             },
 
+            ToApp::Redux(result, redux) => {
+                let result = &json::parse(&result).unwrap();
+                let value = &result["value"];
+                match redux.as_str() {
+                    "Agent_Handle" => {
+                        let mut app_properties = self.state.get_dict("app_properties");
+                        app_properties.set_string(
+                            "Agent_Handle".into(), value.to_string()
+                        );
+                        self.state.set_dict("app_properties".into(), app_properties);
+                        self.state.set_string(
+                            "handle".into(), value.to_string()
+                        );
+                        return true;
+                    },
+
+                    "Use_Handle" => {
+                        if value.is_null() {
+                            let error = &result["error"];
+                            if error["ValidationFailed"] == "handle_in_use" {
+                                self.state.set_bool(
+                                    "handle_taken".into(), true
+                                );
+                            } else {
+                                panic!("Redux::UseHandle error: {}", error.to_string());
+                            }
+                        } else {
+                            let mut handles = self.state.get_dict("handles");
+                            handles.set_string(
+                                self.state.string("me"), value.to_string()
+                            );
+                            self.state.set_dict("handles".into(), handles);
+                            self.state.set_string(
+                                "handle".into(), value.to_string()
+                            );
+                            self.state.set_bool(
+                                "handle_taken".into(), false
+                            );
+                        }
+                        return true;
+                    }
+
+                    _ => {
+                        js! { alert(@{
+                            format!("ToApp::Redux({}, {})", result, redux)
+                        })}
+                    }
+                }
+            },
+
             ToApp::None => (),
         }
         false
@@ -164,17 +215,23 @@ impl Component for App {
 }
 
 impl App {
-    fn holochain(&mut self, method: &str, params: (&str, &str)) {
-        self.update(ToHoloclient::Call((
+    fn coolcats(&mut self, method: &str, params: (&str, &str), redux: &str) {
+        let call = ToHoloclient::Call((
             vec![self.container.as_str(), "coolcats", "main", method].as_slice(),
-            params
-        ).into()).into());
+            params,
+            redux
+        ).into());
+        self.update(call.into());;
+    }
+
+    fn get_my_handle(&mut self) {
+        self.coolcats("app_property", ("name", "Agent_Handle"), "Agent_Handle");
     }
 }
 
 impl Renderable<App> for App {
     fn view(&self) -> Html<Self> {
-        let app_properties = self.state.dict("app_properties");
+        let app_properties = self.state.get_dict("app_properties");
         let modal_is_open = self.state.bool("modal_is_open");
         let profile_pic = self.state.string("profile_pic");
 
