@@ -1,92 +1,77 @@
+use std::convert::TryFrom;
+
 use hdk::{
     self,
     AGENT_ADDRESS,
-    entry_definition::ValidatingEntryType,
+    entry_definition::{
+        ValidatingEntryType,
+        ValidatingLinkDefinition,
+    },
     error::{
         ZomeApiResult,
         ZomeApiError,
     },
     holochain_core_types::{
-        dna::zome::entry_types::Sharing,
-        entry::{
-            Entry,
-            entry_type::EntryType,
-        },
         cas::content::Address,
-        hash::HashString,
+        entry::Entry,
+        dna::entry_types::Sharing,
         json::JsonString,
     },
 };
 
-use crate::anchors::{
-    anchor,
-    anchor_text,
-};
+use crate::anchors::Anchor;
 
-use crate::utils::address_exists;
-
-pub struct Handle {}
+const HANDLE: &str = "handle";
+pub struct Handle;
 
 impl Handle {
     pub fn definition() -> ValidatingEntryType {
         entry!(
-            name: "handle",
+            name: HANDLE,
             description: "A user handle for posting meows",
             sharing: Sharing::Public,
-            native_type: HashString,
+            native_type: Address,
 
             validation_package: || {
                 hdk::ValidationPackageDefinition::Entry
             },
 
-            validation: |_handle_anchor: HashString, _ctx: hdk::ValidationData| {
+            validation: |_handle_anchor: Address, _ctx: hdk::ValidationData| {
                 Ok(())
             },
 
             links: [
-                from!(
-                    "%agent_id",
-                    tag: "handle",
-
-                    validation_package: || {
-                        hdk::ValidationPackageDefinition::Entry
-                    },
-
-                    validation: |_source: Address, _target: Address, _ctx: hdk::ValidationData| {
-                        Ok(())
-                    }
-                )
+                Handle::agent_link_definition()
             ]
         )
     }
 
-    fn new_entry(handle: &str) -> ZomeApiResult<Entry> {
-        Ok(Entry::new(
-            EntryType::App("handle".into()),
-            anchor("handle", handle)?
+    fn agent_link_definition() -> ValidatingLinkDefinition {
+        from!(
+            "%agent_id",
+            tag: HANDLE,
+            validation_package: || {
+                hdk::ValidationPackageDefinition::Entry
+            },
+            validation: |_source: Address, _target: Address, _ctx: hdk::ValidationData| {
+                Ok(())
+            }
+        )
+    }
+
+    fn create(handle: &str) -> ZomeApiResult<Address> {
+        hdk::commit_entry(&Entry::App(HANDLE.into(),
+            Anchor::create(HANDLE, handle)?.into()
         ))
     }
 
-    fn anchor_address(entry_address: Address) -> ZomeApiResult<Address> {
-        if let Some(handle_entry) = hdk::get_entry(entry_address)? {
-            Ok(Address::from(handle_entry.value().to_string().trim_matches('"')))
-        } else {
-            Err(ZomeApiError::ValidationFailed("invalid_entry_address".into()))
-        }
-    }
-
-    fn value(entry_address: Address) -> ZomeApiResult<String> {
-        let anchor_address = Handle::anchor_address(entry_address)?;
-        if let Some(anchor_text) = anchor_text(anchor_address)? {
-            Ok(anchor_text)
-        } else {
-            Err(ZomeApiError::ValidationFailed("invalid_anchor_address".into()))
-        }
+    fn exists(handle: &str) -> ZomeApiResult<bool> {
+        Anchor::exists(HANDLE, handle)
     }
 }
 
-pub fn handle_app_property(name: String) -> JsonString {
-    match app_property(&name) {
+pub fn handle_app_property(key: String) -> JsonString {
+    match app_property(&key) {
         Ok(value) => json!({ "value": value }).into(),
         Err(hdk_err) => json!({ "error": hdk_err }).into(),
     }
@@ -114,43 +99,46 @@ pub fn handle_log_out() -> JsonString {
 }
 
 // incomplete
-fn app_property(name: &str) -> ZomeApiResult<String> {
-    match name {
-        "Agent_Handle" => get_handle(&AGENT_ADDRESS),
+fn app_property(key: &str) -> ZomeApiResult<String> {
+    match key {
         "Agent_Address" => Ok(AGENT_ADDRESS.to_string()),
+        "Agent_Handle" => get_handle(&AGENT_ADDRESS),
         _ => Err(ZomeApiError::ValidationFailed(
-            format!("No App Property with name: {}", name)
+            format!("No App Property with key: {}", key)
         )),
     }
 }
 
 // incomplete
-fn use_handle(handle: &str) -> ZomeApiResult<HashString> {
-    let links = hdk::get_links(&AGENT_ADDRESS, "handle")?;
-    let addresses = links.addresses();
-    if addresses.len() > 0 {
+pub fn use_handle(handle: &str) -> ZomeApiResult<Address> {
+    if Handle::exists(handle)? {
         return Err(ZomeApiError::ValidationFailed("handle_in_use".into()));
     }
-    let handle_entry = Handle::new_entry(&handle)?;
-    let handle_address = hdk::entry_address(&handle_entry)?;
-    if address_exists(&handle_address)? {
-        return Err(ZomeApiError::ValidationFailed("handle_in_use".into()));
-    }
-    hdk::commit_entry(&handle_entry)?;
-    hdk::link_entries(&AGENT_ADDRESS, &handle_address, "handle")?;
-    //hdk::link_entries(&AGENT_ADDRESS, &handle_address, "directory")?;
-    Ok(handle_address)
+    let handle_addr = Handle::create(handle)?;
+    hdk::link_entries(&AGENT_ADDRESS, &handle_addr, HANDLE)?;
+    Ok(handle_addr)
 }
 
-fn get_handle(address: &HashString) -> ZomeApiResult<String> {
-    let links = hdk::get_links(address, "handle")?;
-    let addresses = links.addresses();
-    if addresses.len() < 1 {
-        return Ok("".into())
+fn get_handle(addr: &Address) -> ZomeApiResult<String> {
+    let mut addr = addr;
+    let links = hdk::get_links(addr, HANDLE)?;
+    let addrs = links.addresses();
+    if !addrs.is_empty() {
+        addr = &addrs[0];
     }
-    Ok(Handle::value(addresses[0].to_owned())?)
+    if let Some(entry) = hdk::get_entry(&addr)? {
+        if let Entry::App(entry_type, value) = entry {
+            if entry_type.to_string() == HANDLE {
+                return Ok(Anchor::get(
+                    &Address::try_from(value)?)?
+                    .get_text().to_string()
+                );
+            }
+        }
+    }
+    Err(ZomeApiError::ValidationFailed("get_handle called on non-handle address".into()))
 }
 
 fn log_out() -> ZomeApiResult<String> {
-    return Err(ZomeApiError::Internal("cannot delete link entries yet".into()));
+    Err(ZomeApiError::Internal("cannot delete link entries yet".into()))
 }

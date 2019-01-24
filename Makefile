@@ -1,8 +1,11 @@
 all:	dna ui
 
+lint: dna-lint ui-lint
+
 test: dna-test
 
 update: dna-update ui-update
+	rustup self update
 	rustup update
 
 clean: dna-clean ui-clean
@@ -13,6 +16,9 @@ dna:
 	(cd dna-src; hc package)
 
 dna-build: dna
+
+dna-lint:
+	(cd dna-src/zomes/coolcats/code; cargo +nightly clippy)
 
 dna-test:
 	(cd dna-src; hc test)
@@ -32,6 +38,9 @@ ui:
 	(cd ui-src; yarn; yarn build)
 
 ui-build: ui
+
+ui-lint:
+	(cd ui-src; cargo +stable clippy)
 
 ui-start:
 	(cd ui-src; yarn; yarn start)

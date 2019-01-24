@@ -4,7 +4,8 @@
       "+nightly",
       "build",
       "--release",
-      "--target=wasm32-unknown-unknown"
+      "--target=wasm32-unknown-unknown",
+      "--target-dir=target"
     ]
   },
   "artifact": "target/wasm32-unknown-unknown/release/coolcats.wasm"
