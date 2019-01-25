@@ -8,7 +8,7 @@ use crate::app::{
 const MAX_HANDLE_LENGTH: usize = 20;
 
 // Declare what state keys will be used by this component
-const GETSTATES: [&'static str; 2] = [
+const GETSTATES: [&str; 2] = [
     "handle_taken",
     "first_name",
 ];
@@ -28,7 +28,6 @@ pub enum Msg {
     Callback(Action),
     UpdateHandleText(ChangeData),
     OnHandleSubmit,
-    Ignore,
 }
 
 impl From<Action> for Msg {
@@ -82,8 +81,6 @@ impl Component for Settings {
             Msg::OnHandleSubmit => {
                 self.on_handle_submit();
             },
-
-            Msg::Ignore => (),
         };
         false
     }
@@ -99,10 +96,6 @@ impl Settings {
         self.update(Action::UseHandle(handle.into()).into());
     }
 
-    //fn toggle_modal(&mut self) {
-    //    self.update(Action::ToggleModal.into());
-    //}
-
     fn set_first_name(&mut self, first_name: &str) {
         self.update(Action::SetFirstName(first_name.into()).into());
     }
@@ -111,7 +104,7 @@ impl Settings {
         let use_handle_text = self.use_handle_text.clone();
 
         // empty string given as input
-        if use_handle_text.len() == 0 { return };
+        if use_handle_text.is_empty() { return };
 
         // max characters exceeded
         if use_handle_text.len() > MAX_HANDLE_LENGTH {
@@ -122,11 +115,9 @@ impl Settings {
         self.use_handle(&use_handle_text);
 
         // check if a name has been set, and if not default to handle
-        if self.getstate.string("first_name").len() == 0 {
+        if self.getstate.string("first_name").is_empty() {
             self.set_first_name(&use_handle_text);
         }
-
-        //self.toggle_modal();
     }
 }
 
@@ -142,7 +133,7 @@ impl Renderable<Settings> for Settings {
                         <p
                             classname="text-info",
                             style={
-                                if use_handle_text.len() == 0 && handle_taken == false {
+                                if use_handle_text.is_empty() && !handle_taken {
                                     "display: inline;"
                                 } else {
                                     "display: none;"
@@ -156,7 +147,7 @@ impl Renderable<Settings> for Settings {
                         <p
                             classname="text-danger",
                             style={
-                                if handle_taken == true {
+                                if handle_taken {
                                     "display: inline;"
                                 } else {
                                     "display: none;"
@@ -172,10 +163,11 @@ impl Renderable<Settings> for Settings {
                             <input
                                 value=use_handle_text,
                                 onchange=|input| Msg::UpdateHandleText(input),
-                                onkeypress=|pressed| {
-                                    if pressed.key() == "Enter" { Msg::OnHandleSubmit }
-                                    else { Msg::Ignore }
-                                },
+                                // Needs to be refined so UpdateHandleText is processed first
+                                //onkeypress=|pressed| {
+                                //    if pressed.key() == "Enter" { Msg::OnHandleSubmit }
+                                //    else { Msg::Ignore }
+                                //},
                                 type="text",
                                 classname="form-control",
                                 id="myHandle",

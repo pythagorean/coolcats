@@ -85,19 +85,23 @@ impl Dict {
         self.0.insert(key, value);
     }
 
-    pub fn dict(&self, key: &str) -> Dict {
+    pub fn get_dict(&self, key: &str) -> Dict {
         match self.get(key) {
             DictValue::Dict(value) => value,
             DictValue::Undefined => Dict::new(),
             _ => panic! {
-                "Dict::dict called on non-dict key"
+                "Dict::get_dict called on non-dict key"
             }
         }
     }
 
-    pub fn set_dict(&mut self, key: DictKey, value: Dict) {
-        self.dict(&key); // force panic if key exists and is not dict
-        self.insert(key, DictValue::Dict(value));
+    pub fn mut_dict(&mut self, key: &str) -> &mut Dict {
+        match self.get_mut(key) {
+            DictValue::Dict(value) => value,
+            _ => panic! {
+                "Dict::mut_dict called on non-dict key"
+            }
+        }
     }
 
     pub fn string(&self, key: &str) -> String {
@@ -160,10 +164,10 @@ impl Dict {
         self.insert(key, DictValue::Bool(value));
     }
 
-    pub fn subset(&self, keys: Vec<&str>) -> Self {
+    pub fn subset(&self, keys: &[&str]) -> Self {
         let mut dict = Dict::new();
         for key in keys {
-            if let Some(value) = self.0.get(key) {
+            if let Some(value) = self.0.get(*key) {
                 dict.insert((*key).into(), (*value).clone());
             }
         }
@@ -174,6 +178,15 @@ impl Dict {
         match self.0.get(key) {
             Some(value) => value.clone(),
             None => DictValue::Undefined,
+        }
+    }
+
+    fn get_mut(&mut self, key: &str) -> &mut DictValue {
+        match self.0.get_mut(key) {
+            Some(value) => value,
+            None => panic! {
+                "Dict::get_mut called on nonexistent key"
+            }
         }
     }
 }

@@ -54,7 +54,7 @@ impl WebSocketService {
 
         websocket.add_event_listener(move |event: SocketMessageEvent| {
             if let Some(data) = event.data().into_text() {
-                callback.emit(data.into());
+                callback.emit(data);
             }
         });
 

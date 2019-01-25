@@ -59,17 +59,14 @@ impl WsRpc {
                             });
                         },
                         DictValue::Integer(value) => {
-                            params.push(format! {
-                                "{}", value
-                            });
+                            params.push(
+                                value.to_string()
+                            );
                         },
                         DictValue::Bool(value) => {
-                            params.push(format! {
-                                "{}", match value {
-                                    true => "true",
-                                    false => "false",
-                                }
-                            });
+                            params.push(
+                                if *value { "true" } else { "false" }.to_string()
+                            );
                         },
                         _ => {
                             panic! { "Unsupported RPC parameter type" };
@@ -84,7 +81,7 @@ impl WsRpc {
             Params::Named(named_params) => {
                 let mut params = Vec::new();
                 for param in named_params {
-                    let ref key = param.0;
+                    let key = &param.0;
                     match param.1 {
                         DictValue::String(ref value) => {
                             params.push(format! {
@@ -101,10 +98,7 @@ impl WsRpc {
                         DictValue::Bool(value) => {
                             params.push(format! {
                                 r#""{}":{}"#,
-                                key, match value {
-                                    true => "true",
-                                    false => "false",
-                                }
+                                key, if value { "true" } else { "false" }
                             });
                         },
                         _ => {
@@ -379,11 +373,7 @@ impl From<(String, &[(&str, &str)])> for Call {
 // Positional params
 impl From<(String, &[DictValue])> for Call {
     fn from(args: (String, &[DictValue])) -> Self {
-        let method = args.0;
-        let params: Vec<_> = args.1.iter()
-            .map(|value| value.clone())
-            .collect();
-        (method, params).into()
+        (args.0, args.1.to_vec()).into()
     }
 }
 
@@ -408,7 +398,7 @@ impl From<(&str, &[DictValue])> for Call {
 // Named params
 impl From<(&str, &[(String, DictValue)])> for Call {
     fn from(args: (&str, &[(String, DictValue)])) -> Self {
-        (args.0.into(), args.1).into()
+        (args.0.to_string(), args.1.to_vec()).into()
     }
 }
 

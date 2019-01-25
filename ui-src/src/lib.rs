@@ -9,10 +9,11 @@ use yew::{
 #[macro_use]
 extern crate stdweb;
 
-#[macro_use]
-extern crate serde_derive;
-
 extern crate json;
+
+extern crate strum;
+#[macro_use]
+extern crate strum_macros;
 
 mod holoclient;
 mod app;
@@ -112,14 +113,14 @@ impl Renderable<Model> for Model {
             Some(ModelType::Holoclient) => html! {
                 <Holoclient:
                     params = self.holoclient_params.clone(),
-                    callback = |data| Msg::FromHoloclient(data),
+                    callback = Msg::FromHoloclient,
                 />
             },
 
             Some(ModelType::App) => html! {
                 <App:
                     params = self.app_params.clone(),
-                    callback = |data| Msg::FromApp(data),
+                    callback = Msg::FromApp,
                 />
             },
 

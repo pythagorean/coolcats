@@ -1,6 +1,3 @@
-extern crate yew;
-extern crate coolcats2;
-
 use stdweb::web::{
     IParentNode,
     document,
