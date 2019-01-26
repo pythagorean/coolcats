@@ -80,7 +80,7 @@ test('anchors', (t) => {
   t.end()
 })
 
-test('properties', (t) => {
+test('clutter', (t) => {
   t.test('get the agent address', (t) => {
     t.plan(1)
     const result = display(call("app_property", {key: "Agent_Address"}))
@@ -118,6 +118,21 @@ test('properties', (t) => {
       {address: "QmUXkCgPqXcniV2JvRLeNZs21j4UyXoPWJ4pMtygRCdo8c"}
     ))
     t.equal(result.value, "buffaloBill")
+  })
+
+  t.test('set the first name of the user', (t) => {
+    t.plan(1)
+    const result = display(call("set_first_name",
+      {name: aliceName}
+    ))
+    t.equal(result.value, aliceName)
+    sleep(1000)
+  })
+
+  t.test('get the first name of the user', (t) => {
+    t.plan(1)
+    const result = display(call("get_first_name", {}))
+    t.equal(result.value, aliceName)
   })
 
   t.end()

@@ -15,8 +15,14 @@ use hdk::{
         cas::content::Address,
         entry::Entry,
         dna::entry_types::Sharing,
+        error::HolochainError,
         json::JsonString,
     },
+};
+
+use serde::{
+    Serialize,
+    Deserialize,
 };
 
 use crate::anchors::Anchor;
@@ -70,6 +76,60 @@ impl Handle {
     }
 }
 
+#[derive(Serialize, Deserialize, Debug, DefaultJson)]
+pub struct PropValue(String);
+
+impl PropValue {
+    fn new(value: &str) -> Self {
+        PropValue(value.into())
+    }
+
+    fn create(tag: &str, data: &str) -> ZomeApiResult<Address> {
+        hdk::commit_entry(
+            &Entry::App(tag.to_string().into(), PropValue::new(data).into())
+        )
+    }
+}
+
+const FIRST_NAME: &str = "first_name";
+pub struct FirstName;
+
+impl FirstName {
+    pub fn definition() -> ValidatingEntryType {
+        entry!(
+            name: FIRST_NAME,
+            description: "a user's first name",
+            sharing: Sharing::Public,
+            native_type: PropValue,
+
+            validation_package: || {
+                hdk::ValidationPackageDefinition::Entry
+            },
+
+            validation: |_name: PropValue, _ctx: hdk::ValidationData| {
+                Ok(())
+            },
+
+            links: [
+                FirstName::agent_link_definition()
+            ]
+        )
+    }
+
+    fn agent_link_definition() -> ValidatingLinkDefinition {
+        from!(
+            "%agent_id",
+            tag: FIRST_NAME,
+            validation_package: || {
+                hdk::ValidationPackageDefinition::Entry
+            },
+            validation: |_source: Address, _target: Address, _ctx: hdk::ValidationData| {
+                Ok(())
+            }
+        )
+    }
+}
+
 pub fn handle_app_property(key: String) -> JsonString {
     match app_property(&key) {
         Ok(value) => json!({ "value": value }).into(),
@@ -87,6 +147,20 @@ pub fn handle_use_handle(handle: String) -> JsonString {
 pub fn handle_get_handle(address: String) -> JsonString {
     match get_handle(&address.into()) {
         Ok(handle) => json!({ "value": handle }).into(),
+        Err(hdk_err) => json!({ "error": hdk_err }).into(),
+    }
+}
+
+pub fn handle_set_first_name(name: String) -> JsonString {
+    match set_first_name(&name) {
+        Ok(name) => json!({ "value": name }).into(),
+        Err(hdk_err) => json!({ "error": hdk_err }).into(),
+    }
+}
+
+pub fn handle_get_first_name() -> JsonString {
+    match get_first_name() {
+        Ok(name) => json!({ "value": name }).into(),
         Err(hdk_err) => json!({ "error": hdk_err }).into(),
     }
 }
@@ -137,6 +211,37 @@ fn get_handle(addr: &Address) -> ZomeApiResult<String> {
         }
     }
     Err(ZomeApiError::ValidationFailed("get_handle called on non-handle address".into()))
+}
+
+fn set_first_name(name: &str) -> ZomeApiResult<String> {
+    set_profile_prop(name, FIRST_NAME)
+}
+
+fn get_first_name() -> ZomeApiResult<String> {
+    get_profile_prop(FIRST_NAME)
+}
+
+fn set_profile_prop(data: &str, tag: &str) -> ZomeApiResult<String> {
+    let prop_addr = PropValue::create(tag, data)?;
+    hdk::link_entries(&AGENT_ADDRESS, &prop_addr, tag)?;
+    Ok(data.to_string())
+}
+
+fn get_profile_prop(tag: &str) -> ZomeApiResult<String> {
+    let links = hdk::get_links(&AGENT_ADDRESS, tag)?;
+    let addrs = links.addresses();
+    if addrs.is_empty() {
+        return Err(ZomeApiError::ValidationFailed("get_profile_prop called on unlinked tag".into()))
+    }
+    if let Some(entry) = hdk::get_entry(&addrs[0])? {
+        if let Entry::App(entry_type, value) = entry {
+            if entry_type.to_string() == tag {
+                let data = PropValue::try_from(value)?;
+                return Ok(data.0);
+            }
+        }
+    }
+    Err(ZomeApiError::Internal("linked entry mismatch in get_profile_prop".into()))
 }
 
 fn log_out() -> ZomeApiResult<String> {

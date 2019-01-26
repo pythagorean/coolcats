@@ -19,12 +19,14 @@ use anchors::{
     Anchor, AnchorLink,
 };
 
-use clutter::Handle;
+use clutter::{
+    Handle, FirstName,
+};
 
 define_zome! {
     entries: [
        Anchor::definition(), AnchorLink::definition(),
-       Handle::definition()
+       Handle::definition(), FirstName::definition()
     ]
 
     genesis: || { Ok(()) }
@@ -65,6 +67,16 @@ define_zome! {
                 inputs: |address: String|,
                 outputs: |result: JsonString|,
                 handler: clutter::handle_get_handle
+            }
+            set_first_name: {
+                inputs: |name: String|,
+                outputs: |result: JsonString|,
+                handler: clutter::handle_set_first_name
+            }
+            get_first_name: {
+                inputs: | |,
+                outputs: |result: JsonString|,
+                handler: clutter::handle_get_first_name
             }
             log_out: {
                 inputs: | |,
