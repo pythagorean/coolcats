@@ -1,5 +1,7 @@
 all:	dna ui
 
+fmt: ui-fmt
+
 lint: dna-lint ui-lint
 
 test: dna-test
@@ -38,6 +40,9 @@ ui:
 	(cd ui-src; yarn; yarn build)
 
 ui-build: ui
+
+ui-fmt:
+	(cd ui-src; cargo +stable fmt)
 
 ui-lint:
 	(cd ui-src; cargo +stable clippy)

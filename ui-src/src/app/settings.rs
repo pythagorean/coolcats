@@ -8,10 +8,7 @@ use crate::app::{
 const MAX_HANDLE_LENGTH: usize = 20;
 
 // Declare what state keys will be used by this component
-const GETSTATES: [&str; 2] = [
-    "handle_taken",
-    "first_name",
-];
+const GETSTATES: [&str; 2] = ["handle_taken", "first_name"];
 
 pub fn getstates() -> Vec<&'static str> {
     GETSTATES.to_vec()
@@ -70,17 +67,17 @@ impl Component for Settings {
                 if let Some(ref mut callback) = self.callback {
                     callback.emit(msg);
                 }
-            },
+            }
 
             Msg::UpdateHandleText(ChangeData::Value(handle_text)) => {
                 self.use_handle_text = handle_text;
                 return true;
-            },
+            }
             Msg::UpdateHandleText(_) => (),
 
             Msg::OnHandleSubmit => {
                 self.on_handle_submit();
-            },
+            }
         };
         false
     }
@@ -104,12 +101,14 @@ impl Settings {
         let use_handle_text = self.use_handle_text.clone();
 
         // empty string given as input
-        if use_handle_text.is_empty() { return };
+        if use_handle_text.is_empty() {
+            return;
+        };
 
         // max characters exceeded
         if use_handle_text.len() > MAX_HANDLE_LENGTH {
             self.use_handle_text = String::new();
-            return
+            return;
         }
 
         self.use_handle(&use_handle_text);

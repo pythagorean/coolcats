@@ -91,7 +91,7 @@ impl Dict {
             DictValue::Undefined => Dict::new(),
             _ => panic! {
                 "Dict::get_dict called on non-dict key"
-            }
+            },
         }
     }
 
@@ -100,7 +100,7 @@ impl Dict {
             DictValue::Dict(value) => value,
             _ => panic! {
                 "Dict::mut_dict called on non-dict key"
-            }
+            },
         }
     }
 
@@ -110,7 +110,7 @@ impl Dict {
             DictValue::Undefined => String::new(),
             _ => panic! {
                 "Dict::string called on non-string key"
-            }
+            },
         }
     }
 
@@ -155,7 +155,7 @@ impl Dict {
             DictValue::Undefined => None,
             _ => panic! {
                 "Dict::bool called on non-bool key"
-            }
+            },
         }
     }
 
@@ -186,7 +186,7 @@ impl Dict {
             Some(value) => value,
             None => panic! {
                 "Dict::get_mut called on nonexistent key"
-            }
+            },
         }
     }
 }

@@ -96,7 +96,7 @@ impl Component for App {
                     callback.emit(msg);
                 }
                 return false;
-            },
+            }
 
             Msg::Action(action) => match action {
                 Action::GetReady => {
@@ -105,25 +105,20 @@ impl Component for App {
                     //self.get_profile_pic();
                     self.get_first_name();
                     //self.interval = setInterval(self.props.getHandles, 2000)
-                },
+                }
 
                 //Action::ResetState => {
                 //    self.state = Default::default();
                 //},
-
                 Action::UseHandle(handle) => {
-                    self.coolcats(
-                        "use_handle",
-                        ("handle", &*handle),
-                        Redux::UseHandle.as_static()
-                    );
+                    self.coolcats("use_handle", ("handle", &*handle), Redux::UseHandle.as_static());
                 }
 
                 Action::SetFirstName(first_name) => {
                     self.coolcats(
                         "set_first_name",
                         ("name", &*first_name),
-                        Redux::SetFirstName.as_static()
+                        Redux::SetFirstName.as_static(),
                     );
                 }
             },
@@ -135,11 +130,11 @@ impl Component for App {
         let holoclient_msg = props.params.0;
         match holoclient_msg {
             ToApp::Initialize => {
-                self.update(ToHoloclient::Call((
-                    "info/instances",
-                    Redux::GetContainer.as_static()
-                ).into()).into());
-            },
+                self.update(
+                    ToHoloclient::Call(("info/instances", Redux::GetContainer.as_static()).into())
+                        .into(),
+                );
+            }
 
             ToApp::Redux(result, redux) => {
                 let result = &json::parse(&result).unwrap();
@@ -151,52 +146,42 @@ impl Component for App {
                         self.container = result[0]["id"].to_string();
                         //Disabled because get_my_handle before handle is set has Zome problem
                         //self.update(Action::GetReady.into());
-                    },
+                    }
 
                     Redux::UseHandle => {
                         if value.is_null() {
                             let error = &result["error"];
                             if error["ValidationFailed"] == "handle_in_use" {
-                                self.state.set_bool(
-                                    "handle_taken".into(), true
-                                );
+                                self.state.set_bool("handle_taken".into(), true);
                                 return true;
                             } else {
                                 panic!("Redux::UseHandle error: {}", error.to_string());
                             }
                         } else {
                             let me = self.state.string("me");
-                            self.state.mut_dict("handles").set_string(
-                                me, value.to_string()
-                            );
-                            self.state.set_string(
-                                "handle".into(), value.to_string()
-                            );
-                            self.state.set_bool(
-                                "handle_taken".into(), false
-                            );
-                            self.state.mut_dict("app_properties").set_string(
-                                "Agent_Handle".into(), value.to_string()
-                            );
+                            self.state.mut_dict("handles").set_string(me, value.to_string());
+                            self.state.set_string("handle".into(), value.to_string());
+                            self.state.set_bool("handle_taken".into(), false);
+                            self.state
+                                .mut_dict("app_properties")
+                                .set_string("Agent_Handle".into(), value.to_string());
                             return true;
                         }
                     }
 
                     Redux::AgentHandle => {
-                        self.state.mut_dict("app_properties").set_string(
-                            "Agent_Handle".into(), value.to_string()
-                        );
+                        self.state
+                            .mut_dict("app_properties")
+                            .set_string("Agent_Handle".into(), value.to_string());
                         return true;
-                    },
+                    }
 
                     Redux::SetFirstName | Redux::GetFirstName => {
-                        self.state.set_string(
-                            "first_name".into(), value.to_string()
-                        );
-                        return true
-                    },
+                        self.state.set_string("first_name".into(), value.to_string());
+                        return true;
+                    }
                 }
-            },
+            }
 
             ToApp::None => (),
         }
@@ -206,35 +191,25 @@ impl Component for App {
 
 impl App {
     fn coolcats(&mut self, method: &str, params: (&str, &str), redux: &str) {
-        let call = ToHoloclient::Call((
-            &[self.container.as_str(), "coolcats", "main", method][..],
-            params,
-            redux
-        ).into());
+        let call = ToHoloclient::Call(
+            (&[self.container.as_str(), "coolcats", "main", method][..], params, redux).into(),
+        );
         self.update(call.into());;
     }
 
     fn coolcats_np(&mut self, method: &str, redux: &str) {
-        let call = ToHoloclient::Call((
-            &[self.container.as_str(), "coolcats", "main", method][..],
-            redux
-        ).into());
+        let call = ToHoloclient::Call(
+            (&[self.container.as_str(), "coolcats", "main", method][..], redux).into(),
+        );
         self.update(call.into());;
     }
 
     fn get_my_handle(&mut self) {
-        self.coolcats(
-            "app_property",
-            ("key", "Agent_Handle"),
-            Redux::AgentHandle.as_static()
-        );
+        self.coolcats("app_property", ("key", "Agent_Handle"), Redux::AgentHandle.as_static());
     }
 
     fn get_first_name(&mut self) {
-        self.coolcats_np(
-            "get_first_name",
-            Redux::GetFirstName.as_static()
-        )
+        self.coolcats_np("get_first_name", Redux::GetFirstName.as_static())
     }
 }
 
@@ -293,7 +268,7 @@ impl Renderable<App> for App {
                                         <a href="/",>{"Coolcats2 (Clutter)"}</a>
                                         <div class="subtitle",>{"can haz herd cats?"}</div>
                                     </div>
-/*
+                                    /*
                                     <div id="content",>
                                         <Route path="/" exact component={NewMeowContainer} />
                                         <Route path="/editProfile" component={EditProfileContainer} />
@@ -304,7 +279,7 @@ impl Renderable<App> for App {
                                             component={HashtagFeedContainer}
                                         />
                                     </div>
-*/
+                                    */
                                 </div>
                             </div>
                             <div class="col-sm-3",>
@@ -331,7 +306,7 @@ impl Renderable<App> for App {
                                                   {"holochain.org"}
                                               </a>{"."}
                                           </p>
-/*
+                                          /*
                                           <form
                                             id="logout-form"
                                             onSubmit={this.onLogoutSubmit.bind(this)}
@@ -345,7 +320,7 @@ impl Renderable<App> for App {
                                               Logout
                                             </button>
                                           </form>
-*/
+                                          */
                                     </div>
                                 </div>
                             </div>

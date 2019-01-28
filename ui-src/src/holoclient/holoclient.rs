@@ -64,7 +64,10 @@ impl From<(&str, &str)> for Params {
     fn from(args: (&str, &str)) -> Self {
         let rpc: ws_rpc::Call = args.0.into();
         let redux = args.1.into();
-        Params { rpc, redux }
+        Params {
+            rpc,
+            redux,
+        }
     }
 }
 
@@ -72,7 +75,10 @@ impl From<(&[&str], &str)> for Params {
     fn from(args: (&[&str], &str)) -> Self {
         let rpc: ws_rpc::Call = args.0.into();
         let redux = args.1.into();
-        Params { rpc, redux }
+        Params {
+            rpc,
+            redux,
+        }
     }
 }
 
@@ -80,7 +86,10 @@ impl From<(&[&str], (&str, &str), &str)> for Params {
     fn from(args: (&[&str], (&str, &str), &str)) -> Self {
         let rpc: ws_rpc::Call = (args.0, args.1).into();
         let redux = args.2.into();
-        Params { rpc, redux }
+        Params {
+            rpc,
+            redux,
+        }
     }
 }
 
@@ -94,7 +103,10 @@ impl Params {
     pub fn new() -> Self {
         let rpc = ws_rpc::Call::new();
         let redux = String::new();
-        Params { rpc, redux }
+        Params {
+            rpc,
+            redux,
+        }
     }
 
     pub fn clear(&mut self) {
@@ -151,28 +163,28 @@ impl Component for Holoclient {
                 if let Some(ref mut callback) = self.callback {
                     callback.emit(msg);
                 }
-            },
+            }
 
             Msg::WsReady(response) => {
                 let response = &json::parse(&response).unwrap();
                 let result = response["result"].to_string();
                 let redux = response["id"].to_string();
                 self.update(ToApp::Redux(result, redux).into());
-            },
+            }
 
             Msg::WsAction(action) => match action {
                 WsAction::Connect => {
-                    if self.websocket.is_some() { return false; }
+                    if self.websocket.is_some() {
+                        return false;
+                    }
                     let callback = self.link.send_back(Msg::WsReady);
-                    let notification = self.link.send_back(|status| {
-                        match status {
-                            WebSocketStatus::Opened => WsAction::Initialize.into(),
-                            WebSocketStatus::Closed | WebSocketStatus::Error => WsAction::Lost.into(),
-                        }
+                    let notification = self.link.send_back(|status| match status {
+                        WebSocketStatus::Opened => WsAction::Initialize.into(),
+                        WebSocketStatus::Closed | WebSocketStatus::Error => WsAction::Lost.into(),
                     });
                     let service = WebSocketService::new(HOLOCHAIN_SERVER, callback, notification);
                     self.websocket = Some(service);
-                },
+                }
 
                 WsAction::Initialize => {
                     self.update(Msg::Callback(ToApp::Initialize));
@@ -180,11 +192,11 @@ impl Component for Holoclient {
 
                 WsAction::Call(rpc) => {
                     self.websocket.as_mut().unwrap().send(&rpc.json());
-                },
+                }
 
                 WsAction::Lost => {
                     self.websocket = None;
-                },
+                }
             },
         };
         false

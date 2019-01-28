@@ -33,7 +33,7 @@ impl WebSocketService {
     pub fn new(
         server: &str,
         callback: Callback<String>,
-        notification: Callback<WebSocketStatus>
+        notification: Callback<WebSocketStatus>,
     ) -> Self {
         let websocket = WebSocket::new(server).expect("Unable to connect to websocket");
 
@@ -58,7 +58,10 @@ impl WebSocketService {
             }
         });
 
-        Self { websocket, notification }
+        Self {
+            websocket,
+            notification,
+        }
     }
 
     pub fn send(&mut self, json: &str) {

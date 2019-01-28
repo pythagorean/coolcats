@@ -46,9 +46,7 @@ impl WsRpc {
             self.method
         };
         let params = match &self.params {
-            Params::Unspecified => {
-                r#""params":null"#.to_string()
-            },
+            Params::Unspecified => r#""params":null"#.to_string(),
             Params::Positional(positional_params) => {
                 let mut params = Vec::new();
                 for param in positional_params {
@@ -57,27 +55,30 @@ impl WsRpc {
                             params.push(format! {
                                 r#""{}""#, value
                             });
-                        },
+                        }
                         DictValue::Integer(value) => {
-                            params.push(
-                                value.to_string()
-                            );
-                        },
+                            params.push(value.to_string());
+                        }
                         DictValue::Bool(value) => {
                             params.push(
-                                if *value { "true" } else { "false" }.to_string()
+                                if *value {
+                                    "true"
+                                } else {
+                                    "false"
+                                }
+                                .to_string(),
                             );
-                        },
+                        }
                         _ => {
                             panic! { "Unsupported RPC parameter type" };
-                        },
+                        }
                     }
                 }
                 format! {
                     r#""params":[{}]"#,
                     params.join(",")
                 }
-            },
+            }
             Params::Named(named_params) => {
                 let mut params = Vec::new();
                 for param in named_params {
@@ -88,29 +89,29 @@ impl WsRpc {
                                 r#""{}":"{}""#,
                                 key, value
                             });
-                        },
+                        }
                         DictValue::Integer(value) => {
                             params.push(format! {
                                 r#""{}":{}"#,
                                 key, value
                             });
-                        },
+                        }
                         DictValue::Bool(value) => {
                             params.push(format! {
                                 r#""{}":{}"#,
                                 key, if value { "true" } else { "false" }
                             });
-                        },
+                        }
                         _ => {
                             panic! { "Unsupported RPC parameter type" };
-                        },
+                        }
                     }
                 }
                 format! {
                     r#""params":{{{}}}"#,
                     params.join(",")
                 }
-            },
+            }
         };
         let id = format! {
             r#""id":"{}""#,
@@ -319,9 +320,8 @@ impl From<(&[&str], (&str, bool))> for Call {
 impl From<(String, &[String])> for Call {
     fn from(args: (String, &[String])) -> Self {
         let method = args.0;
-        let params: Vec<_> = args.1.iter()
-            .map(|value| DictValue::String(value.to_string()))
-            .collect();
+        let params: Vec<_> =
+            args.1.iter().map(|value| DictValue::String(value.to_string())).collect();
         (method, params).into()
     }
 }
@@ -330,9 +330,7 @@ impl From<(String, &[String])> for Call {
 impl From<(String, &[i32])> for Call {
     fn from(args: (String, &[i32])) -> Self {
         let method = args.0;
-        let params: Vec<_> = args.1.iter()
-            .map(|value| DictValue::Integer(*value))
-            .collect();
+        let params: Vec<_> = args.1.iter().map(|value| DictValue::Integer(*value)).collect();
         (method, params).into()
     }
 }
@@ -341,7 +339,9 @@ impl From<(String, &[i32])> for Call {
 impl From<(String, &[(String, String)])> for Call {
     fn from(args: (String, &[(String, String)])) -> Self {
         let method = args.0;
-        let params: Vec<_> = args.1.iter()
+        let params: Vec<_> = args
+            .1
+            .iter()
             .map(|(key, value)| (key.clone(), DictValue::String(value.to_string())))
             .collect();
         (method, params).into()
@@ -352,9 +352,8 @@ impl From<(String, &[(String, String)])> for Call {
 impl From<(String, &[&str])> for Call {
     fn from(args: (String, &[&str])) -> Self {
         let method = args.0;
-        let params: Vec<_> = args.1.iter()
-            .map(|value| DictValue::String(value.to_string()))
-            .collect();
+        let params: Vec<_> =
+            args.1.iter().map(|value| DictValue::String(value.to_string())).collect();
         (method, params).into()
     }
 }
@@ -363,7 +362,9 @@ impl From<(String, &[&str])> for Call {
 impl From<(String, &[(&str, &str)])> for Call {
     fn from(args: (String, &[(&str, &str)])) -> Self {
         let method = args.0;
-        let params: Vec<_> = args.1.iter()
+        let params: Vec<_> = args
+            .1
+            .iter()
             .map(|(key, value)| (key.to_string(), DictValue::String(value.to_string())))
             .collect();
         (method, params).into()
@@ -381,9 +382,8 @@ impl From<(String, &[DictValue])> for Call {
 impl From<(String, &[(&str, DictValue)])> for Call {
     fn from(args: (String, &[(&str, DictValue)])) -> Self {
         let method = args.0;
-        let params: Vec<_> = args.1.iter()
-            .map(|(key, value)| (key.to_string(), value.clone()))
-            .collect();
+        let params: Vec<_> =
+            args.1.iter().map(|(key, value)| (key.to_string(), value.clone())).collect();
         (method, params).into()
     }
 }

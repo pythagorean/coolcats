@@ -1,4 +1,4 @@
-#![recursion_limit="128"]
+#![recursion_limit = "128"]
 #[macro_use]
 extern crate yew;
 use yew::{
@@ -26,7 +26,7 @@ use self::{
 
 pub enum ModelType {
     Holoclient,
-    App
+    App,
 }
 
 pub struct Model {
@@ -66,7 +66,7 @@ impl Component for Model {
                 } else {
                     panic! { "Msg::SetModel received within already defined model" };
                 }
-            },
+            }
 
             Msg::FromApp(msg) => {
                 if let Some(ModelType::App) = self.model_type {
@@ -75,7 +75,7 @@ impl Component for Model {
                 } else {
                     panic! { "Msg::FromApp not received in App" };
                 }
-            },
+            }
 
             Msg::ToHoloclient(params_from_app) => {
                 if let Some(ModelType::Holoclient) = self.model_type {
@@ -84,7 +84,7 @@ impl Component for Model {
                 } else {
                     panic! { "Msg::ToHoloclient not received in Holoclient" };
                 }
-            },
+            }
 
             Msg::FromHoloclient(msg) => {
                 if let Some(ModelType::Holoclient) = self.model_type {
@@ -93,7 +93,7 @@ impl Component for Model {
                 } else {
                     panic! { "Msg::FromHoloclient not received in Holoclient" };
                 }
-            },
+            }
 
             Msg::ToApp(params_from_holoclient) => {
                 if let Some(ModelType::App) = self.model_type {
@@ -124,7 +124,7 @@ impl Renderable<Model> for Model {
                 />
             },
 
-            None => html! { <></> }
+            None => html! { <></> },
         }
     }
 }

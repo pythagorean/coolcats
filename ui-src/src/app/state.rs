@@ -47,14 +47,31 @@ impl State {
         State(self.0.subset(keys))
     }
 
-    pub fn get_dict(&self, key: &str) -> Dict         { self.0.get_dict(key) }
-    pub fn string(  &self, key: &str) -> String       { self.0.string(key)   }
+    pub fn get_dict(&self, key: &str) -> Dict {
+        self.0.get_dict(key)
+    }
+
+    pub fn string(&self, key: &str) -> String {
+        self.0.string(key)
+    }
+
     //pub fn strings( &self, key: &str) -> Vec<String>  { self.0.strings(key)  }
     //pub fn integer( &self, key: &str) -> Option<i32>  { self.0.integer(key)  }
-    pub fn bool(    &self, key: &str) -> Option<bool> { self.0.bool(key)     }
-    pub fn mut_dict(   &mut self, key: &str) -> &mut Dict       { self.0.mut_dict(key) }
-    pub fn set_string( &mut self, key: Key, value: String)      { self.0.set_string(key, value) }
+    pub fn bool(&self, key: &str) -> Option<bool> {
+        self.0.bool(key)
+    }
+
+    pub fn mut_dict(&mut self, key: &str) -> &mut Dict {
+        self.0.mut_dict(key)
+    }
+
+    pub fn set_string(&mut self, key: Key, value: String) {
+        self.0.set_string(key, value)
+    }
+
     //pub fn set_strings(&mut self, key: Key, value: Vec<String>) { self.0.set_strings(key, value) }
     //pub fn set_integer(&mut self, key: Key, value: i32)         { self.0.set_integer(key, value) }
-    pub fn set_bool(   &mut self, key: Key, value: bool)        { self.0.set_bool(key, value) }
+    pub fn set_bool(&mut self, key: Key, value: bool) {
+        self.0.set_bool(key, value)
+    }
 }
