@@ -1,18 +1,18 @@
 // The gray background
 pub const BACKDROP_STYLE: &str = "\
     position: fixed; \
-    top: 0; \
-    bottom: 0; \
-    left: 0; \
-    right: 0; \
+    top: 0px; \
+    bottom: 0px; \
+    left: 0px; \
+    right: 0px; \
     background-color: rgba(0,0,0,0.3); \
-    padding: 50;";
+    padding: 50px;";
 
 // The modal "window"
 pub const MODAL_STYLE: &str = "\
     background-color: #fff; \
-    border-radius: 5; \
-    max-width: 500; \
-    min-height: 200; \
-    margin: 0 auto; \
-    padding: 30;";
+    border-radius: 5px; \
+    max-width: 500px; \
+    min-height: 200px; \
+    margin: 0px auto; \
+    padding: 30px;";

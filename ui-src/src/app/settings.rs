@@ -127,11 +127,11 @@ impl Renderable<Settings> for Settings {
         let handle_taken = self.getstate.bool("handle_taken").unwrap();
 
         html! {
-            <div classname="panel panel-default",>
-                <div classname="panel-body",>
+            <div class="panel panel-default",>
+                <div class="panel-body",>
                     <div style="padding-left: 30; padding-bottom: 10;",>
                         <p
-                            classname="text-info",
+                            class="text-info",
                             style={
                                 if use_handle_text.is_empty() && !handle_taken {
                                     "display: inline;"
@@ -145,7 +145,7 @@ impl Renderable<Settings> for Settings {
                     </div>
                     <div style="padding-left: 30; padding-bottom: 10;",>
                         <p
-                            classname="text-danger",
+                            class="text-danger",
                             style={
                                 if handle_taken {
                                     "display: inline;"
@@ -157,8 +157,8 @@ impl Renderable<Settings> for Settings {
                             {"This handle already has a home, try something else!"}
                         </p>
                     </div>
-                    <div classname="col-xs-8",>
-                        <div classname="form-group input-icon",>
+                    <div class="col-xs-8",>
+                        <div class="form-group input-icon",>
                             <i>{"@"}</i>
                             <input
                                 value=use_handle_text,
@@ -169,16 +169,16 @@ impl Renderable<Settings> for Settings {
                                 //    else { Msg::Ignore }
                                 //},
                                 type="text",
-                                classname="form-control",
+                                class="form-control",
                                 id="myHandle",
                                 placeholder="handle",
                             />
                         </div>
                     </div>
-                    <div classname="col-xs-2",>
+                    <div class="col-xs-2",>
                         <button
                             id="setHandleButton",
-                            classname="btn btn-primary",
+                            class="btn btn-primary",
                             onclick=|_| Msg::OnHandleSubmit,
                         >
                             {"Set Handle"}

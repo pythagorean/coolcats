@@ -29,8 +29,10 @@ pub enum Action {
 #[derive(EnumString, AsStaticStr)]
 pub enum Redux {
     GetContainer,
-    AgentHandle,
     UseHandle,
+    AgentHandle,
+    SetFirstName,
+    GetFirstName,
 }
 
 pub enum Msg {
@@ -101,7 +103,7 @@ impl Component for App {
                     self.get_my_handle();
                     //self.get_handles();
                     //self.get_profile_pic();
-                    //self.get_first_name();
+                    self.get_first_name();
                     //self.interval = setInterval(self.props.getHandles, 2000)
                 },
 
@@ -118,10 +120,11 @@ impl Component for App {
                 }
 
                 Action::SetFirstName(first_name) => {
-                    js! { alert(@{
-                        format! { "SetFirstName('{}')", first_name }
-                    })};
-                    self.state.set_string("first_name".into(), first_name)
+                    self.coolcats(
+                        "set_first_name",
+                        ("name", &*first_name),
+                        Redux::SetFirstName.as_static()
+                    );
                 }
             },
         };
@@ -150,13 +153,6 @@ impl Component for App {
                         //self.update(Action::GetReady.into());
                     },
 
-                    Redux::AgentHandle => {
-                        self.state.mut_dict("app_properties").set_string(
-                            "Agent_Handle".into(), value.to_string()
-                        );
-                        return true;
-                    },
-
                     Redux::UseHandle => {
                         if value.is_null() {
                             let error = &result["error"];
@@ -179,9 +175,26 @@ impl Component for App {
                             self.state.set_bool(
                                 "handle_taken".into(), false
                             );
-                            self.update(Action::GetReady.into());
+                            self.state.mut_dict("app_properties").set_string(
+                                "Agent_Handle".into(), value.to_string()
+                            );
+                            return true;
                         }
                     }
+
+                    Redux::AgentHandle => {
+                        self.state.mut_dict("app_properties").set_string(
+                            "Agent_Handle".into(), value.to_string()
+                        );
+                        return true;
+                    },
+
+                    Redux::SetFirstName | Redux::GetFirstName => {
+                        self.state.set_string(
+                            "first_name".into(), value.to_string()
+                        );
+                        return true
+                    },
                 }
             },
 
@@ -201,18 +214,35 @@ impl App {
         self.update(call.into());;
     }
 
+    fn coolcats_np(&mut self, method: &str, redux: &str) {
+        let call = ToHoloclient::Call((
+            &[self.container.as_str(), "coolcats", "main", method][..],
+            redux
+        ).into());
+        self.update(call.into());;
+    }
+
     fn get_my_handle(&mut self) {
         self.coolcats(
             "app_property",
-            ("name", "Agent_Handle"),
+            ("key", "Agent_Handle"),
             Redux::AgentHandle.as_static()
         );
+    }
+
+    fn get_first_name(&mut self) {
+        self.coolcats_np(
+            "get_first_name",
+            Redux::GetFirstName.as_static()
+        )
     }
 }
 
 impl Renderable<App> for App {
     fn view(&self) -> Html<Self> {
         let app_properties = self.state.get_dict("app_properties");
+        let first_name = self.state.string("first_name");
+        let handle = self.state.string("handle");
         let profile_pic = self.state.string("profile_pic");
 
         if app_properties.string("Agent_Handle").is_empty() {
@@ -220,7 +250,7 @@ impl Renderable<App> for App {
                 <div style={ modal::BACKDROP_STYLE },>
                     <div style={ modal::MODAL_STYLE },>
                         <div align="center",>
-                            <p classname="h1",>{ "Welcome to Coolcats2!" }</p>
+                            <p class="h1",>{ "Welcome to Coolcats2!" }</p>
                         </div>
                         <Settings:
                             getstate = self.state.subset(settings::getstates().as_slice()),
@@ -231,13 +261,13 @@ impl Renderable<App> for App {
             }
         } else {
             html! {
-                <div classname="container",>
-                    <div classname="spinner transition500",/>
-                    <div classname="error transition500",/>
-                    <div classname="row first",>
-                        <div classname="fixed-area",>
-                            <div classname="col-sm-2 contentcontainer",>
-                                <div classname="logo",>
+                <div class="container",>
+                    <div class="spinner transition500",/>
+                    <div class="error transition500",/>
+                    <div class="row first",>
+                        <div class="fixed-area",>
+                            <div class="col-sm-2 contentcontainer",>
+                                <div class="logo",>
                                     <img
                                         src={
                                             if !profile_pic.is_empty() { &profile_pic }
@@ -245,9 +275,78 @@ impl Renderable<App> for App {
                                         },
                                         alt="user-profile",
                                     />
+                                    <div id="displayName",>{first_name}</div>
+                                    <a href="/editProfile", id="handle",>
+                                        {"@"}{handle}
+                                    </a>
                                 </div>
-                                <div id="displayName",>
-                                    { &format!("show: {}", true) }
+                            </div>
+                            <div class="col-sm-7",>
+                                <div class="contentcontainer",>
+                                    <a href="/follow",
+                                        id="followButton",
+                                        class="btn btn-default",
+                                    >
+                                        {"Follow People"}
+                                    </a>
+                                    <div id="banner",>
+                                        <a href="/",>{"Coolcats2 (Clutter)"}</a>
+                                        <div class="subtitle",>{"can haz herd cats?"}</div>
+                                    </div>
+/*
+                                    <div id="content",>
+                                        <Route path="/" exact component={NewMeowContainer} />
+                                        <Route path="/editProfile" component={EditProfileContainer} />
+                                        <Route path="/follow" component={FollowContainer} />
+                                        <Route path="/meow/:meowHash" component={MeowContainer} />
+                                        <Route
+                                            path="/tag/:hashtag"
+                                            component={HashtagFeedContainer}
+                                        />
+                                    </div>
+*/
+                                </div>
+                            </div>
+                            <div class="col-sm-3",>
+                                <div class="alphabox",>
+                                    <div id="about",>
+                                        <h2>{"What is Clutter?"}</h2>
+                                          <p>
+                                              <a
+                                                href="https://en.wiktionary.org/wiki/clutter",
+                                                target="blank",
+                                              >
+                                                  <em>{"clutter"}</em>
+                                              </a>
+                                              {" is a flock of cats."}
+                                          </p>
+                                          <p>
+                                              <strong>{"Clutter"}</strong>
+                                              {" is a fully decentralized alternative to Twitter."}
+                                          </p>
+                                          <p>{"Impossible to censor or control."}</p>
+                                          <p>
+                                              {"Join the mewvolution on "}
+                                              <a href="http://holochain.org", target="blank",>
+                                                  {"holochain.org"}
+                                              </a>{"."}
+                                          </p>
+/*
+                                          <form
+                                            id="logout-form"
+                                            onSubmit={this.onLogoutSubmit.bind(this)}
+                                            action=""
+                                          >
+                                            <button
+                                              type="submit"
+                                              id="logout"
+                                              className="btn btn-default btn-sm"
+                                            >
+                                              Logout
+                                            </button>
+                                          </form>
+*/
+                                    </div>
                                 </div>
                             </div>
                         </div>
