@@ -23,8 +23,9 @@ pub struct Settings {
 
 pub enum Msg {
     Callback(Action),
-    UpdateHandleText(ChangeData),
+    UpdateHandleText(InputData),
     OnHandleSubmit,
+    Ignore,
 }
 
 impl From<Action> for Msg {
@@ -69,15 +70,16 @@ impl Component for Settings {
                 }
             }
 
-            Msg::UpdateHandleText(ChangeData::Value(handle_text)) => {
-                self.use_handle_text = handle_text;
+            Msg::UpdateHandleText(input) => {
+                self.use_handle_text = input.value;
                 return true;
             }
-            Msg::UpdateHandleText(_) => (),
 
             Msg::OnHandleSubmit => {
                 self.on_handle_submit();
             }
+
+            Msg::Ignore => ()
         };
         false
     }
@@ -161,12 +163,11 @@ impl Renderable<Settings> for Settings {
                             <i>{"@"}</i>
                             <input
                                 value=use_handle_text,
-                                onchange=|input| Msg::UpdateHandleText(input),
-                                // Needs to be refined so UpdateHandleText is processed first
-                                //onkeypress=|pressed| {
-                                //    if pressed.key() == "Enter" { Msg::OnHandleSubmit }
-                                //    else { Msg::Ignore }
-                                //},
+                                oninput=|input| Msg::UpdateHandleText(input),
+                                onkeypress=|pressed| {
+                                    if pressed.key() == "Enter" { Msg::OnHandleSubmit }
+                                    else { Msg::Ignore }
+                                },
                                 type="text",
                                 class="form-control",
                                 id="myHandle",

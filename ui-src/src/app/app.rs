@@ -103,7 +103,7 @@ impl Component for App {
                     self.get_my_handle();
                     //self.get_handles();
                     //self.get_profile_pic();
-                    self.get_first_name();
+                    //self.get_first_name();
                     //self.interval = setInterval(self.props.getHandles, 2000)
                 }
 
@@ -160,16 +160,13 @@ impl Component for App {
                         } else {
                             let me = self.state.string("me");
                             self.state.mut_dict("handles").set_string(me, value.to_string());
-                            self.state.set_string("handle".into(), value.to_string());
                             self.state.set_bool("handle_taken".into(), false);
-                            self.state
-                                .mut_dict("app_properties")
-                                .set_string("Agent_Handle".into(), value.to_string());
-                            return true;
+                            self.update(Action::GetReady.into());
                         }
                     }
 
                     Redux::AgentHandle => {
+                        self.state.set_string("handle".into(), value.to_string());
                         self.state
                             .mut_dict("app_properties")
                             .set_string("Agent_Handle".into(), value.to_string());
