@@ -4,7 +4,6 @@ use crate::holoclient::ToHoloclient;
 
 use super::{
     state::State,
-    components::modal,
     settings::{ self, Settings },
 };
 
@@ -215,8 +214,8 @@ impl Renderable<App> for App {
 
         if app_properties.string("Agent_Handle").is_empty() {
             html! {
-                <div style={ modal::BACKDROP_STYLE },>
-                    <div style={ modal::MODAL_STYLE },>
+                <div class="modal_backdrop",>
+                    <div class="modal_style",>
                         <div align="center",>
                             <p class="h1",>{ "Welcome to Coolcats2!" }</p>
                         </div>
