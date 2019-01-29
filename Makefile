@@ -26,7 +26,7 @@ dna-test:
 	(cd dna-src; hc test)
 
 dna-start: dna
-	(cd dna-src; hc run)
+	-(cd dna-src; hc run) || make dna-start
 
 dna-update:
 	(cd dna-src/zomes/coolcats/code; cargo +nightly update)

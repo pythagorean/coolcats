@@ -79,7 +79,7 @@ impl Component for Settings {
                 self.on_handle_submit();
             }
 
-            Msg::Ignore => ()
+            Msg::Ignore => (),
         };
         false
     }

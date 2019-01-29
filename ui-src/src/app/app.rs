@@ -103,7 +103,7 @@ impl Component for App {
                     self.get_my_handle();
                     //self.get_handles();
                     //self.get_profile_pic();
-                    //self.get_first_name();
+                    self.get_first_name();
                     //self.interval = setInterval(self.props.getHandles, 2000)
                 }
 
@@ -173,7 +173,9 @@ impl Component for App {
                         return true;
                     }
 
-                    Redux::SetFirstName | Redux::GetFirstName => {
+                    Redux::SetFirstName => (),
+
+                    Redux::GetFirstName => {
                         self.state.set_string("first_name".into(), value.to_string());
                         return true;
                     }
@@ -194,19 +196,13 @@ impl App {
         self.update(call.into());;
     }
 
-    fn coolcats_np(&mut self, method: &str, redux: &str) {
-        let call = ToHoloclient::Call(
-            (&[self.container.as_str(), "coolcats", "main", method][..], redux).into(),
-        );
-        self.update(call.into());;
-    }
-
     fn get_my_handle(&mut self) {
         self.coolcats("app_property", ("key", "Agent_Handle"), Redux::AgentHandle.as_static());
     }
 
     fn get_first_name(&mut self) {
-        self.coolcats_np("get_first_name", Redux::GetFirstName.as_static())
+        let no_params = ("","");
+        self.coolcats("get_first_name", no_params, Redux::GetFirstName.as_static())
     }
 }
 
