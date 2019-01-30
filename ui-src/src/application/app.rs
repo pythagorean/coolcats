@@ -1,76 +1,55 @@
 use yew::prelude::*;
 
-use crate::holoclient::ToHoloclient;
-
-use super::{
+use crate::application::{
+    Action,
     state::State,
     settings::{ self, Settings },
 };
 
-use std::str::FromStr;
-use strum::AsStaticRef;
-
 const DEFAULT_PROFILE_PIC: &str = "/cat-eating-bird-circle.png";
 
+// Declare what state keys will be used by this component
+const GETSTATES: [&str; 4] = [
+    "app_properties",
+    "first_name",
+    "handle",
+    "profile_pic"
+];
+
+// Append state keys used by subcomponents
+pub fn getstates() -> Vec<&'static str> {
+    let mut states = GETSTATES.to_vec();
+    states.extend(settings::getstates());
+    states.sort_unstable();
+    states.dedup();
+    states
+}
+
 pub struct App {
-    callback: Option<Callback<ToHoloclient>>,
-    state: State,
-    container: String,
-}
-
-pub enum Action {
-    GetReady,
-    //ResetState,
-    UseHandle(String),
-    SetFirstName(String),
-}
-
-#[derive(EnumString, AsStaticStr)]
-pub enum Redux {
-    GetContainer,
-    UseHandle,
-    AgentHandle,
-    SetFirstName,
-    GetFirstName,
+    getstate: State,
+    callback: Option<Callback<Action>>,
 }
 
 pub enum Msg {
-    Callback(ToHoloclient),
-    Action(Action),
-}
-
-impl From<ToHoloclient> for Msg {
-    fn from(msg: ToHoloclient) -> Self {
-        Msg::Callback(msg)
-    }
+    Callback(Action),
 }
 
 impl From<Action> for Msg {
     fn from(action: Action) -> Self {
-        Msg::Action(action)
+        Msg::Callback(action)
     }
 }
 
-#[derive(PartialEq, Clone, Debug)]
-pub enum ToApp {
-    None,
-    Initialize,
-    Redux(String, String),
-}
-
-#[derive(PartialEq, Clone)]
-pub struct Params(pub ToApp);
-
 #[derive(PartialEq, Clone)]
 pub struct Props {
-    pub params: Params,
-    pub callback: Option<Callback<ToHoloclient>>,
+    pub getstate: State,
+    pub callback: Option<Callback<Action>>,
 }
 
 impl Default for Props {
     fn default() -> Self {
         Props {
-            params: Params(ToApp::None),
+            getstate: State::unset(),
             callback: None,
         }
     }
@@ -82,9 +61,8 @@ impl Component for App {
 
     fn create(props: Self::Properties, _: ComponentLink<Self>) -> Self {
         App {
+            getstate: props.getstate,
             callback: props.callback,
-            state: Default::default(),
-            container: String::new(),
         }
     }
 
@@ -94,123 +72,23 @@ impl Component for App {
                 if let Some(ref mut callback) = self.callback {
                     callback.emit(msg);
                 }
-                return false;
             }
-
-            Msg::Action(action) => match action {
-                Action::GetReady => {
-                    self.get_my_handle();
-                    //self.get_handles();
-                    //self.get_profile_pic();
-                    self.get_first_name();
-                    //self.interval = setInterval(self.props.getHandles, 2000)
-                }
-
-                //Action::ResetState => {
-                //    self.state = Default::default();
-                //},
-                Action::UseHandle(handle) => {
-                    self.coolcats("use_handle", ("handle", &*handle), Redux::UseHandle.as_static());
-                }
-
-                Action::SetFirstName(first_name) => {
-                    self.coolcats(
-                        "set_first_name",
-                        ("name", &*first_name),
-                        Redux::SetFirstName.as_static(),
-                    );
-                }
-            },
         };
-        true
+        false
     }
 
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        let holoclient_msg = props.params.0;
-        match holoclient_msg {
-            ToApp::Initialize => {
-                self.update(
-                    ToHoloclient::Call(("info/instances", Redux::GetContainer.as_static()).into())
-                        .into(),
-                );
-            }
-
-            ToApp::Redux(result, redux) => {
-                let result = &json::parse(&result).unwrap();
-                let redux = Redux::from_str(&redux).unwrap();
-                let value = &result["value"];
-
-                match redux {
-                    Redux::GetContainer => {
-                        self.container = result[0]["id"].to_string();
-                        //Disabled because get_my_handle before handle is set has Zome problem
-                        //self.update(Action::GetReady.into());
-                    }
-
-                    Redux::UseHandle => {
-                        if value.is_null() {
-                            let error = &result["error"];
-                            if error["ValidationFailed"] == "handle_in_use" {
-                                self.state.set_bool("handle_taken".into(), true);
-                                return true;
-                            } else {
-                                panic!("Redux::UseHandle error: {}", error.to_string());
-                            }
-                        } else {
-                            let me = self.state.string("me");
-                            self.state.mut_dict("handles").set_string(me, value.to_string());
-                            self.state.set_bool("handle_taken".into(), false);
-                            self.update(Action::GetReady.into());
-                        }
-                    }
-
-                    Redux::AgentHandle => {
-                        self.state.set_string("handle".into(), value.to_string());
-                        self.state
-                            .mut_dict("app_properties")
-                            .set_string("Agent_Handle".into(), value.to_string());
-                        return true;
-                    }
-
-                    Redux::SetFirstName => (),
-
-                    Redux::GetFirstName => {
-                        self.state.set_string("first_name".into(), value.to_string());
-                        return true;
-                    }
-                }
-            }
-
-            ToApp::None => (),
-        }
-        false
-    }
-}
-
-impl App {
-    fn coolcats(&mut self, method: &str, params: (&str, &str), redux: &str) {
-        let call = ToHoloclient::Call(
-            (&[self.container.as_str(), "coolcats", "main", method][..], params, redux).into(),
-        );
-        self.update(call.into());;
-    }
-
-    fn get_my_handle(&mut self) {
-        self.coolcats("app_property", ("key", "Agent_Handle"), Redux::AgentHandle.as_static());
-    }
-
-    fn get_first_name(&mut self) {
-        let no_params = ("","");
-        self.coolcats("get_first_name", no_params, Redux::GetFirstName.as_static())
+        self.getstate = props.getstate;
+        true
     }
 }
 
 impl Renderable<App> for App {
     fn view(&self) -> Html<Self> {
-        let app_properties = self.state.get_dict("app_properties");
-        let first_name = self.state.string("first_name");
-        let handle = self.state.string("handle");
-        let profile_pic = self.state.string("profile_pic");
+        let app_properties = self.getstate.get_dict("app_properties");
+        let first_name = self.getstate.string("first_name");
+        let handle = self.getstate.string("handle");
+        let profile_pic = self.getstate.string("profile_pic");
 
         if app_properties.string("Agent_Handle").is_empty() {
             html! {
@@ -220,8 +98,8 @@ impl Renderable<App> for App {
                             <p class="h1",>{ "Welcome to Coolcats2!" }</p>
                         </div>
                         <Settings:
-                            getstate = self.state.subset(settings::getstates().as_slice()),
-                            callback = Msg::Action,
+                            getstate = self.getstate.subset(settings::getstates().as_slice()),
+                            callback = Msg::Callback,
                         />
                     </div>
                 </div>
