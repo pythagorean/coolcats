@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::collections::HashSet;
 
 pub type DictKey = String;
 
@@ -166,9 +167,12 @@ impl Dict {
 
     pub fn subset(&self, keys: &[&str]) -> Self {
         let mut dict = Dict::new();
+        let mut uniq = HashSet::new();
         for key in keys {
-            if let Some(value) = self.0.get(*key) {
-                dict.insert((*key).into(), (*value).clone());
+            if uniq.insert(*key) {
+                if let Some(value) = self.0.get(*key) {
+                    dict.insert((*key).into(), (*value).clone());
+                }
             }
         }
         dict

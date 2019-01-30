@@ -9,19 +9,12 @@ use crate::application::{
 const DEFAULT_PROFILE_PIC: &str = "/cat-eating-bird-circle.png";
 
 // Declare what state keys will be used by this component
-const GETSTATES: [&str; 4] = [
-    "app_properties",
-    "first_name",
-    "handle",
-    "profile_pic"
-];
+const GETSTATES: [&str; 4] = ["app_properties", "first_name", "handle", "profile_pic"];
 
 // Append state keys used by subcomponents
 pub fn getstates() -> Vec<&'static str> {
     let mut states = GETSTATES.to_vec();
     states.extend(settings::getstates());
-    states.sort_unstable();
-    states.dedup();
     states
 }
 

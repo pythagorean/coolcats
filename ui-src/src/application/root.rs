@@ -117,7 +117,7 @@ impl Component for Root {
                         Redux::SetFirstName.as_static(),
                     );
                 }
-            }
+            },
         }
         false
     }
@@ -197,7 +197,7 @@ impl Root {
     }
 
     fn get_first_name(&mut self) {
-        let no_params = ("","");
+        let no_params = ("", "");
         self.coolcats("get_first_name", no_params, Redux::GetFirstName.as_static())
     }
 }
