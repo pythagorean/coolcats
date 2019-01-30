@@ -16,32 +16,32 @@ extern crate strum;
 extern crate strum_macros;
 
 mod holoclient;
-mod app;
+mod application;
 mod utils;
 
 use self::{
     holoclient::{Holoclient, ToHoloclient},
-    app::{App, ToApp},
+    application::{Application, ToApplication},
 };
 
 pub enum ModelType {
     Holoclient,
-    App,
+    Application,
 }
 
 pub struct Model {
     model_type: Option<ModelType>,
     partner: Option<Scope<Model>>,
     holoclient_params: holoclient::Params,
-    app_params: app::Params,
+    application_params: application::Params,
 }
 
 pub enum Msg {
     SetModel(ModelType, Scope<Model>),
-    FromApp(ToHoloclient),
+    FromApplication(ToHoloclient),
     ToHoloclient(ToHoloclient),
-    FromHoloclient(ToApp),
-    ToApp(ToApp),
+    FromHoloclient(ToApplication),
+    ToApplication(ToApplication),
 }
 
 impl Component for Model {
@@ -53,7 +53,7 @@ impl Component for Model {
             model_type: None,
             partner: None,
             holoclient_params: holoclient::Params::new(),
-            app_params: app::Params(ToApp::None),
+            application_params: application::Params(ToApplication::None),
         }
     }
 
@@ -68,18 +68,18 @@ impl Component for Model {
                 }
             }
 
-            Msg::FromApp(msg) => {
-                if let Some(ModelType::App) = self.model_type {
-                    self.app_params = app::Params(ToApp::None);
+            Msg::FromApplication(msg) => {
+                if let Some(ModelType::Application) = self.model_type {
+                    self.application_params = application::Params(ToApplication::None);
                     self.partner.as_mut().unwrap().send_message(Msg::ToHoloclient(msg));
                 } else {
-                    panic! { "Msg::FromApp not received in App" };
+                    panic! { "Msg::FromApplication not received in Application" };
                 }
             }
 
-            Msg::ToHoloclient(params_from_app) => {
+            Msg::ToHoloclient(params_from_application) => {
                 if let Some(ModelType::Holoclient) = self.model_type {
-                    let ToHoloclient::Call(params) = params_from_app;
+                    let ToHoloclient::Call(params) = params_from_application;
                     self.holoclient_params = params;
                 } else {
                     panic! { "Msg::ToHoloclient not received in Holoclient" };
@@ -89,17 +89,17 @@ impl Component for Model {
             Msg::FromHoloclient(msg) => {
                 if let Some(ModelType::Holoclient) = self.model_type {
                     self.holoclient_params.clear();
-                    self.partner.as_mut().unwrap().send_message(Msg::ToApp(msg));
+                    self.partner.as_mut().unwrap().send_message(Msg::ToApplication(msg));
                 } else {
                     panic! { "Msg::FromHoloclient not received in Holoclient" };
                 }
             }
 
-            Msg::ToApp(params_from_holoclient) => {
-                if let Some(ModelType::App) = self.model_type {
-                    self.app_params = app::Params(params_from_holoclient);
+            Msg::ToApplication(params_from_holoclient) => {
+                if let Some(ModelType::Application) = self.model_type {
+                    self.application_params = application::Params(params_from_holoclient);
                 } else {
-                    panic! { "Msg::ToApp not received in App" };
+                    panic! { "Msg::ToApplication not received in Application" };
                 }
             }
         }
@@ -117,10 +117,10 @@ impl Renderable<Model> for Model {
                 />
             },
 
-            Some(ModelType::App) => html! {
-                <App:
-                    params = self.app_params.clone(),
-                    callback = Msg::FromApp,
+            Some(ModelType::Application) => html! {
+                <Application:
+                    params = self.application_params.clone(),
+                    callback = Msg::FromApplication,
                 />
             },
 

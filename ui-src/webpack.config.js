@@ -54,7 +54,7 @@ module.exports = {
         integrity: 'sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u',
         crossorigin: 'anonymous',
       }],
-      favicon: 'src/app/images/favicon.png',
+      favicon: 'src/application/images/favicon.png',
       appMountIds: [ 'holoclient', 'application' ],
       scripts: [ 'coolcats2.js' ],
       chunks: [ ],

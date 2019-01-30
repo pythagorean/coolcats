@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use crate::app::{
+use crate::application::{
     state::State,
     Action,
 };

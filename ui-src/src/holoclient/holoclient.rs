@@ -2,7 +2,7 @@ use yew::prelude::*;
 
 use serde::Deserialize;
 
-use crate::app::ToApp;
+use crate::application::ToApplication;
 
 use super::{
     websocket::{
@@ -20,7 +20,7 @@ const HOLOCHAIN_SERVER: &str = "ws://localhost:8888";
 pub struct Holoclient {
     websocket: Option<WebSocketService>,
     link: ComponentLink<Holoclient>,
-    callback: Option<Callback<ToApp>>,
+    callback: Option<Callback<ToApplication>>,
     rpc_id: u32,
 }
 
@@ -37,13 +37,13 @@ pub enum WsAction {
 }
 
 pub enum Msg {
-    Callback(ToApp),
+    Callback(ToApplication),
     WsAction(WsAction),
     WsReady(String),
 }
 
-impl From<ToApp> for Msg {
-    fn from(msg: ToApp) -> Self {
+impl From<ToApplication> for Msg {
+    fn from(msg: ToApplication) -> Self {
         Msg::Callback(msg)
     }
 }
@@ -119,7 +119,7 @@ pub enum ToHoloclient {
 #[derive(PartialEq, Clone)]
 pub struct Props {
     pub params: Params,
-    pub callback: Option<Callback<ToApp>>,
+    pub callback: Option<Callback<ToApplication>>,
 }
 
 impl Default for Props {
@@ -158,7 +158,7 @@ impl Component for Holoclient {
                 let response = &json::parse(&response).unwrap();
                 let result = response["result"].to_string();
                 let redux = response["id"].to_string();
-                self.update(ToApp::Redux(result, redux).into());
+                self.update(ToApplication::Redux(result, redux).into());
             }
 
             Msg::WsAction(action) => match action {
@@ -176,7 +176,7 @@ impl Component for Holoclient {
                 }
 
                 WsAction::Initialize => {
-                    self.update(Msg::Callback(ToApp::Initialize));
+                    self.update(Msg::Callback(ToApplication::Initialize));
                 }
 
                 WsAction::Call(rpc) => {
