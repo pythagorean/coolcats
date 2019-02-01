@@ -61,7 +61,7 @@ impl Component for App {
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
             Msg::Action(msg) => {
-                js!{alert(@{format!("Msg::Action: {:?}", msg)})}
+                js! {alert(@{format!("Msg::Action: {:?}", msg)})}
             }
 
             Msg::ChangeRoute(target) => {
@@ -81,7 +81,7 @@ impl Component for App {
                 }
 
                 context::Response::Request(_, _) => (),
-            }
+            },
 
             Msg::Ignore => (),
         };
@@ -91,7 +91,9 @@ impl Component for App {
 
 impl Renderable<App> for App {
     fn view(&self) -> Html<Self> {
-        if self.getstate.is_empty() { return html! { <></> }};
+        if self.getstate.is_empty() {
+            return html! { <></> };
+        };
         let app_properties = self.getstate.get_dict("app_properties");
         let first_name = self.getstate.string("first_name");
         let handle = self.getstate.string("handle");

@@ -143,18 +143,21 @@ impl Component for Root {
                         Redux::SetFirstName.as_static(),
                     );
                 }
-            }
+            },
 
             Msg::ContextMsg(response) => {
                 if let context::Response::Request(who, request) = response {
                     match *request {
                         context::Request::GetStates(keys) => {
                             let keys: Vec<_> = keys.iter().map(|s| s.as_str()).collect();
-                            self.context.send((
-                                who,
-                                context::Response::GetStates(
-                                    self.state.subset(keys.as_slice())
-                                )).into()
+                            self.context.send(
+                                (
+                                    who,
+                                    context::Response::GetStates(
+                                        self.state.subset(keys.as_slice()),
+                                    ),
+                                )
+                                    .into(),
                             );
                         }
                         _ => (),

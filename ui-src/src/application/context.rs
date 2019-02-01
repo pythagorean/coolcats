@@ -68,7 +68,9 @@ impl Agent for ContextAgent {
     }
 
     // Handle inner messages (of services of `send_back` callbacks)
-    fn update(&mut self, msg: Self::Message) { /* ... */ }
+    fn update(&mut self, msg: Self::Message) {
+        /* ... */
+    }
 
     // Handle incoming messages from components of other agents.
     fn handle(&mut self, msg: Self::Input, who: HandlerId) {
@@ -78,7 +80,7 @@ impl Agent for ContextAgent {
             Request::Response(who, response) => match *response {
                 Response::GetStates(_) => self.link.response(who, *response),
                 Response::Request(_, _) => (),
-            }
+            },
         }
     }
 }
