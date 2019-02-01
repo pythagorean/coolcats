@@ -1,4 +1,5 @@
 use yew::prelude::*;
+use yew_router::{routes, Route, RouterAgent};
 use std::str::FromStr;
 use strum::AsStaticRef;
 
@@ -7,13 +8,23 @@ use crate::holoclient::ToHoloclient;
 use super::{
     state::State,
     app::{ self, App },
+    context::{ self, ContextAgent },
     ToApplication,
 };
+
+// define RouterTarget:
+routes! {
+    App => "/",
+    Error => "/error",
+}
 
 pub struct Root {
     callback: Option<Callback<ToHoloclient>>,
     state: State,
     container: String,
+    child: RouterTarget,
+    router: Box<Bridge<RouterAgent<()>>>,
+    context: Box<Bridge<ContextAgent>>,
 }
 
 #[derive(PartialEq, Clone, Debug)]
@@ -26,6 +37,7 @@ pub enum ToRoot {
 #[derive(PartialEq, Clone)]
 pub struct Params(pub ToRoot);
 
+#[derive(Debug)]
 pub enum Action {
     GetReady,
     //ResetState,
@@ -44,7 +56,9 @@ pub enum Redux {
 
 pub enum Msg {
     Callback(ToHoloclient),
+    Route(Route<()>),
     Action(Action),
+    ContextMsg(context::Response),
 }
 
 impl From<ToHoloclient> for Msg {
@@ -78,12 +92,19 @@ impl Component for Root {
     type Message = Msg;
     type Properties = Props;
 
-    fn create(props: Self::Properties, _: ComponentLink<Self>) -> Self {
-        Self {
+    fn create(props: Self::Properties, mut link: ComponentLink<Self>) -> Self {
+        let router = RouterAgent::bridge(link.send_back(Msg::Route));
+        let context = ContextAgent::bridge(link.send_back(Msg::ContextMsg));
+        let mut root = Self {
             callback: props.callback,
             state: Default::default(),
             container: String::new(),
-        }
+            child: RouterTarget::App,
+            router,
+            context,
+        };
+        root.context.send(context::Request::SetRoot);
+        root
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
@@ -92,6 +113,11 @@ impl Component for Root {
                 if let Some(ref mut callback) = self.callback {
                     callback.emit(msg);
                 }
+            }
+
+            Msg::Route(route) => {
+                self.child = route.into();
+                return true;
             }
 
             Msg::Action(action) => match action {
@@ -117,7 +143,24 @@ impl Component for Root {
                         Redux::SetFirstName.as_static(),
                     );
                 }
-            },
+            }
+
+            Msg::ContextMsg(response) => {
+                if let context::Response::Request(who, request) = response {
+                    match *request {
+                        context::Request::GetStates(keys) => {
+                            let keys: Vec<_> = keys.iter().map(|s| s.as_str()).collect();
+                            self.context.send((
+                                who,
+                                context::Response::GetStates(
+                                    self.state.subset(keys.as_slice())
+                                )).into()
+                            );
+                        }
+                        _ => (),
+                    }
+                }
+            }
         }
         false
     }
@@ -204,11 +247,15 @@ impl Root {
 
 impl Renderable<Root> for Root {
     fn view(&self) -> Html<Self> {
-        html! {
-            <App:
-                getstate = self.state.subset(app::getstates().as_slice()),
-                callback = Msg::Action,
-            />
+        self.child.view()
+    }
+}
+
+impl Renderable<Root> for RouterTarget {
+    fn view(&self) -> Html<Root> {
+        match self {
+            RouterTarget::App => html! { <App:/> },
+            RouterTarget::Error => panic! { "Routing error occurred" },
         }
     }
 }

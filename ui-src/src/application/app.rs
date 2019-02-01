@@ -1,9 +1,12 @@
 use yew::prelude::*;
+use yew_router::RouterAgent;
 
 use crate::application::{
     Action,
+    RouterTarget,
     state::State,
     settings::{ self, Settings },
+    context::{ self, ContextAgent },
 };
 
 const DEFAULT_PROFILE_PIC: &str = "/cat-eating-bird-circle.png";
@@ -12,72 +15,83 @@ const DEFAULT_PROFILE_PIC: &str = "/cat-eating-bird-circle.png";
 const GETSTATES: [&str; 4] = ["app_properties", "first_name", "handle", "profile_pic"];
 
 // Append state keys used by subcomponents
-pub fn getstates() -> Vec<&'static str> {
+pub fn getstates() -> Vec<String> {
     let mut states = GETSTATES.to_vec();
     states.extend(settings::getstates());
+    let states: Vec<_> = states.iter().map(|key| key.to_string()).collect();
     states
 }
 
 pub struct App {
+    router: Box<Bridge<RouterAgent<()>>>,
+    context: Box<Bridge<ContextAgent>>,
     getstate: State,
-    callback: Option<Callback<Action>>,
 }
 
 pub enum Msg {
-    Callback(Action),
+    Action(Action),
+    ChangeRoute(RouterTarget),
+    ContextMsg(context::Response),
+    GetStates,
+    Ignore,
 }
 
 impl From<Action> for Msg {
     fn from(action: Action) -> Self {
-        Msg::Callback(action)
-    }
-}
-
-#[derive(PartialEq, Clone)]
-pub struct Props {
-    pub getstate: State,
-    pub callback: Option<Callback<Action>>,
-}
-
-impl Default for Props {
-    fn default() -> Self {
-        Props {
-            getstate: State::unset(),
-            callback: None,
-        }
+        Msg::Action(action)
     }
 }
 
 impl Component for App {
     type Message = Msg;
-    type Properties = Props;
+    type Properties = ();
 
-    fn create(props: Self::Properties, _: ComponentLink<Self>) -> Self {
-        App {
-            getstate: props.getstate,
-            callback: props.callback,
-        }
+    fn create(_: Self::Properties, mut link: ComponentLink<Self>) -> Self {
+        let router = RouterAgent::bridge(link.send_back(|_| Msg::Ignore));
+        let context = ContextAgent::bridge(link.send_back(Msg::ContextMsg));
+        let mut app = Self {
+            router,
+            context,
+            getstate: State::unset(),
+        };
+        app.update(Msg::GetStates);
+        app
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Msg::Callback(msg) => {
-                if let Some(ref mut callback) = self.callback {
-                    callback.emit(msg);
-                }
+            Msg::Action(msg) => {
+                js!{alert(@{format!("Msg::Action: {:?}", msg)})}
             }
+
+            Msg::ChangeRoute(target) => {
+                self.router.send(yew_router::Request::ChangeRoute(target.into()));
+            }
+
+            Msg::GetStates => {
+                self.context.send(context::Request::GetStates(getstates()));
+            }
+
+            Msg::ContextMsg(response) => match response {
+                context::Response::GetStates(getstate) => {
+                    if self.getstate != getstate {
+                        self.getstate = getstate;
+                        return true;
+                    }
+                }
+
+                context::Response::Request(_, _) => (),
+            }
+
+            Msg::Ignore => (),
         };
         false
-    }
-
-    fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        self.getstate = props.getstate;
-        true
     }
 }
 
 impl Renderable<App> for App {
     fn view(&self) -> Html<Self> {
+        if self.getstate.is_empty() { return html! { <></> }};
         let app_properties = self.getstate.get_dict("app_properties");
         let first_name = self.getstate.string("first_name");
         let handle = self.getstate.string("handle");
@@ -92,7 +106,7 @@ impl Renderable<App> for App {
                         </div>
                         <Settings:
                             getstate = self.getstate.subset(settings::getstates().as_slice()),
-                            callback = Msg::Callback,
+                            callback = Msg::Action,
                         />
                     </div>
                 </div>

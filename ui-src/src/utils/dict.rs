@@ -1,9 +1,11 @@
 use std::collections::HashMap;
 use std::collections::HashSet;
 
+use serde::{Serialize, Deserialize};
+
 pub type DictKey = String;
 
-#[derive(PartialEq)]
+#[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub enum DictValue {
     Dict(Dict),
     String(String),
@@ -15,7 +17,7 @@ pub enum DictValue {
 
 pub type DictType = HashMap<DictKey, DictValue>;
 
-#[derive(PartialEq)]
+#[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct Dict(DictType);
 
 impl From<Dict> for DictValue {
@@ -80,6 +82,10 @@ impl Clone for Dict {
 impl Dict {
     pub fn new() -> Self {
         Dict(HashMap::new())
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
     }
 
     pub fn insert(&mut self, key: DictKey, value: DictValue) {

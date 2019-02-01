@@ -1,6 +1,8 @@
+use serde::{Serialize, Deserialize};
+
 use crate::utils::{ Dict, DictKey };
 
-#[derive(PartialEq)]
+#[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct State(Dict);
 
 pub type Key = DictKey;
@@ -41,6 +43,10 @@ impl Default for State {
 impl State {
     pub fn unset() -> Self {
         State(Dict::new())
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
     }
 
     pub fn subset(&self, keys: &[&str]) -> Self {
