@@ -1,5 +1,7 @@
 use yew::prelude::*;
 use yew_router::{routes, Route, RouterAgent};
+use serde::{Serialize, Deserialize};
+use std::sync::Mutex;
 use std::str::FromStr;
 use strum::AsStaticRef;
 
@@ -37,7 +39,7 @@ pub enum ToRoot {
 #[derive(PartialEq, Clone)]
 pub struct Params(pub ToRoot);
 
-#[derive(Debug)]
+#[derive(Serialize, Deserialize)]
 pub enum Action {
     GetReady,
     //ResetState,
@@ -160,6 +162,11 @@ impl Component for Root {
                                     .into(),
                             );
                         }
+
+                        context::Request::Action(action) => {
+                            self.update(Msg::Action(action));
+                        }
+
                         _ => (),
                     }
                 }
@@ -248,6 +255,17 @@ impl Root {
     }
 }
 
+impl RouterTarget {
+    fn counter(&self) -> u32 {
+        lazy_static! {
+            static ref COUNTER: Mutex<u32> = Mutex::new(0);
+        }
+        let mut counter = COUNTER.lock().unwrap();
+        *counter += 1;
+        *counter
+    }
+}
+
 impl Renderable<Root> for Root {
     fn view(&self) -> Html<Self> {
         self.child.view()
@@ -256,8 +274,10 @@ impl Renderable<Root> for Root {
 
 impl Renderable<Root> for RouterTarget {
     fn view(&self) -> Html<Root> {
+        // Send counter parameter to notify components of state changes
+        let counter = self.counter();
         match self {
-            RouterTarget::App => html! { <App:/> },
+            RouterTarget::App => html! { <App: counter = counter,/> },
             RouterTarget::Error => panic! { "Routing error occurred" },
         }
     }

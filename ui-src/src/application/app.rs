@@ -42,9 +42,23 @@ impl From<Action> for Msg {
     }
 }
 
+#[derive(PartialEq, Clone)]
+pub struct Props {
+    pub counter: u32,
+}
+
+impl Default for Props {
+    fn default() -> Self {
+        Props {
+            counter: 0,
+        }
+    }
+}
+
+
 impl Component for App {
     type Message = Msg;
-    type Properties = ();
+    type Properties = Props;
 
     fn create(_: Self::Properties, mut link: ComponentLink<Self>) -> Self {
         let router = RouterAgent::bridge(link.send_back(|_| Msg::Ignore));
@@ -60,16 +74,16 @@ impl Component for App {
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Msg::Action(msg) => {
-                js! {alert(@{format!("Msg::Action: {:?}", msg)})}
-            }
-
             Msg::ChangeRoute(target) => {
                 self.router.send(yew_router::Request::ChangeRoute(target.into()));
             }
 
             Msg::GetStates => {
                 self.context.send(context::Request::GetStates(getstates()));
+            }
+
+            Msg::Action(msg) => {
+                self.context.send(context::Request::Action(msg));
             }
 
             Msg::ContextMsg(response) => match response {
@@ -85,6 +99,11 @@ impl Component for App {
 
             Msg::Ignore => (),
         };
+        false
+    }
+
+    fn change(&mut self, _: Self::Properties) -> ShouldRender {
+        self.update(Msg::GetStates);
         false
     }
 }

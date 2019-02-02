@@ -2,7 +2,10 @@ use yew::prelude::worker::*;
 
 use serde::{Serialize, Deserialize};
 
-use super::state::State;
+use super::{
+    Action,
+    state::State,
+};
 
 pub struct ContextAgent {
     link: AgentLink<ContextAgent>,
@@ -15,6 +18,7 @@ pub enum Msg {}
 pub enum Request {
     SetRoot,
     GetStates(Vec<String>),
+    Action(Action),
     Response(HandlerId, Box<Response>),
 }
 
@@ -76,7 +80,7 @@ impl Agent for ContextAgent {
     fn handle(&mut self, msg: Self::Input, who: HandlerId) {
         match msg {
             Request::SetRoot => self.root = Some(who),
-            Request::GetStates(_) => self.sendroot(who, msg),
+            Request::GetStates(_) | Request::Action(_) => self.sendroot(who, msg),
             Request::Response(who, response) => match *response {
                 Response::GetStates(_) => self.link.response(who, *response),
                 Response::Request(_, _) => (),
