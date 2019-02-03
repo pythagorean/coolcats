@@ -55,7 +55,6 @@ impl Default for Props {
     }
 }
 
-
 impl Component for App {
     type Message = Msg;
     type Properties = Props;

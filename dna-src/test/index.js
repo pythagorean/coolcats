@@ -87,11 +87,12 @@ test('clutter', (t) => {
     t.equal(result.value, agent_id)
   })
 
-  // If this lookup is enabled here, getting the agent handle fails later too
-  //t.test('get the agent handle which is not set', (t) => {
-  //  const result = display(call("app_property", {key: "Agent_Handle"}))
-  //  t.end()
-  //})
+  t.test('get the agent handle which is not set', (t) => {
+    t.plan(1)
+    const result = display(call("app_property", {key: "Agent_Handle"}))
+    t.equal(result.error.ValidationFailed, "handle_unset")
+    t.end()
+  })
 
   t.test('set the agent handle', (t) => {
     t.plan(1)
@@ -118,6 +119,12 @@ test('clutter', (t) => {
       {address: "QmUXkCgPqXcniV2JvRLeNZs21j4UyXoPWJ4pMtygRCdo8c"}
     ))
     t.equal(result.value, "buffaloBill")
+  })
+
+  t.test('get the first name of the user which is not set', (t) => {
+    t.plan(1)
+    const result = display(call("get_first_name", {}))
+    t.equal(result.error.ValidationFailed, "unlinked_tag: first_name")
   })
 
   t.test('set the first name of the user', (t) => {

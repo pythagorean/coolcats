@@ -5,11 +5,16 @@ authors = ["Michael Goldman <mike.goldman@allstreets.org>"]
 edition = "2018"
 
 [dependencies]
+hdk = "0.0.3"
+holochain_wasm_utils = "0.0.3"
+holochain_core_types_derive = "0.0.3"
+serde = {version = "1.0.86", features = ["derive"]}
+serde_json = "1.0.38"
+
+[patch.crates-io]
 hdk = {git = "https://github.com/holochain/holochain-rust", tag = "v0.0.3"}
 holochain_wasm_utils = {git = "https://github.com/holochain/holochain-rust", tag = "v0.0.3"}
 holochain_core_types_derive = {git = "https://github.com/holochain/holochain-rust", tag = "v0.0.3"}
-serde = {version = "1.0.84", features = ["derive"]}
-serde_json = "1.0.36"
 
 [lib]
 path = "src/lib.rs"
