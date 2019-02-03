@@ -66,9 +66,7 @@ impl Handle {
     }
 
     fn create(handle: &str) -> ZomeApiResult<Address> {
-        hdk::commit_entry(&Entry::App(HANDLE.into(),
-            Anchor::create(HANDLE, handle)?.into()
-        ))
+        hdk::commit_entry(&Entry::App(HANDLE.into(), Anchor::create(HANDLE, handle)?.into()))
     }
 
     fn exists(handle: &str) -> ZomeApiResult<bool> {
@@ -85,9 +83,7 @@ impl PropValue {
     }
 
     fn create(tag: &str, data: &str) -> ZomeApiResult<Address> {
-        hdk::commit_entry(
-            &Entry::App(tag.to_string().into(), PropValue::new(data).into())
-        )
+        hdk::commit_entry(&Entry::App(tag.to_string().into(), PropValue::new(data).into()))
     }
 }
 
@@ -177,9 +173,7 @@ fn app_property(key: &str) -> ZomeApiResult<String> {
     match key {
         "Agent_Address" => Ok(AGENT_ADDRESS.to_string()),
         "Agent_Handle" => get_handle(&AGENT_ADDRESS),
-        _ => Err(ZomeApiError::ValidationFailed(
-            format!("No App Property with key: {}", key)
-        )),
+        _ => Err(ZomeApiError::ValidationFailed(format!("No App Property with key: {}", key))),
     }
 }
 
@@ -209,10 +203,7 @@ fn get_handle(addr: &Address) -> ZomeApiResult<String> {
     if let Some(entry) = hdk::get_entry(&addr)? {
         if let Entry::App(entry_type, value) = entry {
             if entry_type.to_string() == HANDLE {
-                return Ok(Anchor::get(
-                    &Address::try_from(value)?)?
-                    .get_text().to_string()
-                );
+                return Ok(Anchor::get(&Address::try_from(value)?)?.get_text().to_string());
             }
         }
     }
@@ -236,16 +227,12 @@ fn set_profile_prop(data: &str, tag: &str) -> ZomeApiResult<String> {
 
 fn get_profile_prop(tag: &str) -> ZomeApiResult<String> {
     if !Anchor::exists(&AGENT_ADDRESS.to_string(), tag)? {
-        return Err(ZomeApiError::ValidationFailed(
-            format!("unlinked_tag: {}", tag).into()
-        ));
+        return Err(ZomeApiError::ValidationFailed(format!("unlinked_tag: {}", tag).into()));
     }
     let links = hdk::get_links(&AGENT_ADDRESS, tag)?;
     let addrs = links.addresses();
     if addrs.is_empty() {
-        return Err(ZomeApiError::ValidationFailed(
-            format!("unlinked_tag: {}", tag).into()
-        ));
+        return Err(ZomeApiError::ValidationFailed(format!("unlinked_tag: {}", tag).into()));
     }
     if let Some(entry) = hdk::get_entry(&addrs[0])? {
         if let Entry::App(entry_type, value) = entry {

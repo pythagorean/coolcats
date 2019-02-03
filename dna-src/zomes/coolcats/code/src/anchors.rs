@@ -57,7 +57,7 @@ impl Anchor {
     pub fn new(anchor_type: &str, anchor_text: &str) -> Self {
         Anchor {
             anchor_type: anchor_type.into(),
-            anchor_text: anchor_text.into()
+            anchor_text: anchor_text.into(),
         }
     }
 
@@ -121,8 +121,7 @@ impl AnchorLink {
     }
 
     fn create(anchor_addr: &Address) -> ZomeApiResult<Address> {
-        hdk::commit_entry(
-            &Entry::App(ANCHOR_LINK.into(), anchor_addr.into()))
+        hdk::commit_entry(&Entry::App(ANCHOR_LINK.into(), anchor_addr.into()))
     }
 }
 
@@ -190,7 +189,7 @@ fn get_anchor(addr: &Address) -> ZomeApiResult<Anchor> {
                     let anchor_link = Address::try_from(value)?;
                     return get_anchor(&anchor_link);
                 }
-                _ => ()
+                _ => (),
             }
         }
     }
@@ -201,7 +200,5 @@ fn get_anchors(anchor_type: &str) -> ZomeApiResult<Vec<Anchor>> {
     let anchor_type_entry = Anchor::new(anchor_type, "").entry();
     let anchor_type_addr = hdk::entry_address(&anchor_type_entry)?;
     let anchor_type_links = hdk::get_links(&anchor_type_addr, ANCHOR_LINK)?;
-    anchor_type_links.addresses().iter()
-        .map(|addr| get_anchor(&addr))
-        .collect()
+    anchor_type_links.addresses().iter().map(|addr| get_anchor(&addr)).collect()
 }

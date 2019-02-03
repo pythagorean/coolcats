@@ -19,6 +19,9 @@ dna:
 
 dna-build: dna
 
+dna-fmt:
+	(cd dna-src/zomes/coolcats/code; cargo +nightly fmt)
+
 dna-lint:
 	(cd dna-src/zomes/coolcats/code; cargo +nightly clippy)
 
