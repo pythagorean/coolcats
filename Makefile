@@ -1,6 +1,6 @@
 all:	dna ui
 
-fmt: ui-fmt
+fmt: dna-fmt ui-fmt
 
 lint: dna-lint ui-lint
 

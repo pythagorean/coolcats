@@ -189,10 +189,10 @@ pub fn use_handle(handle: &str) -> ZomeApiResult<Address> {
 }
 
 fn get_handle(addr: &Address) -> ZomeApiResult<String> {
-    if addr.to_string() == AGENT_ADDRESS.to_string() {
-        if !Anchor::exists(&AGENT_ADDRESS.to_string(), HANDLE)? {
-            return Err(ZomeApiError::ValidationFailed("handle_unset".into()));
-        }
+    if addr.to_string() == AGENT_ADDRESS.to_string()
+        && !Anchor::exists(&AGENT_ADDRESS.to_string(), HANDLE)?
+    {
+        return Err(ZomeApiError::ValidationFailed("handle_unset".into()));
     }
     let mut addr = addr;
     let links = hdk::get_links(addr, HANDLE)?;
@@ -227,12 +227,12 @@ fn set_profile_prop(data: &str, tag: &str) -> ZomeApiResult<String> {
 
 fn get_profile_prop(tag: &str) -> ZomeApiResult<String> {
     if !Anchor::exists(&AGENT_ADDRESS.to_string(), tag)? {
-        return Err(ZomeApiError::ValidationFailed(format!("unlinked_tag: {}", tag).into()));
+        return Err(ZomeApiError::ValidationFailed(format!("unlinked_tag: {}", tag)));
     }
     let links = hdk::get_links(&AGENT_ADDRESS, tag)?;
     let addrs = links.addresses();
     if addrs.is_empty() {
-        return Err(ZomeApiError::ValidationFailed(format!("unlinked_tag: {}", tag).into()));
+        return Err(ZomeApiError::ValidationFailed(format!("unlinked_tag: {}", tag)));
     }
     if let Some(entry) = hdk::get_entry(&addrs[0])? {
         if let Entry::App(entry_type, value) = entry {

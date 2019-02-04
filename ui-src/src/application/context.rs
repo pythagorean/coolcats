@@ -72,7 +72,7 @@ impl Agent for ContextAgent {
     }
 
     // Handle inner messages (of services of `send_back` callbacks)
-    fn update(&mut self, msg: Self::Message) {
+    fn update(&mut self, _msg: Self::Message) {
         /* ... */
     }
 

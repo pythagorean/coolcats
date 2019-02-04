@@ -1,6 +1,6 @@
 use yew::prelude::*;
-use yew_router::{routes, Route, RouterAgent};
-use serde::{Serialize, Deserialize};
+use yew_router::{ routes, Route, RouterAgent };
+use serde::{ Serialize, Deserialize };
 use std::sync::Mutex;
 use std::str::FromStr;
 use strum::AsStaticRef;
@@ -8,15 +8,19 @@ use strum::AsStaticRef;
 use crate::holoclient::ToHoloclient;
 
 use super::{
-    state::State,
-    app::{ self, App },
     context::{ self, ContextAgent },
+    state::State,
+    app::App,
+    edit_profile::EditProfile,
+    follow::Follow,
     ToApplication,
 };
 
-// define RouterTarget:
+// defines RouterTarget:
 routes! {
-    App => "/",
+    App => "/app",
+    EditProfile => "/editProfile",
+    Follow => "/follow",
     Error => "/error",
 }
 
@@ -59,6 +63,7 @@ pub enum Redux {
 pub enum Msg {
     Callback(ToHoloclient),
     Route(Route<()>),
+    ChangeRoute(RouterTarget),
     Action(Action),
     ContextMsg(context::Response),
 }
@@ -120,6 +125,10 @@ impl Component for Root {
             Msg::Route(route) => {
                 self.child = route.into();
                 return true;
+            }
+
+            Msg::ChangeRoute(target) => {
+                self.router.send(yew_router::Request::ChangeRoute(target.into()));
             }
 
             Msg::Action(action) => match action {
@@ -193,8 +202,7 @@ impl Component for Root {
                 match redux {
                     Redux::GetContainer => {
                         self.container = result[0]["id"].to_string();
-                        //Disabled because get_my_handle before handle is set has Zome problem
-                        //self.update(Action::GetReady.into());
+                        self.update(Action::GetReady.into());
                     }
 
                     Redux::UseHandle => {
@@ -203,8 +211,6 @@ impl Component for Root {
                             if error["ValidationFailed"] == "handle_in_use" {
                                 self.state.set_bool("handle_taken".into(), true);
                                 return true;
-                            } else {
-                                panic!("Redux::UseHandle error: {}", error.to_string());
                             }
                         } else {
                             let me = self.state.string("me");
@@ -214,20 +220,20 @@ impl Component for Root {
                         }
                     }
 
-                    Redux::AgentHandle => {
+                    Redux::AgentHandle => if !value.is_null() {
                         self.state.set_string("handle".into(), value.to_string());
                         self.state
                             .mut_dict("app_properties")
                             .set_string("Agent_Handle".into(), value.to_string());
                         return true;
-                    }
+                    },
 
                     Redux::SetFirstName => (),
 
-                    Redux::GetFirstName => {
+                    Redux::GetFirstName => if !value.is_null() {
                         self.state.set_string("first_name".into(), value.to_string());
                         return true;
-                    }
+                    },
                 }
             }
 
@@ -277,8 +283,9 @@ impl Renderable<Root> for RouterTarget {
         // Send counter parameter to notify components of state changes
         let counter = self.counter();
         match self {
-            RouterTarget::App => html! { <App: counter = counter,/> },
-            RouterTarget::Error => panic! { "Routing error occurred" },
+            RouterTarget::App | RouterTarget::Error => html! { <App: counter = counter,/> },
+            RouterTarget::EditProfile => html! { <EditProfile: counter = counter,/> },
+            RouterTarget::Follow => html! { <Follow: counter = counter,/> },
         }
     }
 }

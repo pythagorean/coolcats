@@ -1,12 +1,10 @@
 use yew::prelude::*;
-use yew_router::RouterAgent;
 
 use crate::application::{
     Action,
-    RouterTarget,
+    context::{ self, ContextAgent },
     state::State,
     settings::{ self, Settings },
-    context::{ self, ContextAgent },
 };
 
 const DEFAULT_PROFILE_PIC: &str = "/cat-eating-bird-circle.png";
@@ -23,17 +21,14 @@ pub fn getstates() -> Vec<String> {
 }
 
 pub struct App {
-    router: Box<Bridge<RouterAgent<()>>>,
     context: Box<Bridge<ContextAgent>>,
     getstate: State,
 }
 
 pub enum Msg {
     Action(Action),
-    ChangeRoute(RouterTarget),
     ContextMsg(context::Response),
     GetStates,
-    Ignore,
 }
 
 impl From<Action> for Msg {
@@ -60,23 +55,17 @@ impl Component for App {
     type Properties = Props;
 
     fn create(_: Self::Properties, mut link: ComponentLink<Self>) -> Self {
-        let router = RouterAgent::bridge(link.send_back(|_| Msg::Ignore));
         let context = ContextAgent::bridge(link.send_back(Msg::ContextMsg));
-        let mut app = Self {
-            router,
+        let mut component = Self {
             context,
             getstate: State::unset(),
         };
-        app.update(Msg::GetStates);
-        app
+        component.update(Msg::GetStates);
+        component
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Msg::ChangeRoute(target) => {
-                self.router.send(yew_router::Request::ChangeRoute(target.into()));
-            }
-
             Msg::GetStates => {
                 self.context.send(context::Request::GetStates(getstates()));
             }
@@ -95,8 +84,6 @@ impl Component for App {
 
                 context::Response::Request(_, _) => (),
             },
-
-            Msg::Ignore => (),
         };
         false
     }
@@ -148,14 +135,16 @@ impl Renderable<App> for App {
                                         alt="user-profile",
                                     />
                                     <div id="displayName",>{first_name}</div>
-                                    <a href="/editProfile", id="handle",>
+                                    <a href="#/editProfile",
+                                        id="handle",
+                                    >
                                         {"@"}{handle}
                                     </a>
                                 </div>
                             </div>
                             <div class="col-sm-7",>
                                 <div class="contentcontainer",>
-                                    <a href="/follow",
+                                    <a href="#/follow",
                                         id="followButton",
                                         class="btn btn-default",
                                     >

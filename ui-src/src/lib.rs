@@ -6,10 +6,9 @@ use yew::{
     html::Scope,
 };
 
-#[macro_use]
 extern crate yew_router;
 
-#[macro_use]
+//#[macro_use]
 extern crate stdweb;
 
 extern crate json;

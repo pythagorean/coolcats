@@ -17,7 +17,7 @@ pub enum DictValue {
 
 pub type DictType = HashMap<DictKey, DictValue>;
 
-#[derive(Serialize, Deserialize, PartialEq, Debug)]
+#[derive(Default, Serialize, Deserialize, PartialEq, Debug)]
 pub struct Dict(DictType);
 
 impl From<Dict> for DictValue {
