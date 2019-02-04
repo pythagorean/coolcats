@@ -1,6 +1,10 @@
 pub mod context;
 pub mod state;
 pub mod root;
+
+#[macro_use]
+pub mod interface;
+
 pub mod app;
 pub mod settings;
 pub mod edit_profile;

@@ -220,20 +220,24 @@ impl Component for Root {
                         }
                     }
 
-                    Redux::AgentHandle => if !value.is_null() {
-                        self.state.set_string("handle".into(), value.to_string());
-                        self.state
-                            .mut_dict("app_properties")
-                            .set_string("Agent_Handle".into(), value.to_string());
-                        return true;
-                    },
+                    Redux::AgentHandle => {
+                        if !value.is_null() {
+                            self.state.set_string("handle".into(), value.to_string());
+                            self.state
+                                .mut_dict("app_properties")
+                                .set_string("Agent_Handle".into(), value.to_string());
+                            return true;
+                        }
+                    }
 
                     Redux::SetFirstName => (),
 
-                    Redux::GetFirstName => if !value.is_null() {
-                        self.state.set_string("first_name".into(), value.to_string());
-                        return true;
-                    },
+                    Redux::GetFirstName => {
+                        if !value.is_null() {
+                            self.state.set_string("first_name".into(), value.to_string());
+                            return true;
+                        }
+                    }
                 }
             }
 

@@ -55,6 +55,7 @@ ui-start:
 
 ui-update:
 	(cd ui-src; cargo +stable update)
+	(cd ui-src; yarn upgrade)
 
 ui-clean:
 	(cd ui-src; cargo +stable clean && rm -f Cargo.lock)
