@@ -1,9 +1,9 @@
 use yew::prelude::*;
 
 use crate::application::{
-    Action,
     context::{ self, ContextAgent },
     state::State,
+    interface::*,
     settings::{ self, Settings },
 };
 
@@ -23,31 +23,6 @@ pub fn getstates() -> Vec<String> {
 pub struct App {
     context: Box<Bridge<ContextAgent>>,
     getstate: State,
-}
-
-pub enum Msg {
-    Action(Action),
-    ContextMsg(context::Response),
-    GetStates,
-}
-
-impl From<Action> for Msg {
-    fn from(action: Action) -> Self {
-        Msg::Action(action)
-    }
-}
-
-#[derive(PartialEq, Clone)]
-pub struct Props {
-    pub counter: u32,
-}
-
-impl Default for Props {
-    fn default() -> Self {
-        Props {
-            counter: 0,
-        }
-    }
 }
 
 impl_interface_component!(App);

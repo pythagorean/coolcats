@@ -1,3 +1,30 @@
+use crate::application::{ Action, context };
+
+pub enum Msg {
+    Action(Action),
+    ContextMsg(context::Response),
+    GetStates,
+}
+
+impl From<Action> for Msg {
+    fn from(action: Action) -> Self {
+        Msg::Action(action)
+    }
+}
+
+#[derive(PartialEq, Clone)]
+pub struct Props {
+    pub counter: u32,
+}
+
+impl Default for Props {
+    fn default() -> Self {
+        Props {
+            counter: 0,
+        }
+    }
+}
+
 macro_rules! impl_interface_component {
     ($($t:ty),+) => {
         $(impl Component for $t {

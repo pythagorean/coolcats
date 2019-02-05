@@ -284,7 +284,7 @@ impl Renderable<Root> for Root {
 
 impl Renderable<Root> for RouterTarget {
     fn view(&self) -> Html<Root> {
-        // Send counter parameter to notify components of state changes
+        // Send counter parameter to notify interface components of state changes
         let counter = self.counter();
         match self {
             RouterTarget::App | RouterTarget::Error => html! { <App: counter = counter,/> },
