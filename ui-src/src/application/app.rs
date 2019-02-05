@@ -1,9 +1,9 @@
 use yew::prelude::*;
 
 use crate::application::{
+    Action,
     context::{ self, ContextAgent },
     state::State,
-    interface::*,
     settings::{ self, Settings },
 };
 
@@ -20,12 +20,8 @@ pub fn getstates() -> Vec<String> {
     states
 }
 
-pub struct App {
-    context: Box<Bridge<ContextAgent>>,
-    getstate: State,
-}
-
-impl_interface_component!(App);
+interface_view_only!(App);
+interface_component!(App);
 
 impl Renderable<App> for App {
     fn view(&self) -> Html<Self> {
