@@ -87,82 +87,54 @@ impl PropValue {
     }
 }
 
+macro_rules! prop_definition {
+    ($name:ident) => {
+        pub fn definition() -> ValidatingEntryType {
+            entry!(
+                name: $name,
+                description: "a user's first name",
+                sharing: Sharing::Public,
+                native_type: PropValue,
+
+                validation_package: || {
+                    hdk::ValidationPackageDefinition::Entry
+                },
+
+                validation: |_name: PropValue, _ctx: hdk::ValidationData| {
+                    Ok(())
+                },
+
+                links: [
+                    Self::agent_link_definition()
+                ]
+            )
+        }
+
+        fn agent_link_definition() -> ValidatingLinkDefinition {
+            from!(
+                "%agent_id",
+                tag: $name,
+                validation_package: || {
+                    hdk::ValidationPackageDefinition::Entry
+                },
+                validation: |_source: Address, _target: Address, _ctx: hdk::ValidationData| {
+                    Ok(())
+                }
+            )
+        }
+    }
+}
+
 const FIRST_NAME: &str = "first_name";
 pub struct FirstName;
-
 impl FirstName {
-    pub fn definition() -> ValidatingEntryType {
-        entry!(
-            name: FIRST_NAME,
-            description: "a user's first name",
-            sharing: Sharing::Public,
-            native_type: PropValue,
-
-            validation_package: || {
-                hdk::ValidationPackageDefinition::Entry
-            },
-
-            validation: |_name: PropValue, _ctx: hdk::ValidationData| {
-                Ok(())
-            },
-
-            links: [
-                FirstName::agent_link_definition()
-            ]
-        )
-    }
-
-    fn agent_link_definition() -> ValidatingLinkDefinition {
-        from!(
-            "%agent_id",
-            tag: FIRST_NAME,
-            validation_package: || {
-                hdk::ValidationPackageDefinition::Entry
-            },
-            validation: |_source: Address, _target: Address, _ctx: hdk::ValidationData| {
-                Ok(())
-            }
-        )
-    }
+    prop_definition!(FIRST_NAME);
 }
 
 const PROFILE_PIC: &str = "profile_pic";
 pub struct ProfilePic;
-
 impl ProfilePic {
-    pub fn definition() -> ValidatingEntryType {
-        entry!(
-            name: PROFILE_PIC,
-            description: "a user's profile picture",
-            sharing: Sharing::Public,
-            native_type: PropValue,
-
-            validation_package: || {
-                hdk::ValidationPackageDefinition::Entry
-            },
-
-            validation: |_name: PropValue, _ctx: hdk::ValidationData| {
-                Ok(())
-            },
-
-            links: [
-                ProfilePic::agent_link_definition()
-            ]
-        )
-    }
-
-    fn agent_link_definition() -> ValidatingLinkDefinition {
-        from!(
-            "%agent_id",
-            tag: PROFILE_PIC,
-            validation_package: || {
-                hdk::ValidationPackageDefinition::Entry
-            },
-            validation: |_source: Address, _target: Address, _ctx: hdk::ValidationData| {
-                Ok(())
-            }
-        )
-    }
+    prop_definition!(PROFILE_PIC);
 }
 
 pub fn handle_app_property(key: String) -> JsonString {
