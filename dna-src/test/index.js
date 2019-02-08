@@ -142,5 +142,26 @@ test('clutter', (t) => {
     t.equal(result.value, aliceName)
   })
 
+  t.test('get the profile pic of the user which is not set', (t) => {
+    t.plan(1)
+    const result = display(call("get_profile_pic", {}))
+    t.equal(result.error.ValidationFailed, "unlinked_tag: profile_pic")
+  })
+
+  t.test('set the profile_pic of the user', (t) => {
+    t.plan(1)
+    const result = display(call("set_profile_pic",
+      {data: "random stuff for now"}
+    ))
+    t.equal(result.value, "random stuff for now")
+    sleep(1000)
+  })
+
+  t.test('get the profile pic of the user', (t) => {
+    t.plan(1)
+    const result = display(call("get_profile_pic", {}))
+    t.equal(result.value, "random stuff for now")
+  })
+
   t.end()
 })

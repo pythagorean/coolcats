@@ -20,13 +20,13 @@ use anchors::{
 };
 
 use clutter::{
-    Handle, FirstName,
+    Handle, FirstName, ProfilePic,
 };
 
 define_zome! {
     entries: [
        Anchor::definition(), AnchorLink::definition(),
-       Handle::definition(), FirstName::definition()
+       Handle::definition(), FirstName::definition(), ProfilePic::definition()
     ]
 
     genesis: || { Ok(()) }
@@ -77,6 +77,16 @@ define_zome! {
                 inputs: | |,
                 outputs: |result: JsonString|,
                 handler: clutter::handle_get_first_name
+            }
+            set_profile_pic: {
+                inputs: |data: String|,
+                outputs: |result: JsonString|,
+                handler: clutter::handle_set_profile_pic
+            }
+            get_profile_pic: {
+                inputs: | |,
+                outputs: |result: JsonString|,
+                handler: clutter::handle_get_profile_pic
             }
             log_out: {
                 inputs: | |,

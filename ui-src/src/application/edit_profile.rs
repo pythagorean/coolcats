@@ -1,4 +1,5 @@
 use yew::prelude::*;
+use std::sync::Mutex;
 
 use crate::application::{
     Action,
@@ -6,8 +7,10 @@ use crate::application::{
     state::State,
 };
 
+const MAX_PIC_SIZE: u32 = 2_000_000;
+
 // Declare what state keys will be used by this component
-const GETSTATES: [&str; 1] = ["handle"];
+const GETSTATES: [&str; 3] = ["handle", "profile_pic", "first_name"];
 
 pub fn getstates() -> Vec<String> {
     lazy_static! {
@@ -23,6 +26,11 @@ pub struct Local {
     new_name_text: String,
 }
 
+// We can't store this inside the interface component due to lifetime expiry before onload
+lazy_static! {
+    static ref NEW_PROFILE_PIC: Mutex<String> = Mutex::new(String::new());
+}
+
 impl Local {
     fn new() -> Self {
         Self {
@@ -33,6 +41,7 @@ impl Local {
 
 pub enum LocalMsg {
     UpdateNameText(InputData),
+    ReadImage,
     OnSubmit,
     Ignore,
 }
@@ -45,6 +54,10 @@ impl EditProfile {
                 return true;
             }
 
+            LocalMsg::ReadImage => {
+                static_read_image();
+            }
+
             LocalMsg::OnSubmit => {
                 self.on_submit();
             }
@@ -54,9 +67,51 @@ impl EditProfile {
         false
     }
 
-    fn on_submit(&mut self) {
-        //js! {alert(@{format!("EditProfile name submitted: {}", self.local.new_name_text)})};
+    fn set_profile_pic(&mut self, profile_pic: &str) {
+        self.update(Action::SetProfilePic(profile_pic.into()).into());
     }
+
+    fn set_first_name(&mut self, name: &str) {
+        self.update(Action::SetFirstName(name.into()).into());
+    }
+
+    fn on_submit(&mut self) {
+        let new_profile_pic = { NEW_PROFILE_PIC.lock().unwrap().clone() };
+        if !new_profile_pic.is_empty() && new_profile_pic != self.getstate.string("profile_pic") {
+            self.set_profile_pic(&new_profile_pic);
+        }
+
+        let new_name_text = self.local.new_name_text.clone();
+        if !new_name_text.is_empty() && new_name_text != self.getstate.string("first_name") {
+            self.set_first_name(&new_name_text);
+        }
+
+        self.update(Action::Redirect("/".into()).into());
+    }
+}
+
+// Should probably create a Yew service to do this
+fn static_read_image() {
+    use stdweb::unstable::TryInto;
+    let file = js! { return document.querySelector("#image").files[0] };
+    let file_size: u32 = js! { return @{file.clone()}.size }.try_into().unwrap();
+    if file_size > MAX_PIC_SIZE {
+        js! { alert("File is too big!") };
+        return;
+    }
+    let onload = |dataurl: String| {
+        let mut new_profile_pic = NEW_PROFILE_PIC.lock().unwrap();
+        *new_profile_pic = dataurl;
+    };
+    js! {
+        var reader = new FileReader();
+        reader.onload = function(evt) {
+            var onload = @{onload};
+            onload(reader.result);
+            onload.drop();
+        };
+        reader.readAsDataURL(@{file});
+    };
 }
 
 impl Renderable<EditProfile> for EditProfile {
@@ -100,6 +155,8 @@ impl Renderable<EditProfile> for EditProfile {
                                     type="file",
                                     accept="image/*",
                                     id="image",
+                                    hidden=true,
+                                    oninput=|_| LocalMsg::ReadImage.into(),
                                 />
                             </div>
                         </div>

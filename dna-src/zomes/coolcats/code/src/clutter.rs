@@ -126,6 +126,45 @@ impl FirstName {
     }
 }
 
+const PROFILE_PIC: &str = "profile_pic";
+pub struct ProfilePic;
+
+impl ProfilePic {
+    pub fn definition() -> ValidatingEntryType {
+        entry!(
+            name: PROFILE_PIC,
+            description: "a user's profile picture",
+            sharing: Sharing::Public,
+            native_type: PropValue,
+
+            validation_package: || {
+                hdk::ValidationPackageDefinition::Entry
+            },
+
+            validation: |_name: PropValue, _ctx: hdk::ValidationData| {
+                Ok(())
+            },
+
+            links: [
+                ProfilePic::agent_link_definition()
+            ]
+        )
+    }
+
+    fn agent_link_definition() -> ValidatingLinkDefinition {
+        from!(
+            "%agent_id",
+            tag: PROFILE_PIC,
+            validation_package: || {
+                hdk::ValidationPackageDefinition::Entry
+            },
+            validation: |_source: Address, _target: Address, _ctx: hdk::ValidationData| {
+                Ok(())
+            }
+        )
+    }
+}
+
 pub fn handle_app_property(key: String) -> JsonString {
     match app_property(&key) {
         Ok(value) => json!({ "value": value }).into(),
@@ -157,6 +196,20 @@ pub fn handle_set_first_name(name: String) -> JsonString {
 pub fn handle_get_first_name() -> JsonString {
     match get_first_name() {
         Ok(name) => json!({ "value": name }).into(),
+        Err(hdk_err) => json!({ "error": hdk_err }).into(),
+    }
+}
+
+pub fn handle_set_profile_pic(data: String) -> JsonString {
+    match set_profile_pic(&data) {
+        Ok(data) => json!({ "value": data }).into(),
+        Err(hdk_err) => json!({ "error": hdk_err }).into(),
+    }
+}
+
+pub fn handle_get_profile_pic() -> JsonString {
+    match get_profile_pic() {
+        Ok(data) => json!({ "value": data }).into(),
         Err(hdk_err) => json!({ "error": hdk_err }).into(),
     }
 }
@@ -216,6 +269,14 @@ fn set_first_name(name: &str) -> ZomeApiResult<String> {
 
 fn get_first_name() -> ZomeApiResult<String> {
     get_profile_prop(FIRST_NAME)
+}
+
+fn set_profile_pic(data: &str) -> ZomeApiResult<String> {
+    set_profile_prop(data, PROFILE_PIC)
+}
+
+fn get_profile_pic() -> ZomeApiResult<String> {
+    get_profile_prop(PROFILE_PIC)
 }
 
 fn set_profile_prop(data: &str, tag: &str) -> ZomeApiResult<String> {

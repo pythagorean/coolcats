@@ -18,7 +18,7 @@ use super::{
 
 // defines RouterTarget:
 routes! {
-    App => "/app",
+    App => "/",
     EditProfile => "/editProfile",
     Follow => "/follow",
     Error => "/error",
@@ -46,9 +46,11 @@ pub struct Params(pub ToRoot);
 #[derive(Serialize, Deserialize)]
 pub enum Action {
     GetReady,
+    Redirect(String),
     //ResetState,
     UseHandle(String),
     SetFirstName(String),
+    SetProfilePic(String),
 }
 
 #[derive(EnumString, AsStaticStr)]
@@ -58,6 +60,8 @@ pub enum Redux {
     AgentHandle,
     SetFirstName,
     GetFirstName,
+    SetProfilePic,
+    GetProfilePic,
 }
 
 pub enum Msg {
@@ -135,9 +139,15 @@ impl Component for Root {
                 Action::GetReady => {
                     self.get_my_handle();
                     //self.get_handles();
-                    //self.get_profile_pic();
+                    self.get_profile_pic();
                     self.get_first_name();
                     //self.interval = setInterval(self.props.getHandles, 2000)
+                }
+
+                Action::Redirect(path) => {
+                    if path.as_str() == "/" {
+                        self.update(Msg::ChangeRoute(RouterTarget::App));
+                    }
                 }
 
                 //Action::ResetState => {
@@ -154,6 +164,12 @@ impl Component for Root {
                         Redux::SetFirstName.as_static(),
                     );
                 }
+
+                Action::SetProfilePic(profile_pic) => self.coolcats(
+                    "set_profile_pic",
+                    ("data", &*profile_pic),
+                    Redux::SetProfilePic.as_static(),
+                ),
             },
 
             Msg::ContextMsg(response) => {
@@ -216,7 +232,7 @@ impl Component for Root {
                             let me = self.state.string("me");
                             self.state.mut_dict("handles").set_string(me, value.to_string());
                             self.state.set_bool("handle_taken".into(), false);
-                            self.update(Action::GetReady.into());
+                            self.get_my_handle();
                         }
                     }
 
@@ -230,11 +246,28 @@ impl Component for Root {
                         }
                     }
 
-                    Redux::SetFirstName => (),
+                    Redux::SetFirstName => {
+                        if !value.is_null() {
+                            self.get_first_name();
+                        }
+                    }
 
                     Redux::GetFirstName => {
                         if !value.is_null() {
                             self.state.set_string("first_name".into(), value.to_string());
+                            return true;
+                        }
+                    }
+
+                    Redux::SetProfilePic => {
+                        if !value.is_null() {
+                            self.get_profile_pic();
+                        }
+                    }
+
+                    Redux::GetProfilePic => {
+                        if !value.is_null() {
+                            self.state.set_string("profile_pic".into(), value.to_string());
                             return true;
                         }
                     }
@@ -255,13 +288,21 @@ impl Root {
         self.update(call.into());;
     }
 
+    fn coolcats_np(&mut self, method: &str, redux: &str) {
+        let no_params = ("", "");
+        self.coolcats(method, no_params, redux);
+    }
+
     fn get_my_handle(&mut self) {
         self.coolcats("app_property", ("key", "Agent_Handle"), Redux::AgentHandle.as_static());
     }
 
     fn get_first_name(&mut self) {
-        let no_params = ("", "");
-        self.coolcats("get_first_name", no_params, Redux::GetFirstName.as_static())
+        self.coolcats_np("get_first_name", Redux::GetFirstName.as_static());
+    }
+
+    fn get_profile_pic(&mut self) {
+        self.coolcats_np("get_profile_pic", Redux::GetProfilePic.as_static());
     }
 }
 

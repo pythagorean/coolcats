@@ -8,7 +8,7 @@ use yew::{
 
 extern crate yew_router;
 
-//#[macro_use]
+#[macro_use]
 extern crate stdweb;
 
 extern crate json;
