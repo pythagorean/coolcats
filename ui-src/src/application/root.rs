@@ -249,6 +249,12 @@ impl Component for Root {
                                     .set_string("Agent_Handle".into(), handle);
                                 return true;
                             }
+                        } else if !self.state.string("handle").is_empty() {
+                            self.state.set_string("handle".into(), "".into());
+                            self.state
+                                .mut_dict("app_properties")
+                                .set_string("Agent_Handle".into(), "".into());
+                            return true;
                         }
                     }
 
@@ -259,6 +265,9 @@ impl Component for Root {
                                 self.state.set_string("first_name".into(), first_name);
                                 return true;
                             }
+                        } else if !self.state.string("first_name").is_empty() {
+                            self.state.set_string("first_name".into(), "".into());
+                            return true;
                         }
                     }
 
@@ -269,6 +278,9 @@ impl Component for Root {
                                 self.state.set_string("profile_pic".into(), profile_pic);
                                 return true;
                             }
+                        } else if !self.state.string("profile_pic").is_empty() {
+                            self.state.set_string("profile_pic".into(), "".into());
+                            return true;
                         }
                     }
                 }
@@ -294,7 +306,7 @@ impl Root {
             self.state = serde_json::from_str(&state).unwrap();
         }
     }
-    
+
     fn coolcats(&mut self, method: &str, params: (&str, &str), redux: &str) {
         let call = ToHoloclient::Call(
             (&[self.container.as_str(), "coolcats", method][..], params, redux).into(),
