@@ -1,3 +1,5 @@
+NIGHTLY = nightly-2019-01-24
+
 all:	dna ui
 
 fmt: dna-fmt ui-fmt
@@ -20,10 +22,10 @@ dna:
 dna-build: dna
 
 dna-fmt:
-	(cd dna-src/zomes/coolcats/code; cargo +nightly fmt)
+	(cd dna-src/zomes/coolcats/code; cargo +$(NIGHTLY) fmt)
 
 dna-lint:
-	(cd dna-src/zomes/coolcats/code; cargo +nightly clippy)
+	(cd dna-src/zomes/coolcats/code; cargo +$(NIGHTLY) clippy)
 
 dna-test:
 	(cd dna-src; hc test)
@@ -32,10 +34,10 @@ dna-start: dna
 	-(cd dna-src; hc run) || make dna-start
 
 dna-update:
-	(cd dna-src/zomes/coolcats/code; cargo +nightly update)
+	(cd dna-src/zomes/coolcats/code; cargo +$(NIGHTLY) update)
 
 dna-clean:
-	(cd dna-src/zomes/coolcats/code; cargo +nightly clean && rm -f Cargo.lock)
+	(cd dna-src/zomes/coolcats/code; cargo +$(NIGHTLY) clean && rm -f Cargo.lock)
 	(cd dna-src/test; rm -rf node_modules package-lock.json)
 	find . -name bundle.json -exec rm {} +
 

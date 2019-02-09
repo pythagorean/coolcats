@@ -1,3 +1,6 @@
+// Copy nodejs_conductor from holochain-rust (develop branch) first
+const { Config, Conductor } = require("./nodejs_conductor/index.js")
+
 const test = require('tape');
 const tapSpec = require('tap-spec');
 
@@ -5,33 +8,17 @@ test.createStream()
   .pipe(tapSpec())
   .pipe(process.stdout);
 
-const { Config, Container } = require("@holochain/holochain-nodejs")
-
 const dnaPath = "./dist/bundle.json"
 const aliceName = "alice"
+const bobName = "bob"
 
-// closure to keep config-only stuff out of test scope
-const container = (() => {
-    const agentAlice = Config.agent(aliceName)
-    const dna = Config.dna(dnaPath)
-    const instanceAlice = Config.instance(agentAlice, dna)
-    const containerConfig = Config.container([instanceAlice])
-    return new Container(containerConfig)
-})()
-
-// Initialize the Container
-container.start()
-
-const alice = container.makeCaller(aliceName, dnaPath)
-const agent_id = container.agent_id(aliceName + '::' + dnaPath)
+const dna = Config.dna(dnaPath)
+const agentAlice = Config.agent(aliceName)
+const instanceAlice = Config.instance(agentAlice, dna)
 
 function display(result) {
   console.dir(result, {depth: null, colors: true})
   return result
-}
-
-function call(method, params) {
-  return alice.call("coolcats", "main", method, params)
 }
 
 function sleep(milliseconds) {
@@ -43,125 +30,156 @@ function sleep(milliseconds) {
   }
 }
 
-test('anchors', (t) => {
-  t.test('create and get anchors', (t) => {
-    t.plan(1)
-    const addr = call("create_anchor", {anchor:
-      {anchor_type: "testing", anchor_text: "1-2-3"}
+Conductor.run([instanceAlice], (stop, {alice}) => {
+  call = (method, params) => alice.call("coolcats", method, params);
+  test('anchors', (t) => {
+    t.test('create and get anchors', (t) => {
+      t.plan(1)
+      const addr = call("create_anchor", {anchor:
+        {anchor_type: "testing", anchor_text: "1-2-3"}
+      })
+      const result = display(call("get_anchor", {address: addr.value}))
+      t.deepEqual(result.value,
+        {anchor_type: "testing", anchor_text: "1-2-3"}
+      )
     })
-    const result = display(call("get_anchor", {address: addr.value}))
-    t.deepEqual(result.value,
-      {anchor_type: "testing", anchor_text: "1-2-3"}
-    )
-  })
 
-  t.test('check that anchor exists works', (t) => {
-    t.plan(2)
-    const result1 = display(call("anchor_exists", {anchor:
-      {anchor_type: "testing", anchor_text: "1-2-3"}
-    }))
-    const result2 = display(call("anchor_exists", {anchor:
-      {anchor_type: "testing", anchor_text: "3-2-1"}
-    }))
-    t.equal(result1.value, true)
-    t.equal(result2.value, false)
-  })
+    t.test('check that anchor exists works', (t) => {
+      t.plan(2)
+      const result1 = display(call("anchor_exists", {anchor:
+        {anchor_type: "testing", anchor_text: "1-2-3"}
+      }))
+      const result2 = display(call("anchor_exists", {anchor:
+        {anchor_type: "testing", anchor_text: "3-2-1"}
+      }))
+      t.equal(result1.value, true)
+      t.equal(result2.value, false)
+    })
 
-  t.test('get anchors from links', (t) => {
-    t.plan(1)
-    const result = display(call("get_anchors",
-      {anchor_type: "testing"}
-    ))
-    t.deepEqual(result.value, [
-      {anchor_type: "testing", anchor_text: "1-2-3"}
-    ])
-  })
+    t.test('get anchors from links', (t) => {
+      t.plan(1)
+      const result = display(call("get_anchors",
+        {anchor_type: "testing"}
+      ))
+      t.deepEqual(result.value, [
+        {anchor_type: "testing", anchor_text: "1-2-3"}
+      ])
+    })
 
-  t.end()
-})
-
-test('clutter', (t) => {
-  t.test('get the agent address', (t) => {
-    t.plan(1)
-    const result = display(call("app_property", {key: "Agent_Address"}))
-    t.equal(result.value, agent_id)
-  })
-
-  t.test('get the agent handle which is not set', (t) => {
-    t.plan(1)
-    const result = display(call("app_property", {key: "Agent_Handle"}))
-    t.equal(result.error.ValidationFailed, "handle_unset")
     t.end()
   })
 
-  t.test('set the agent handle', (t) => {
-    t.plan(1)
-    const result = display(call("use_handle", {handle: "buffaloBill"}))
-    t.equal(result.value, "QmUXkCgPqXcniV2JvRLeNZs21j4UyXoPWJ4pMtygRCdo8c")
-    sleep(1000)
-  })
+  test('clutter', (t) => {
+    t.test('get the agent address', (t) => {
+      const result = display(call("app_property", {key: "Agent_Address"}))
+      t.end()
+    })
 
-  t.test('get the agent handle which is now set', (t) => {
-    t.plan(1)
-    const result = display(call("app_property", {key: "Agent_Handle"}))
-    t.equal(result.value, "buffaloBill")
-  })
+    t.test('get the agent handle which is not set', (t) => {
+      t.plan(1)
+      const result = display(call("app_property", {key: "Agent_Handle"}))
+      t.equal(result.error.ValidationFailed, "handle_not_found")
+    })
 
-  t.test("trying to use a handle already in use returns error", (t) => {
-    t.plan(1)
-    const result = display(call("use_handle", {handle: "buffaloBill"}))
-    t.equal(result.error.ValidationFailed, "handle_in_use")
-  })
+    t.test('set the agent handle', (t) => {
+      t.plan(1)
+      const result = display(call("use_handle", {handle: "buffaloBill"}))
+      t.equal(result.value, "QmUXkCgPqXcniV2JvRLeNZs21j4UyXoPWJ4pMtygRCdo8c")
+      sleep(1000)
+    })
 
-  t.test('get the handle by its own address', (t) => {
-    t.plan(1)
-    const result = display(call("get_handle",
-      {address: "QmUXkCgPqXcniV2JvRLeNZs21j4UyXoPWJ4pMtygRCdo8c"}
-    ))
-    t.equal(result.value, "buffaloBill")
-  })
+    t.test('get the agent handle which is now set', (t) => {
+      t.plan(1)
+      const result = display(call("app_property", {key: "Agent_Handle"}))
+      t.equal(result.value, "buffaloBill")
+    })
 
-  t.test('get the first name of the user which is not set', (t) => {
-    t.plan(1)
-    const result = display(call("get_first_name", {}))
-    t.equal(result.error.ValidationFailed, "unlinked_tag: first_name")
-  })
+    t.test("trying to use a handle already in use returns error", (t) => {
+      t.plan(1)
+      const result = display(call("use_handle", {handle: "buffaloBill"}))
+      t.equal(result.error.ValidationFailed, "handle_in_use")
+    })
 
-  t.test('set the first name of the user', (t) => {
-    t.plan(1)
-    const result = display(call("set_first_name",
-      {name: aliceName}
-    ))
-    t.equal(result.value, aliceName)
-    sleep(1000)
-  })
+    t.test('get the handle by its own address', (t) => {
+      t.plan(1)
+      const result = display(call("get_handle",
+        {address: "QmUXkCgPqXcniV2JvRLeNZs21j4UyXoPWJ4pMtygRCdo8c"}
+      ))
+      t.equal(result.value, "buffaloBill")
+    })
 
-  t.test('get the first name of the user', (t) => {
-    t.plan(1)
-    const result = display(call("get_first_name", {}))
-    t.equal(result.value, aliceName)
-  })
+    t.test('get the first name of the user which is not set', (t) => {
+      t.plan(1)
+      const result = display(call("get_first_name", {}))
+      t.equal(result.error.ValidationFailed, "unlinked_tag: first_name")
+    })
 
-  t.test('get the profile pic of the user which is not set', (t) => {
-    t.plan(1)
-    const result = display(call("get_profile_pic", {}))
-    t.equal(result.error.ValidationFailed, "unlinked_tag: profile_pic")
-  })
+    t.test('set the first name of the user', (t) => {
+      t.plan(1)
+      const result = display(call("set_first_name",
+        {name: aliceName}
+      ))
+      t.equal(result.value, aliceName)
+      sleep(1000)
+    })
 
-  t.test('set the profile_pic of the user', (t) => {
-    t.plan(1)
-    const result = display(call("set_profile_pic",
-      {data: "random stuff for now"}
-    ))
-    t.equal(result.value, "random stuff for now")
-    sleep(1000)
-  })
+    t.test('get the first name of the user', (t) => {
+      t.plan(1)
+      const result = display(call("get_first_name", {}))
+      t.equal(result.value, aliceName)
+    })
 
-  t.test('get the profile pic of the user', (t) => {
-    t.plan(1)
-    const result = display(call("get_profile_pic", {}))
-    t.equal(result.value, "random stuff for now")
-  })
+    t.test('reset the first name of the user', (t) => {
+      t.plan(1)
+      const result = display(call("set_first_name",
+        {name: bobName}
+      ))
+      t.equal(result.value, bobName)
+      sleep(1000)
+    })
 
-  t.end()
+    t.test('get the new first name of the user', (t) => {
+      t.plan(1)
+      const result = display(call("get_first_name", {}))
+      t.equal(result.value, bobName)
+    })
+
+    t.test('get the profile pic of the user which is not set', (t) => {
+      t.plan(1)
+      const result = display(call("get_profile_pic", {}))
+      t.equal(result.error.ValidationFailed, "unlinked_tag: profile_pic")
+    })
+
+    t.test('set the profile_pic of the user', (t) => {
+      t.plan(1)
+      const result = display(call("set_profile_pic",
+        {dataurl: "random stuff for now"}
+      ))
+      t.equal(result.value, "random stuff for now")
+      sleep(1000)
+    })
+
+    t.test('get the profile pic of the user', (t) => {
+      t.plan(1)
+      const result = display(call("get_profile_pic", {}))
+      t.equal(result.value, "random stuff for now")
+    })
+
+    t.test('reset the profile_pic of the user', (t) => {
+      t.plan(1)
+      const result = display(call("set_profile_pic",
+        {dataurl: "random other stuff"}
+      ))
+      t.equal(result.value, "random other stuff")
+      sleep(1000)
+    })
+
+    t.test('get the new profile pic of the user', (t) => {
+      t.plan(1)
+      const result = display(call("get_profile_pic", {}))
+      t.equal(result.value, "random other stuff")
+    })
+
+    t.end()
+  })
 })

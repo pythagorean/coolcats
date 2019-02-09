@@ -172,8 +172,8 @@ pub fn handle_get_first_name() -> JsonString {
     }
 }
 
-pub fn handle_set_profile_pic(data: String) -> JsonString {
-    match set_profile_pic(&data) {
+pub fn handle_set_profile_pic(dataurl: String) -> JsonString {
+    match set_profile_pic(&dataurl) {
         Ok(data) => json!({ "value": data }).into(),
         Err(hdk_err) => json!({ "error": hdk_err }).into(),
     }
@@ -209,16 +209,10 @@ pub fn use_handle(handle: &str) -> ZomeApiResult<Address> {
     }
     let handle_addr = Handle::create(handle)?;
     hdk::link_entries(&AGENT_ADDRESS, &handle_addr, HANDLE)?;
-    Anchor::create(&AGENT_ADDRESS.to_string(), HANDLE)?; // Store that link exists (KLUDGE)
     Ok(handle_addr)
 }
 
 fn get_handle(addr: &Address) -> ZomeApiResult<String> {
-    if addr.to_string() == AGENT_ADDRESS.to_string()
-        && !Anchor::exists(&AGENT_ADDRESS.to_string(), HANDLE)?
-    {
-        return Err(ZomeApiError::ValidationFailed("handle_unset".into()));
-    }
     let mut addr = addr;
     let links = hdk::get_links(addr, HANDLE)?;
     let addrs = links.addresses();
@@ -232,7 +226,7 @@ fn get_handle(addr: &Address) -> ZomeApiResult<String> {
             }
         }
     }
-    Err(ZomeApiError::ValidationFailed("get_handle called on non-handle address".into()))
+    Err(ZomeApiError::ValidationFailed("handle_not_found".into()))
 }
 
 fn set_first_name(name: &str) -> ZomeApiResult<String> {
@@ -243,8 +237,8 @@ fn get_first_name() -> ZomeApiResult<String> {
     get_profile_prop(FIRST_NAME)
 }
 
-fn set_profile_pic(data: &str) -> ZomeApiResult<String> {
-    set_profile_prop(data, PROFILE_PIC)
+fn set_profile_pic(dataurl: &str) -> ZomeApiResult<String> {
+    set_profile_prop(dataurl, PROFILE_PIC)
 }
 
 fn get_profile_pic() -> ZomeApiResult<String> {
@@ -254,20 +248,16 @@ fn get_profile_pic() -> ZomeApiResult<String> {
 fn set_profile_prop(data: &str, tag: &str) -> ZomeApiResult<String> {
     let prop_addr = PropValue::create(tag, data)?;
     hdk::link_entries(&AGENT_ADDRESS, &prop_addr, tag)?;
-    Anchor::create(&AGENT_ADDRESS.to_string(), tag)?; // Store that link exists (KLUDGE)
     Ok(data.to_string())
 }
 
 fn get_profile_prop(tag: &str) -> ZomeApiResult<String> {
-    if !Anchor::exists(&AGENT_ADDRESS.to_string(), tag)? {
-        return Err(ZomeApiError::ValidationFailed(format!("unlinked_tag: {}", tag)));
-    }
     let links = hdk::get_links(&AGENT_ADDRESS, tag)?;
     let addrs = links.addresses();
     if addrs.is_empty() {
         return Err(ZomeApiError::ValidationFailed(format!("unlinked_tag: {}", tag)));
     }
-    if let Some(entry) = hdk::get_entry(&addrs[0])? {
+    if let Some(entry) = hdk::get_entry(&addrs.last().unwrap())? {
         if let Entry::App(entry_type, value) = entry {
             if entry_type.to_string() == tag {
                 let data = PropValue::try_from(value)?;
