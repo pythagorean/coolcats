@@ -114,6 +114,7 @@ impl Component for Root {
             router,
             context,
         };
+        root.load_state();
         root.context.send(context::Request::SetRoot);
         root
     }
@@ -240,25 +241,34 @@ impl Component for Root {
 
                     Redux::AgentHandle => {
                         if !value.is_null() {
-                            self.state.set_string("handle".into(), value.to_string());
-                            self.state
-                                .mut_dict("app_properties")
-                                .set_string("Agent_Handle".into(), value.to_string());
-                            return true;
+                            let handle = value.to_string();
+                            if self.state.string("handle") != handle {
+                                self.state.set_string("handle".into(), handle.clone());
+                                self.state
+                                    .mut_dict("app_properties")
+                                    .set_string("Agent_Handle".into(), handle);
+                                return true;
+                            }
                         }
                     }
 
                     Redux::SetFirstName | Redux::GetFirstName => {
                         if !value.is_null() {
-                            self.state.set_string("first_name".into(), value.to_string());
-                            return true;
+                            let first_name = value.to_string();
+                            if self.state.string("first_name") != first_name {
+                                self.state.set_string("first_name".into(), first_name);
+                                return true;
+                            }
                         }
                     }
 
                     Redux::SetProfilePic | Redux::GetProfilePic => {
                         if !value.is_null() {
-                            self.state.set_string("profile_pic".into(), value.to_string());
-                            return true;
+                            let profile_pic = value.to_string();
+                            if self.state.string("profile_pic") != profile_pic {
+                                self.state.set_string("profile_pic".into(), profile_pic);
+                                return true;
+                            }
                         }
                     }
                 }
@@ -271,6 +281,20 @@ impl Component for Root {
 }
 
 impl Root {
+    fn save_state(&self) {
+        use stdweb::{ web::Storage, unstable::TryInto, };
+        let store: Storage = js! { return localStorage }.try_into().unwrap();
+        store.insert("coolcats2_state", &serde_json::to_string(&self.state).unwrap()).unwrap();
+    }
+
+    fn load_state(&mut self) {
+        use stdweb::{ web::Storage, unstable::TryInto, };
+        let store: Storage = js! { return localStorage }.try_into().unwrap();
+        if let Some(state) = store.get("coolcats2_state") {
+            self.state = serde_json::from_str(&state).unwrap();
+        }
+    }
+    
     fn coolcats(&mut self, method: &str, params: (&str, &str), redux: &str) {
         let call = ToHoloclient::Call(
             (&[self.container.as_str(), "coolcats", method][..], params, redux).into(),
@@ -309,6 +333,7 @@ impl RouterTarget {
 
 impl Renderable<Root> for Root {
     fn view(&self) -> Html<Self> {
+        self.save_state();
         self.child.view()
     }
 }
