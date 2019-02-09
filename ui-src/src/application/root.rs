@@ -165,11 +165,13 @@ impl Component for Root {
                     );
                 }
 
-                Action::SetProfilePic(profile_pic) => self.coolcats(
-                    "set_profile_pic",
-                    ("data", &*profile_pic),
-                    Redux::SetProfilePic.as_static(),
-                ),
+                Action::SetProfilePic(profile_pic) => {
+                    self.coolcats(
+                        "set_profile_pic",
+                        ("dataurl", &*profile_pic),
+                        Redux::SetProfilePic.as_static(),
+                    );
+                }
             },
 
             Msg::ContextMsg(response) => {
@@ -246,26 +248,14 @@ impl Component for Root {
                         }
                     }
 
-                    Redux::SetFirstName => {
-                        if !value.is_null() {
-                            self.get_first_name();
-                        }
-                    }
-
-                    Redux::GetFirstName => {
+                    Redux::SetFirstName | Redux::GetFirstName => {
                         if !value.is_null() {
                             self.state.set_string("first_name".into(), value.to_string());
                             return true;
                         }
                     }
 
-                    Redux::SetProfilePic => {
-                        if !value.is_null() {
-                            self.get_profile_pic();
-                        }
-                    }
-
-                    Redux::GetProfilePic => {
+                    Redux::SetProfilePic | Redux::GetProfilePic => {
                         if !value.is_null() {
                             self.state.set_string("profile_pic".into(), value.to_string());
                             return true;
@@ -283,7 +273,7 @@ impl Component for Root {
 impl Root {
     fn coolcats(&mut self, method: &str, params: (&str, &str), redux: &str) {
         let call = ToHoloclient::Call(
-            (&[self.container.as_str(), "coolcats", "main", method][..], params, redux).into(),
+            (&[self.container.as_str(), "coolcats", method][..], params, redux).into(),
         );
         self.update(call.into());;
     }
