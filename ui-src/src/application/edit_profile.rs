@@ -86,7 +86,7 @@ impl EditProfile {
             self.set_first_name(&new_name_text);
         }
 
-        self.update(Action::Redirect("/".into()).into());
+        self.update(Action::Redirect("/#/".into()).into());
     }
 }
 
@@ -125,7 +125,7 @@ impl Renderable<EditProfile> for EditProfile {
         html! {
             <div class="panel panel-default",>
                 <div class="close",>
-                    <a href="/",>{"x"}</a>
+                    <a href="/#/",>{"x"}</a>
                 </div>
                 <div class="panel-body",>
                     <p>{"Profile"}</p>

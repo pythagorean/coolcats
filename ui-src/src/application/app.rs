@@ -64,7 +64,7 @@ impl Renderable<App> for App {
                                         alt="user-profile",
                                     />
                                     <div id="displayName",>{first_name}</div>
-                                    <a href="#/editProfile",
+                                    <a href="/#/editProfile",
                                         id="handle",
                                     >
                                         {"@"}{handle}
@@ -73,7 +73,7 @@ impl Renderable<App> for App {
                             </div>
                             <div class="col-sm-7",>
                                 <div class="contentcontainer",>
-                                    <a href="#/follow",
+                                    <a href="/#/follow",
                                         id="followButton",
                                         class="btn btn-default",
                                     >

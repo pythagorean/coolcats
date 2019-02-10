@@ -146,7 +146,7 @@ impl Component for Root {
                 }
 
                 Action::Redirect(path) => {
-                    if path.as_str() == "/" {
+                    if path.as_str() == "/#/" {
                         self.update(Msg::ChangeRoute(RouterTarget::App));
                     }
                 }
@@ -159,19 +159,25 @@ impl Component for Root {
                 }
 
                 Action::SetFirstName(first_name) => {
+                    self.state.set_string("first_name".into(), first_name.clone());
                     self.coolcats(
                         "set_first_name",
                         ("name", &*first_name),
                         Redux::SetFirstName.as_static(),
                     );
+                    self.save_profile();
+                    return true;
                 }
 
                 Action::SetProfilePic(profile_pic) => {
+                    self.state.set_string("profile_pic".into(), profile_pic.clone());
                     self.coolcats(
                         "set_profile_pic",
                         ("dataurl", &*profile_pic),
                         Redux::SetProfilePic.as_static(),
                     );
+                    self.save_profile();
+                    return true;
                 }
             },
 

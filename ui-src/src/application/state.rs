@@ -53,7 +53,7 @@ impl State {
         State(self.0.subset(keys))
     }
 
-    pub fn merge(&mut self, other: &State) {
+    pub fn merge(&mut self, other: &Self) {
         self.0.merge(&other.0);
     }
 

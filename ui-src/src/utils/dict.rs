@@ -184,7 +184,7 @@ impl Dict {
         dict
     }
 
-    pub fn merge(&mut self, other: &Dict) {
+    pub fn merge(&mut self, other: &Self) {
         for key in other.0.keys() {
             self.insert(key.clone(), other.get(key));
         }
