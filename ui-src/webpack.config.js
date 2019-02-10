@@ -1,4 +1,5 @@
 const path = require('path');
+const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
@@ -38,6 +39,7 @@ module.exports = {
     path: path.resolve(__dirname, 'target')
   },
   plugins: [
+    new HardSourceWebpackPlugin(),
     new CleanWebpackPlugin([ 'static' ]),
     new HtmlWebpackPlugin({
       inject: false,
