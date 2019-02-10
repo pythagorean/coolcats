@@ -27,7 +27,7 @@ routes! {
 pub struct Root {
     callback: Option<Callback<ToHoloclient>>,
     state: State,
-    container: String,
+    conductor: String,
     child: RouterTarget,
     router: Box<Bridge<RouterAgent<()>>>,
     context: Box<Bridge<ContextAgent>>,
@@ -55,7 +55,7 @@ pub enum Action {
 
 #[derive(EnumString, AsStaticStr)]
 pub enum Redux {
-    GetContainer,
+    GetConductor,
     UseHandle,
     AgentHandle,
     SetFirstName,
@@ -109,12 +109,12 @@ impl Component for Root {
         let mut root = Self {
             callback: props.callback,
             state: Default::default(),
-            container: String::new(),
+            conductor: String::new(),
             child: RouterTarget::App,
             router,
             context,
         };
-        root.load_state();
+        root.load_profile();
         root.context.send(context::Request::SetRoot);
         root
     }
@@ -208,7 +208,7 @@ impl Component for Root {
         match holoclient_msg {
             ToApplication::Initialize => {
                 self.update(
-                    ToHoloclient::Call(("info/instances", Redux::GetContainer.as_static()).into())
+                    ToHoloclient::Call(("info/instances", Redux::GetConductor.as_static()).into())
                         .into(),
                 );
             }
@@ -219,8 +219,8 @@ impl Component for Root {
                 let value = &result["value"];
 
                 match redux {
-                    Redux::GetContainer => {
-                        self.container = result[0]["id"].to_string();
+                    Redux::GetConductor => {
+                        self.conductor = result[0]["id"].to_string();
                         self.update(Action::GetReady.into());
                     }
 
@@ -247,6 +247,7 @@ impl Component for Root {
                                 self.state
                                     .mut_dict("app_properties")
                                     .set_string("Agent_Handle".into(), handle);
+                                self.save_profile();
                                 return true;
                             }
                         } else if !self.state.string("handle").is_empty() {
@@ -254,6 +255,7 @@ impl Component for Root {
                             self.state
                                 .mut_dict("app_properties")
                                 .set_string("Agent_Handle".into(), "".into());
+                            self.save_profile();
                             return true;
                         }
                     }
@@ -263,10 +265,12 @@ impl Component for Root {
                             let first_name = value.to_string();
                             if self.state.string("first_name") != first_name {
                                 self.state.set_string("first_name".into(), first_name);
+                                self.save_profile();
                                 return true;
                             }
                         } else if !self.state.string("first_name").is_empty() {
                             self.state.set_string("first_name".into(), "".into());
+                            self.save_profile();
                             return true;
                         }
                     }
@@ -276,10 +280,12 @@ impl Component for Root {
                             let profile_pic = value.to_string();
                             if self.state.string("profile_pic") != profile_pic {
                                 self.state.set_string("profile_pic".into(), profile_pic);
+                                self.save_profile();
                                 return true;
                             }
                         } else if !self.state.string("profile_pic").is_empty() {
                             self.state.set_string("profile_pic".into(), "".into());
+                            self.save_profile();
                             return true;
                         }
                     }
@@ -293,23 +299,26 @@ impl Component for Root {
 }
 
 impl Root {
-    fn save_state(&self) {
+    fn save_profile(&self) {
         use stdweb::{ web::Storage, unstable::TryInto, };
         let store: Storage = js! { return localStorage }.try_into().unwrap();
-        store.insert("coolcats2_state", &serde_json::to_string(&self.state).unwrap()).unwrap();
+        let substate =
+            self.state.subset(&["app_properties", "handle", "first_name", "profile_pic"]);
+        store.insert("coolcats2_state", &serde_json::to_string(&substate).unwrap()).unwrap();
     }
 
-    fn load_state(&mut self) {
+    fn load_profile(&mut self) {
         use stdweb::{ web::Storage, unstable::TryInto, };
         let store: Storage = js! { return localStorage }.try_into().unwrap();
         if let Some(state) = store.get("coolcats2_state") {
-            self.state = serde_json::from_str(&state).unwrap();
+            let substate: State = serde_json::from_str(&state).unwrap();
+            self.state.merge(&substate);
         }
     }
 
     fn coolcats(&mut self, method: &str, params: (&str, &str), redux: &str) {
         let call = ToHoloclient::Call(
-            (&[self.container.as_str(), "coolcats", method][..], params, redux).into(),
+            (&[self.conductor.as_str(), "coolcats", method][..], params, redux).into(),
         );
         self.update(call.into());;
     }
@@ -345,7 +354,6 @@ impl RouterTarget {
 
 impl Renderable<Root> for Root {
     fn view(&self) -> Html<Self> {
-        self.save_state();
         self.child.view()
     }
 }

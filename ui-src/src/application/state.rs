@@ -53,6 +53,10 @@ impl State {
         State(self.0.subset(keys))
     }
 
+    pub fn merge(&mut self, other: &State) {
+        self.0.merge(&other.0);
+    }
+
     pub fn get_dict(&self, key: &str) -> Dict {
         self.0.get_dict(key)
     }

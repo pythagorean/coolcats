@@ -184,6 +184,12 @@ impl Dict {
         dict
     }
 
+    pub fn merge(&mut self, other: &Dict) {
+        for key in other.0.keys() {
+            self.insert(key.clone(), other.get(key));
+        }
+    }
+
     fn get(&self, key: &str) -> DictValue {
         match self.0.get(key) {
             Some(value) => value.clone(),
