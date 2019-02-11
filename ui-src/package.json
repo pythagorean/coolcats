@@ -4,7 +4,8 @@
     "private": true,
     "scripts": {
         "build": "webpack; cargo +stable web build",
-        "start": "webpack; cargo +stable web start"
+        "start": "webpack; cargo +stable web start",
+        "deploy": "webpack; cargo +stable web deploy"
     },
     "dependencies": {},
     "devDependencies": {

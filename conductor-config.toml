@@ -1,0 +1,43 @@
+[network]
+n3h_path = _N3H_
+n3h_persistence_path = "/tmp"
+bootstrap_nodes = []
+
+[[agents]]
+id = "test agent 1"
+name = "Holo Tester 1"
+public_address = "HoloTester1-----------------------------------------------------------------------AAACZp4xHB"
+key_file = "unused"
+
+[[dnas]]
+id = "coolcats2"
+file = "dna-src/dist/bundle.json"
+
+[[instances]]
+id = "coolcats2 instance 1"
+agent = "test agent 1"
+dna = "coolcats2"
+
+[instances.storage]
+type = "file"
+path = "tmp-storage"
+
+[[interfaces]]
+id = "websocket interface"
+
+[[interfaces.instances]]
+id = "coolcats2 instance 1"
+
+[interfaces.driver]
+type = "websocket"
+port = 8888
+
+[[ui_bundles]]
+id = "bundle1"
+root_dir = "ui-src/target/deploy"
+
+[[ui_interfaces]]
+id = "ui-interface-1"
+bundle = "bundle1"
+port = 8001
+dna_interface = "websocket interface"
