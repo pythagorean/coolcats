@@ -5,6 +5,7 @@ use crate::application::{
     context::{ self, ContextAgent },
     state::State,
     settings::{ self, Settings },
+    new_meow::NewMeow,
 };
 
 const DEFAULT_PROFILE_PIC: &str = "/cat-eating-bird-circle.png";
@@ -83,18 +84,19 @@ impl Renderable<App> for App {
                                         <a href="/",>{"Coolcats2 (Clutter)"}</a>
                                         <div class="subtitle",>{"can haz herd cats?"}</div>
                                     </div>
-                                    /*
                                     <div id="content",>
-                                        <Route path="/" exact component={NewMeowContainer} />
-                                        <Route path="/editProfile" component={EditProfileContainer} />
-                                        <Route path="/follow" component={FollowContainer} />
+                                        {match self.path.as_str() {
+                                            "/" => html! {<NewMeow: counter = self.counter,/>},
+                                            _ => html! {<></>},
+                                        }}
+                                        /*
                                         <Route path="/meow/:meowHash" component={MeowContainer} />
                                         <Route
                                             path="/tag/:hashtag"
                                             component={HashtagFeedContainer}
                                         />
+                                        */
                                     </div>
-                                    */
                                 </div>
                             </div>
                             <div class="col-sm-3",>
@@ -121,21 +123,6 @@ impl Renderable<App> for App {
                                                   {"holochain.org"}
                                               </a>{"."}
                                           </p>
-                                          /*
-                                          <form
-                                            id="logout-form"
-                                            onSubmit={this.onLogoutSubmit.bind(this)}
-                                            action=""
-                                          >
-                                            <button
-                                              type="submit"
-                                              id="logout"
-                                              className="btn btn-default btn-sm"
-                                            >
-                                              Logout
-                                            </button>
-                                          </form>
-                                          */
                                     </div>
                                 </div>
                             </div>

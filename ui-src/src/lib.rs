@@ -1,4 +1,4 @@
-#![recursion_limit = "128"]
+#![recursion_limit = "144"]
 #[macro_use]
 extern crate yew;
 use yew::{

@@ -22,6 +22,7 @@ macro_rules! interface_component {
         pub enum Msg {
             Action(Action),
             ContextMsg(context::Response),
+            GetPath,
             GetStates,
             Local(LocalMsg),
         }
@@ -41,8 +42,10 @@ macro_rules! interface_component {
         #[allow(dead_code)]
         pub struct $name {
             context: Box<Bridge<ContextAgent>>,
+            path: String,
             getstate: State,
             local: Local,
+            counter: u32,
         }
 
         #[derive(PartialEq, Clone)]
@@ -62,19 +65,26 @@ macro_rules! interface_component {
             type Message = Msg;
             type Properties = Props;
 
-            fn create(_: Self::Properties, mut link: ComponentLink<Self>) -> Self {
+            fn create(props: Self::Properties, mut link: ComponentLink<Self>) -> Self {
                 let context = ContextAgent::bridge(link.send_back(Msg::ContextMsg));
                 let mut component = Self {
                     context,
+                    path: String::new(),
                     getstate: State::unset(),
                     local: Local::new(),
+                    counter: props.counter,
                 };
+                component.update(Msg::GetPath);
                 component.update(Msg::GetStates);
                 component
             }
 
             fn update(&mut self, msg: Self::Message) -> ShouldRender {
                 match msg {
+                    Msg::GetPath => {
+                        self.context.send(context::Request::GetPath);
+                    }
+
                     Msg::GetStates => {
                         self.context.send(context::Request::GetStates(getstates()));
                     }
@@ -84,6 +94,10 @@ macro_rules! interface_component {
                     }
 
                     Msg::ContextMsg(response) => match response {
+                        context::Response::GetPath(path) => {
+                            self.path = path;
+                        }
+
                         context::Response::GetStates(getstate) => {
                             if self.getstate != getstate {
                                 self.getstate = getstate;
@@ -101,7 +115,8 @@ macro_rules! interface_component {
                 false
             }
 
-            fn change(&mut self, _: Self::Properties) -> ShouldRender {
+            fn change(&mut self, props: Self::Properties) -> ShouldRender {
+                self.counter = props.counter;
                 self.update(Msg::GetStates);
                 false
             }

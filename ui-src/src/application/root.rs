@@ -28,6 +28,7 @@ pub struct Root {
     callback: Option<Callback<ToHoloclient>>,
     state: State,
     conductor: String,
+    path: String,
     child: RouterTarget,
     router: Box<Bridge<RouterAgent<()>>>,
     context: Box<Bridge<ContextAgent>>,
@@ -110,6 +111,7 @@ impl Component for Root {
             callback: props.callback,
             state: Default::default(),
             conductor: String::new(),
+            path: String::from("/"),
             child: RouterTarget::App,
             router,
             context,
@@ -128,6 +130,9 @@ impl Component for Root {
             }
 
             Msg::Route(route) => {
+                if let Some(path) = route.clone().fragment {
+                    self.path = path;
+                }
                 self.child = route.into();
                 return true;
             }
@@ -184,6 +189,11 @@ impl Component for Root {
             Msg::ContextMsg(response) => {
                 if let context::Response::Request(who, request) = response {
                     match *request {
+                        context::Request::GetPath => {
+                            self.context
+                                .send((who, context::Response::GetPath(self.path.clone())).into());
+                        }
+
                         context::Request::GetStates(keys) => {
                             let keys: Vec<_> = keys.iter().map(|s| s.as_str()).collect();
                             self.context.send(

@@ -9,6 +9,7 @@ pub mod app;
 pub mod settings;
 pub mod edit_profile;
 pub mod follow;
+pub mod new_meow;
 
 pub use self::root::{
     Root as Application,
