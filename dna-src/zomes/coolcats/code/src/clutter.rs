@@ -186,9 +186,9 @@ pub fn handle_get_profile_pic() -> JsonString {
     }
 }
 
-pub fn handle_log_out() -> JsonString {
-    match log_out() {
-        Ok(logged_out) => json!({ "value": logged_out }).into(),
+pub fn handle_post(message: String) -> JsonString {
+    match post(&message) {
+        Ok(_) => json!({}).into(),
         Err(hdk_err) => json!({ "error": hdk_err }).into(),
     }
 }
@@ -268,6 +268,6 @@ fn get_profile_prop(tag: &str) -> ZomeApiResult<String> {
     Err(ZomeApiError::Internal("linked entry mismatch in get_profile_prop".into()))
 }
 
-fn log_out() -> ZomeApiResult<String> {
-    Err(ZomeApiError::Internal("cannot delete link entries yet".into()))
+fn post(_message: &str) -> ZomeApiResult<String> {
+    Err(ZomeApiError::Internal("Not yet implemented".into()))
 }

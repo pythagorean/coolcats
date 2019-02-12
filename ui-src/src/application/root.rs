@@ -52,6 +52,7 @@ pub enum Action {
     UseHandle(String),
     SetFirstName(String),
     SetProfilePic(String),
+    Post(String),
 }
 
 #[derive(EnumString, AsStaticStr)]
@@ -63,6 +64,7 @@ pub enum Redux {
     GetFirstName,
     SetProfilePic,
     GetProfilePic,
+    Post,
 }
 
 pub enum Msg {
@@ -141,6 +143,36 @@ impl Component for Root {
                 self.router.send(yew_router::Request::ChangeRoute(target.into()));
             }
 
+            Msg::ContextMsg(response) => {
+                if let context::Response::Request(who, request) = response {
+                    match *request {
+                        context::Request::GetPath => {
+                            self.context
+                                .send((who, context::Response::GetPath(self.path.clone())).into());
+                        }
+
+                        context::Request::GetStates(keys) => {
+                            let keys: Vec<_> = keys.iter().map(|s| s.as_str()).collect();
+                            self.context.send(
+                                (
+                                    who,
+                                    context::Response::GetStates(
+                                        self.state.subset(keys.as_slice()),
+                                    ),
+                                )
+                                    .into(),
+                            );
+                        }
+
+                        context::Request::Action(action) => {
+                            self.update(Msg::Action(action));
+                        }
+
+                        _ => (),
+                    }
+                }
+            }
+
             Msg::Action(action) => match action {
                 Action::GetReady => {
                     self.get_my_handle();
@@ -184,35 +216,13 @@ impl Component for Root {
                     self.save_profile();
                     return true;
                 }
-            },
 
-            Msg::ContextMsg(response) => {
-                if let context::Response::Request(who, request) = response {
-                    match *request {
-                        context::Request::GetPath => {
-                            self.context
-                                .send((who, context::Response::GetPath(self.path.clone())).into());
-                        }
-
-                        context::Request::GetStates(keys) => {
-                            let keys: Vec<_> = keys.iter().map(|s| s.as_str()).collect();
-                            self.context.send(
-                                (
-                                    who,
-                                    context::Response::GetStates(
-                                        self.state.subset(keys.as_slice()),
-                                    ),
-                                )
-                                    .into(),
-                            );
-                        }
-
-                        context::Request::Action(action) => {
-                            self.update(Msg::Action(action));
-                        }
-
-                        _ => (),
-                    }
+                Action::Post(message) => {
+                    self.coolcats(
+                        "post",
+                        ("message", &*message),
+                        Redux::Post.as_static(),
+                    );
                 }
             }
         }
@@ -303,6 +313,15 @@ impl Component for Root {
                             self.state.set_string("profile_pic".into(), "".into());
                             self.save_profile();
                             return true;
+                        }
+                    }
+
+                    Redux::Post => {
+                        if !value.is_null() {
+                            js! { alert(@{format!("Redux::Post value = {}", value.to_string())}) };
+                        } else {
+                            let error = &result["error"];
+                            js! { alert(@{format!("Redux::Post error = {}", error.to_string())}) }
                         }
                     }
                 }

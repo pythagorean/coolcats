@@ -93,17 +93,17 @@ define_zome! {
             outputs: |result: JsonString|,
             handler: clutter::handle_get_profile_pic
         }
-        log_out: {
-            inputs: | |,
+        post: {
+            inputs: |message: String|,
             outputs: |result: JsonString|,
-            handler: clutter::handle_log_out
+            handler: clutter::handle_post
         }
     ]
 
     capabilities: {
         public (Public) [
             create_anchor, anchor_exists, get_anchor, get_anchors, app_property, use_handle,
-            get_handle, set_first_name, get_first_name, set_profile_pic, get_profile_pic, log_out
+            get_handle, set_first_name, get_first_name, set_profile_pic, get_profile_pic, post
         ]
     }
 }

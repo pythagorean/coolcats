@@ -9,13 +9,7 @@ use crate::application::{
 // Declare what state keys will be used by this component
 const GETSTATES: [&str; 1] = ["follows"];
 
-pub fn getstates() -> Vec<String> {
-    lazy_static! {
-        static ref VS: Vec<String> = GETSTATES.iter().map(|key| key.to_string()).collect();
-    }
-    VS.to_vec()
-}
-
+interface_getstates!();
 interface_view_only!(Follow);
 interface_component!(Follow);
 

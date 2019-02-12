@@ -12,13 +12,7 @@ const MAX_PIC_SIZE: u32 = 2_000_000;
 // Declare what state keys will be used by this component
 const GETSTATES: [&str; 3] = ["handle", "profile_pic", "first_name"];
 
-pub fn getstates() -> Vec<String> {
-    lazy_static! {
-        static ref VS: Vec<String> = GETSTATES.iter().map(|key| key.to_string()).collect();
-    }
-    VS.to_vec()
-}
-
+interface_getstates!();
 interface_component!(EditProfile);
 
 // This will be mapped to EditProfile.local:

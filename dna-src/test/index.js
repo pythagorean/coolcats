@@ -71,8 +71,9 @@ Conductor.run([instanceAlice], (stop, {alice}) => {
 
   test('clutter', (t) => {
     t.test('get the agent address', (t) => {
+      t.plan(1)
       const result = display(call("app_property", {key: "Agent_Address"}))
-      t.end()
+      t.equal(result.value, "alice-----------------------------------------------------------------------------AAAIuDJb4M")
     })
 
     t.test('get the agent handle which is not set', (t) => {
@@ -178,6 +179,13 @@ Conductor.run([instanceAlice], (stop, {alice}) => {
       t.plan(1)
       const result = display(call("get_profile_pic", {}))
       t.equal(result.value, "random other stuff")
+    })
+
+    t.test('make a post', (t) => {
+      const result = display(call("post",
+        {message: "This is a test message"}
+      ))
+      t.end()
     })
 
     t.end()

@@ -1,3 +1,14 @@
+macro_rules! interface_getstates {
+    () => {
+        pub fn getstates() -> Vec<String> {
+            lazy_static! {
+                static ref VS: Vec<String> = GETSTATES.iter().map(|key| key.to_string()).collect();
+            }
+            VS.to_vec()
+        }
+    }
+}
+
 macro_rules! interface_view_only {
     ($name:ident) => {
         pub struct Local;
