@@ -48,7 +48,6 @@ pub struct Params(pub ToRoot);
 pub enum Action {
     GetReady,
     Redirect(String),
-    //ResetState,
     UseHandle(String),
     SetFirstName(String),
     SetProfilePic(String),
@@ -188,18 +187,19 @@ impl Component for Root {
                     }
                 }
 
-                //Action::ResetState => {
-                //    self.state = Default::default();
-                //},
                 Action::UseHandle(handle) => {
-                    self.coolcats("use_handle", ("handle", &*handle), Redux::UseHandle.as_static());
+                    self.coolcats(
+                        "use_handle",
+                        &[("handle", &*handle)],
+                        Redux::UseHandle.as_static(),
+                    );
                 }
 
                 Action::SetFirstName(first_name) => {
                     self.state.set_string("first_name".into(), first_name.clone());
                     self.coolcats(
                         "set_first_name",
-                        ("name", &*first_name),
+                        &[("name", &*first_name)],
                         Redux::SetFirstName.as_static(),
                     );
                     self.save_profile();
@@ -210,7 +210,7 @@ impl Component for Root {
                     self.state.set_string("profile_pic".into(), profile_pic.clone());
                     self.coolcats(
                         "set_profile_pic",
-                        ("dataurl", &*profile_pic),
+                        &[("dataurl", &*profile_pic)],
                         Redux::SetProfilePic.as_static(),
                     );
                     self.save_profile();
@@ -218,13 +218,16 @@ impl Component for Root {
                 }
 
                 Action::Post(message) => {
+                    use stdweb::unstable::TryInto;
+                    let stamp: String = js! { return Date() }.try_into().unwrap();
+                    js! { alert(@{format!("Post stamp = {}", stamp)}) };
                     self.coolcats(
                         "post",
-                        ("message", &*message),
+                        &[("message", &*message), ("stamp", &stamp)],
                         Redux::Post.as_static(),
                     );
                 }
-            }
+            },
         }
         false
     }
@@ -351,7 +354,7 @@ impl Root {
         }
     }
 
-    fn coolcats(&mut self, method: &str, params: (&str, &str), redux: &str) {
+    fn coolcats(&mut self, method: &str, params: &[(&str, &str)], redux: &str) {
         let call = ToHoloclient::Call(
             (&[self.conductor.as_str(), "coolcats", method][..], params, redux).into(),
         );
@@ -359,12 +362,12 @@ impl Root {
     }
 
     fn coolcats_np(&mut self, method: &str, redux: &str) {
-        let no_params = ("", "");
-        self.coolcats(method, no_params, redux);
+        let no_params = [("", "")];
+        self.coolcats(method, &no_params, redux);
     }
 
     fn get_my_handle(&mut self) {
-        self.coolcats("app_property", ("key", "Agent_Handle"), Redux::AgentHandle.as_static());
+        self.coolcats("app_property", &[("key", "Agent_Handle")], Redux::AgentHandle.as_static());
     }
 
     fn get_first_name(&mut self) {

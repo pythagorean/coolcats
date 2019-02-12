@@ -183,7 +183,7 @@ Conductor.run([instanceAlice], (stop, {alice}) => {
 
     t.test('make a post', (t) => {
       const result = display(call("post",
-        {message: "This is a test message"}
+        {message: "This is a test message", stamp: "12345"}
       ))
       t.end()
     })

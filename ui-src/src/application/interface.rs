@@ -6,7 +6,7 @@ macro_rules! interface_getstates {
             }
             VS.to_vec()
         }
-    }
+    };
 }
 
 macro_rules! interface_view_only {

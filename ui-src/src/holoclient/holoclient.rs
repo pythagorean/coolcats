@@ -71,8 +71,8 @@ impl From<(&str, &str)> for Params {
     }
 }
 
-impl From<(&[&str], (&str, &str), &str)> for Params {
-    fn from(args: (&[&str], (&str, &str), &str)) -> Self {
+impl From<(&[&str], &[(&str, &str)], &str)> for Params {
+    fn from(args: (&[&str], &[(&str, &str)], &str)) -> Self {
         let rpc: ws_rpc::Call = (args.0, args.1).into();
         let redux = args.2.into();
         Params {

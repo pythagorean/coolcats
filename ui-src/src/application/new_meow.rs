@@ -51,7 +51,9 @@ impl NewMeow {
 
     fn on_submit(&mut self) {
         let new_meow_text = self.local.new_meow_text.clone();
-        if new_meow_text.is_empty() { return; }
+        if new_meow_text.is_empty() {
+            return;
+        }
         self.post(&new_meow_text);
     }
 }
