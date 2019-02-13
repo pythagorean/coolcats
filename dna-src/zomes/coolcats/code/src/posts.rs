@@ -15,7 +15,9 @@ use serde::{
     Deserialize,
 };
 
-const POST: &str = "post";
+use crate::handles;
+
+pub const POST: &str = "post";
 #[derive(Serialize, Deserialize, Debug, DefaultJson)]
 pub struct Post {
     message: String,
@@ -65,6 +67,8 @@ pub fn handle_post(message: String, stamp: String) -> JsonString {
 // incomplete
 fn post(message: &str, stamp: &str) -> ZomeApiResult<Address> {
     let post_addr = Post::create(message, stamp)?;
-    // needs to link and do more processing
+    let handle_addr = handles::get_handle_addr(None)?;
+    hdk::link_entries(&handle_addr, &post_addr, POST)?;
+    // still needs to handle hashtags
     Ok(post_addr)
 }

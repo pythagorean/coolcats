@@ -182,10 +182,11 @@ Conductor.run([instanceAlice], (stop, {alice}) => {
     })
 
     t.test('make a post', (t) => {
+      t.plan(1)
       const result = display(call("post",
         {message: "This is a test message", stamp: "12345"}
       ))
-      t.end()
+      t.equal(result.value, "Qmef7MUqr5ecqZQGDZYAek2gJwiQNyZkAxPv3hNwGidE76")
     })
 
     t.end()

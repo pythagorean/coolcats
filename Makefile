@@ -20,6 +20,12 @@ update: dna-update ui-update
 	rustup self update
 	rustup update
 
+update-cli:
+	cargo install hc --force --git https://github.com/holochain/holochain-rust.git --branch develop
+
+update-conductor:
+	cargo install holochain --force --git https://github.com/holochain/holochain-rust.git --branch develop
+
 clean: reset dna-clean ui-clean
 
 build: dna-build ui-build

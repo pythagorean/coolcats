@@ -19,8 +19,9 @@ use hdk::{
 };
 
 use crate::anchors::Anchor;
+use crate::posts::POST;
 
-const HANDLE: &str = "handle";
+pub const HANDLE: &str = "handle";
 pub struct Handle;
 
 impl Handle {
@@ -40,15 +41,28 @@ impl Handle {
             },
 
             links: [
-                Handle::agent_link_definition()
+                Self::link_from_agent(), Self::link_to_post()
             ]
         )
     }
 
-    fn agent_link_definition() -> ValidatingLinkDefinition {
+    fn link_from_agent() -> ValidatingLinkDefinition {
         from!(
             "%agent_id",
             tag: HANDLE,
+            validation_package: || {
+                hdk::ValidationPackageDefinition::Entry
+            },
+            validation: |_source: Address, _target: Address, _ctx: hdk::ValidationData| {
+                Ok(())
+            }
+        )
+    }
+
+    fn link_to_post() -> ValidatingLinkDefinition {
+        to!(
+            POST,
+            tag: POST,
             validation_package: || {
                 hdk::ValidationPackageDefinition::Entry
             },
@@ -102,6 +116,23 @@ pub fn get_handle(addr: &Address) -> ZomeApiResult<String> {
         if let Entry::App(entry_type, value) = entry {
             if entry_type.to_string() == HANDLE {
                 return Ok(Anchor::get(&Address::try_from(value)?)?.get_text().to_string());
+            }
+        }
+    }
+    Err(ZomeApiError::ValidationFailed("handle_not_found".into()))
+}
+
+pub fn get_handle_addr(addr: Option<&Address>) -> ZomeApiResult<Address> {
+    let mut addr = addr.unwrap_or(&AGENT_ADDRESS);
+    let links = hdk::get_links(addr, HANDLE)?;
+    let addrs = links.addresses();
+    if !addrs.is_empty() {
+        addr = &addrs[0];
+    }
+    if let Some(entry) = hdk::get_entry(&addr)? {
+        if let Entry::App(entry_type, _) = entry {
+            if entry_type.to_string() == HANDLE {
+                return Ok(addr.clone());
             }
         }
     }

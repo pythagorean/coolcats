@@ -19,24 +19,17 @@ use hdk::holochain_core_types::{
     json::JsonString,
 };
 
-use serde::{
-    Serialize,
-    Deserialize,
-};
+use serde::{Serialize, Deserialize};
 
-use anchors::{
-    Anchor, AnchorLink,
-};
-
+use anchors::{Anchor, AnchorLink};
 use handles::Handle;
 use props::{FirstName, ProfilePic};
 use posts::Post;
 
 define_zome! {
     entries: [
-       Anchor::definition(), AnchorLink::definition(),
-       Handle::definition(), FirstName::definition(), ProfilePic::definition(),
-       Post::definition()
+       Anchor::definition(), AnchorLink::definition(), Handle::definition(),
+       FirstName::definition(), ProfilePic::definition(), Post::definition()
     ]
 
     genesis: || { Ok(()) }
@@ -62,11 +55,6 @@ define_zome! {
             outputs: |result: JsonString|,
             handler: anchors::handle_get_anchors
         }
-        app_property: {
-            inputs: |key: String|,
-            outputs: |result: JsonString|,
-            handler: props::handle_app_property
-        }
         use_handle: {
             inputs: |handle: String|,
             outputs: |result: JsonString|,
@@ -76,6 +64,11 @@ define_zome! {
             inputs: |address: String|,
             outputs: |result: JsonString|,
             handler: handles::handle_get_handle
+        }
+        app_property: {
+            inputs: |key: String|,
+            outputs: |result: JsonString|,
+            handler: props::handle_app_property
         }
         set_first_name: {
             inputs: |name: String|,
@@ -106,8 +99,9 @@ define_zome! {
 
     capabilities: {
         public (Public) [
-            create_anchor, anchor_exists, get_anchor, get_anchors, app_property, use_handle,
-            get_handle, set_first_name, get_first_name, set_profile_pic, get_profile_pic, post
+            create_anchor, anchor_exists, get_anchor, get_anchors, use_handle, get_handle,
+            app_property, set_first_name, get_first_name, set_profile_pic, get_profile_pic,
+            post
         ]
     }
 }
