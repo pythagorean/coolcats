@@ -38,7 +38,7 @@ pub struct Root {
 pub enum ToRoot {
     None,
     Initialize,
-    Redux(String, String),
+    Redux(String, String, String),
 }
 
 #[derive(PartialEq, Clone)]
@@ -218,13 +218,13 @@ impl Component for Root {
                 }
 
                 Action::Post(message) => {
-                    use stdweb::unstable::TryInto;
-                    let stamp: String = js! { return Date() }.try_into().unwrap();
-                    js! { alert(@{format!("Post stamp = {}", stamp)}) };
-                    self.coolcats(
+                    use stdweb::web::Date;
+                    let stamp = Date::now().to_string();
+                    self.coolcats_meta(
                         "post",
                         &[("message", &*message), ("stamp", &stamp)],
                         Redux::Post.as_static(),
+                        &stamp,
                     );
                 }
             },
@@ -242,7 +242,7 @@ impl Component for Root {
                 );
             }
 
-            ToApplication::Redux(result, redux) => {
+            ToApplication::Redux(result, redux, meta) => {
                 let result = &json::parse(&result).unwrap();
                 let redux = Redux::from_str(&redux).unwrap();
                 let value = &result["value"];
@@ -321,7 +321,7 @@ impl Component for Root {
 
                     Redux::Post => {
                         if !value.is_null() {
-                            js! { alert(@{format!("Redux::Post value = {}", value.to_string())}) };
+                            js! { alert(@{format!("Redux::Post meta = {}", meta)}) };
                         } else {
                             let error = &result["error"];
                             js! { alert(@{format!("Redux::Post error = {}", error.to_string())}) }
@@ -352,6 +352,13 @@ impl Root {
             let substate: State = serde_json::from_str(&state).unwrap();
             self.state.merge(&substate);
         }
+    }
+
+    fn coolcats_meta(&mut self, method: &str, params: &[(&str, &str)], redux: &str, meta: &str) {
+        let call = ToHoloclient::Call(
+            (&[self.conductor.as_str(), "coolcats", method][..], params, redux, meta).into(),
+        );
+        self.update(call.into());;
     }
 
     fn coolcats(&mut self, method: &str, params: &[(&str, &str)], redux: &str) {

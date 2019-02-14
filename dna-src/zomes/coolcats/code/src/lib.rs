@@ -97,8 +97,8 @@ define_zome! {
         }
     ]
 
-    capabilities: {
-        public (Public) [
+    traits: {
+        hc_public [
             create_anchor, anchor_exists, get_anchor, get_anchors, use_handle, get_handle,
             app_property, set_first_name, get_first_name, set_profile_pic, get_profile_pic,
             post
