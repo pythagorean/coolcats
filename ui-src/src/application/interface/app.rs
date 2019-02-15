@@ -4,9 +4,11 @@ use crate::application::{
     Action,
     context::{ self, ContextAgent },
     state::State,
-    settings::Settings,
-    new_meow::NewMeow,
-    following_feed::FollowingFeed,
+    interface::{
+        settings::Settings,
+        new_meow::NewMeow,
+        following_feed::FollowingFeed,
+    },
 };
 
 const DEFAULT_PROFILE_PIC: &str = "/cat-eating-bird-circle.png";

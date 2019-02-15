@@ -14,9 +14,11 @@ use crate::{
 use super::{
     context::{ self, ContextAgent },
     state::State,
-    app::App,
-    edit_profile::EditProfile,
-    follow::Follow,
+    interface::{
+        app::App,
+        edit_profile::EditProfile,
+        follow::Follow,
+    },
     ToApplication,
 };
 
