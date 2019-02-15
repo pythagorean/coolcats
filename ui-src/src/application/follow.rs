@@ -7,9 +7,8 @@ use crate::application::{
 };
 
 // Declare what state keys will be used by this component
-const GETSTATES: [&str; 1] = ["follows"];
+interface_getstates!("follows");
 
-interface_getstates!();
 interface_view_only!(Follow);
 interface_component!(Follow);
 

@@ -1,8 +1,12 @@
 macro_rules! interface_getstates {
-    () => {
+    ($($x: expr),+) => {
         pub fn getstates() -> Vec<String> {
             lazy_static! {
-                static ref VS: Vec<String> = GETSTATES.iter().map(|key| key.to_string()).collect();
+                static ref VS: Vec<String> = {
+                    let mut vector = Vec::new();
+                    $(vector.push($x.to_string());)+
+                    vector
+                };
             }
             VS.to_vec()
         }

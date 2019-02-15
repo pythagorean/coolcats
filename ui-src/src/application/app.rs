@@ -4,22 +4,15 @@ use crate::application::{
     Action,
     context::{ self, ContextAgent },
     state::State,
-    settings::{ self, Settings },
+    settings::Settings,
     new_meow::NewMeow,
+    following_feed::FollowingFeed,
 };
 
 const DEFAULT_PROFILE_PIC: &str = "/cat-eating-bird-circle.png";
 
 // Declare what state keys will be used by this component
-const GETSTATES: [&str; 4] = ["app_properties", "first_name", "handle", "profile_pic"];
-
-// Append state keys used by subcomponents
-pub fn getstates() -> Vec<String> {
-    let mut states = GETSTATES.to_vec();
-    states.extend(settings::getstates());
-    let states: Vec<_> = states.iter().map(|key| key.to_string()).collect();
-    states
-}
+interface_getstates!("app_properties", "first_name", "handle", "profile_pic");
 
 interface_view_only!(App);
 interface_component!(App);
@@ -41,10 +34,7 @@ impl Renderable<App> for App {
                         <div align="center",>
                             <p class="h1",>{ "Welcome to Coolcats2!" }</p>
                         </div>
-                        <Settings:
-                            getstate = self.getstate.subset(settings::getstates().as_slice()),
-                            callback = Msg::Action,
-                        />
+                        <Settings: counter = self.counter,/>
                     </div>
                 </div>
             }
@@ -124,6 +114,19 @@ impl Renderable<App> for App {
                                               </a>{"."}
                                           </p>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row",>
+                            <div class="contentcontainer", id="feedContent",>
+                                <div>
+                                    {match self.path.as_str() {
+                                        "/" => html! {<FollowingFeed: counter = self.counter,/>},
+                                        _ => html! {<></>},
+                                    }}
+                                    /*
+                                    <Route path="/u/:handle" component={UserFeedContainer} />
+                                    */
                                 </div>
                             </div>
                         </div>

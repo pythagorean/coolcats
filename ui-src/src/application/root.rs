@@ -227,7 +227,7 @@ impl Component for Root {
                     post.insert("author".into(), self.state.string("handle").into());
                     post.insert("message".into(), message.clone().into());
                     self.state.mut_dict("posts").insert(stamp.clone(), post.into());
-                    self.coolcats_indexed(
+                    self.coolcats_idx(
                         "post",
                         &[("message", &*message), ("stamp", &stamp)],
                         Redux::Post.as_static(),
@@ -365,7 +365,7 @@ impl Root {
         }
     }
 
-    fn coolcats_indexed(&mut self, method: &str, params: &[(&str, &str)], redux: &str, index: &str) {
+    fn coolcats_idx(&mut self, method: &str, params: &[(&str, &str)], redux: &str, index: &str) {
         let call = ToHoloclient::Call(
             (&[self.conductor.as_str(), "coolcats", method][..], params, redux, index).into(),
         );
@@ -419,9 +419,9 @@ impl Renderable<Root> for RouterTarget {
         // Send counter parameter to notify interface components of state changes
         let counter = self.counter();
         match self {
-            RouterTarget::App | RouterTarget::Error => html! { <App: counter = counter,/> },
             RouterTarget::EditProfile => html! { <EditProfile: counter = counter,/> },
             RouterTarget::Follow => html! { <Follow: counter = counter,/> },
+            _ => html! { <App: counter = counter,/> },
         }
     }
 }

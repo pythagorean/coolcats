@@ -1,5 +1,5 @@
-// Copy nodejs_conductor from holochain-rust (develop branch) first
-const { Config, Conductor } = require("./nodejs_conductor/index.js")
+// Copy or link nodejs_conductor from holochain-rust (develop branch) first
+const { Config, Conductor, DnaInstance } = require("./nodejs_conductor/index.js")
 
 const test = require('tape');
 const tapSpec = require('tap-spec');
@@ -15,6 +15,7 @@ const bobName = "bob"
 const dna = Config.dna(dnaPath)
 const agentAlice = Config.agent(aliceName)
 const instanceAlice = Config.instance(agentAlice, dna)
+const conductorAlice = Config.conductor([instanceAlice])
 
 function display(result) {
   console.dir(result, {depth: null, colors: true})
@@ -30,7 +31,8 @@ function sleep(milliseconds) {
   }
 }
 
-Conductor.run([instanceAlice], (stop, {alice}) => {
+Conductor.run(conductorAlice, (stop, conductor) => {
+  alice = new DnaInstance(aliceName, conductor)
   call = (method, params) => alice.call("coolcats", method, params);
   test('anchors', (t) => {
     t.test('create and get anchors', (t) => {

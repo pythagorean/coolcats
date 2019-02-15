@@ -10,9 +10,8 @@ use crate::application::{
 const MAX_PIC_SIZE: u32 = 2_000_000;
 
 // Declare what state keys will be used by this component
-const GETSTATES: [&str; 3] = ["handle", "profile_pic", "first_name"];
+interface_getstates!("handle", "profile_pic", "first_name");
 
-interface_getstates!();
 interface_component!(EditProfile);
 
 // This will be mapped to EditProfile.local:

@@ -6,10 +6,10 @@ use crate::application::{
     state::State,
 };
 
-// Declare what state keys will be used by this component
-const GETSTATES: [&str; 1] = ["handle"];
+pub fn getstates() -> Vec<String> {
+    Vec::new()
+}
 
-interface_getstates!();
 interface_component!(NewMeow);
 
 // This will be mapped to NewMeow.local:
@@ -60,9 +60,6 @@ impl NewMeow {
 
 impl Renderable<NewMeow> for NewMeow {
     fn view(&self) -> Html<Self> {
-        if self.getstate.is_empty() {
-            return html! {<></>};
-        };
         let new_meow_text = self.local.new_meow_text.clone();
 
         html! {<>
