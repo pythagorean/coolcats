@@ -4,8 +4,12 @@ use serde::{ Serialize, Deserialize };
 use std::sync::Mutex;
 use std::str::FromStr;
 use strum::AsStaticRef;
+use stdweb::web::Date;
 
-use crate::holoclient::ToHoloclient;
+use crate::{
+    utils::Dict,
+    holoclient::ToHoloclient,
+};
 
 use super::{
     context::{ self, ContextAgent },
@@ -218,9 +222,12 @@ impl Component for Root {
                 }
 
                 Action::Post(message) => {
-                    use stdweb::web::Date;
                     let stamp = Date::now().to_string();
-                    self.coolcats_meta(
+                    let mut post = Dict::new();
+                    post.insert("author".into(), self.state.string("handle").into());
+                    post.insert("message".into(), message.clone().into());
+                    self.state.mut_dict("posts").insert(stamp.clone(), post.into());
+                    self.coolcats_indexed(
                         "post",
                         &[("message", &*message), ("stamp", &stamp)],
                         Redux::Post.as_static(),
@@ -242,7 +249,7 @@ impl Component for Root {
                 );
             }
 
-            ToApplication::Redux(result, redux, meta) => {
+            ToApplication::Redux(result, redux, index) => {
                 let result = &json::parse(&result).unwrap();
                 let redux = Redux::from_str(&redux).unwrap();
                 let value = &result["value"];
@@ -320,10 +327,14 @@ impl Component for Root {
                     }
 
                     Redux::Post => {
+                        let stamp = index;
                         if !value.is_null() {
-                            js! { alert(@{format!("Redux::Post meta = {}", meta)}) };
+                            let address = value.to_string();
+                            let post = self.state.mut_dict("posts").mut_dict(&stamp);
+                            post.insert("address".into(), address.into());
                         } else {
                             let error = &result["error"];
+                            self.state.mut_dict("posts").remove(&stamp);
                             js! { alert(@{format!("Redux::Post error = {}", error.to_string())}) }
                         }
                     }
@@ -354,9 +365,9 @@ impl Root {
         }
     }
 
-    fn coolcats_meta(&mut self, method: &str, params: &[(&str, &str)], redux: &str, meta: &str) {
+    fn coolcats_indexed(&mut self, method: &str, params: &[(&str, &str)], redux: &str, index: &str) {
         let call = ToHoloclient::Call(
-            (&[self.conductor.as_str(), "coolcats", method][..], params, redux, meta).into(),
+            (&[self.conductor.as_str(), "coolcats", method][..], params, redux, index).into(),
         );
         self.update(call.into());;
     }

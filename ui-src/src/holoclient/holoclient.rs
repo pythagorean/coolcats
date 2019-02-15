@@ -58,7 +58,7 @@ impl From<WsAction> for Msg {
 pub struct Params {
     rpc: ws_rpc::Call,
     redux: String,
-    meta: String,
+    index: String,
 }
 
 impl From<(&str, &str)> for Params {
@@ -68,7 +68,7 @@ impl From<(&str, &str)> for Params {
         Params {
             rpc,
             redux,
-            meta: String::new(),
+            index: String::new(),
         }
     }
 }
@@ -80,7 +80,7 @@ impl From<(&[&str], &[(&str, &str)], &str)> for Params {
         Params {
             rpc,
             redux,
-            meta: String::new(),
+            index: String::new(),
         }
     }
 }
@@ -89,11 +89,11 @@ impl From<(&[&str], &[(&str, &str)], &str, &str)> for Params {
     fn from(args: (&[&str], &[(&str, &str)], &str, &str)) -> Self {
         let rpc: ws_rpc::Call = (args.0, args.1).into();
         let redux = args.2.into();
-        let meta = args.3.into();
+        let index = args.3.into();
         Params {
             rpc,
             redux,
-            meta,
+            index,
         }
     }
 }
@@ -109,14 +109,14 @@ impl Params {
         Params {
             rpc: ws_rpc::Call::new(),
             redux: String::new(),
-            meta: String::new(),
+            index: String::new(),
         }
     }
 
     pub fn clear(&mut self) {
         self.rpc.clear();
         self.redux.clear();
-        self.meta.clear();
+        self.index.clear();
     }
 
     pub fn has_method(&self) -> bool {
@@ -173,16 +173,11 @@ impl Component for Holoclient {
             Msg::WsReady(response) => {
                 let response = &json::parse(&response).unwrap();
                 let result = response["result"].to_string();
-                let id = response["id"].to_string();
-                let v: Vec<&str> = id.split(',').collect();
-                let redux = v[0].to_string();
-                let meta = if v.len() > 1 {
-                    v[1]
-                } else {
-                    ""
-                }
-                .to_string();
-                self.update(ToApplication::Redux(result, redux, meta).into());
+                let rpc_id = response["id"].to_string();
+                let mut id_split = rpc_id.split('+');
+                let redux = id_split.next().unwrap().to_string();
+                let index = id_split.next().unwrap_or("").to_string();
+                self.update(ToApplication::Redux(result, redux, index).into());
             }
 
             Msg::WsAction(action) => match action {
@@ -219,7 +214,7 @@ impl Component for Holoclient {
         let call = props.params;
         if call.has_method() {
             let rpc: WsRpc = if call.has_redux() {
-                let rpc_id = format!("{},{}", call.redux, call.meta);
+                let rpc_id = format!("{}+{}", call.redux, call.index);
                 (call.rpc, rpc_id).into()
             } else {
                 self.rpc_id += 1;

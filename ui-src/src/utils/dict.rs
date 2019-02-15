@@ -92,6 +92,10 @@ impl Dict {
         self.0.insert(key, value);
     }
 
+    pub fn remove(&mut self, key: &str) {
+        self.0.remove(key);
+    }
+
     pub fn get_dict(&self, key: &str) -> Dict {
         match self.get(key) {
             DictValue::Dict(value) => value,
