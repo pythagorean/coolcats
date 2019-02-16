@@ -1,5 +1,4 @@
-// Copy or link nodejs_conductor from holochain-rust (develop branch) first
-const { Config, Conductor, DnaInstance } = require("./nodejs_conductor/index.js")
+const { Config, Conductor, DnaInstance } = require('@holochain/holochain-nodejs')
 
 const test = require('tape');
 const tapSpec = require('tap-spec');

@@ -8,5 +8,4 @@ static/
 package-lock.json
 yarn.lock
 bundle.json
-nodejs_conductor
 tmp-storage

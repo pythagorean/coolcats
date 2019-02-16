@@ -46,6 +46,7 @@ dna-lint:
 	(cd dna-src/zomes/coolcats/code; cargo +$(NIGHTLY) clippy)
 
 dna-test:
+	(cd dna-src/test; yarn)
 	(cd dna-src; hc test)
 
 dna-start: dna
