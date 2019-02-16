@@ -5,10 +5,10 @@ authors = ["Michael Goldman <mike.goldman@allstreets.org>"]
 edition = "2018"
 
 [dependencies]
-hdk = "0.0.3"
-holochain_wasm_utils = "0.0.3"
-holochain_core_types_derive = "0.0.3"
-serde = {version = "1.0.87", features = ["derive"]}
+hdk = "0.0.4-alpha"
+holochain_wasm_utils = "0.0.4-alpha"
+holochain_core_types_derive = "0.0.4-alpha"
+serde = {version = "1.0.88", features = ["derive"]}
 serde_json = "1.0.38"
 
 [patch.crates-io]

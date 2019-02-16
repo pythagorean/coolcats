@@ -14,7 +14,7 @@ use crate::{
 use super::{
     context::{ self, ContextAgent },
     state::State,
-    interface::{
+    interfaces::{
         app::App,
         edit_profile::EditProfile,
         follow::Follow,

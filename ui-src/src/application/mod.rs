@@ -1,7 +1,7 @@
 pub mod context;
 pub mod state;
 pub mod root;
-pub mod interface;
+pub mod interfaces;
 
 pub use self::root::{
     Root as Application,

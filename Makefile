@@ -21,10 +21,14 @@ update: dna-update ui-update
 	rustup update
 
 update-cli:
+	rustup default $(NIGHTLY)
 	cargo install hc --force --git https://github.com/holochain/holochain-rust.git --branch develop
+	rustup default stable
 
 update-conductor:
+	rustup default $(NIGHTLY)
 	cargo install holochain --force --git https://github.com/holochain/holochain-rust.git --branch develop
+	rustup default stable
 
 clean: reset dna-clean ui-clean
 
@@ -74,7 +78,7 @@ ui-deploy:
 
 ui-update:
 	(cd ui-src; cargo +stable update)
-	(cd ui-src; yarn upgrade)
+	-(cd ui-src; yarn upgrade)
 
 ui-clean:
 	(cd ui-src; cargo +stable clean && rm -f Cargo.lock)

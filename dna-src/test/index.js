@@ -189,6 +189,8 @@ Conductor.run(conductorAlice, (stop, conductor) => {
         {message: "This is a test message", stamp: "12345"}
       ))
       t.equal(result.value, "Qmef7MUqr5ecqZQGDZYAek2gJwiQNyZkAxPv3hNwGidE76")
+
+      stop()
     })
 
     t.end()

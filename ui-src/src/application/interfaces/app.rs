@@ -4,7 +4,7 @@ use crate::application::{
     Action,
     context::{ self, ContextAgent },
     state::State,
-    interface::{
+    interfaces::{
         settings::Settings,
         new_meow::NewMeow,
         following_feed::FollowingFeed,
