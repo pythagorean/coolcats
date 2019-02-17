@@ -334,6 +334,7 @@ impl Component for Root {
                             let address = value.to_string();
                             let post = self.state.mut_dict("posts").mut_dict(&stamp);
                             post.insert("address".into(), address.into());
+                            return true;
                         } else {
                             let error = &result["error"];
                             self.state.mut_dict("posts").remove(&stamp);

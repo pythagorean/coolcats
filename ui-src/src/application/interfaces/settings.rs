@@ -8,7 +8,6 @@ use crate::application::{
 
 const MAX_HANDLE_LENGTH: usize = 20;
 
-// Declare what state keys will be used by this component
 interface_getstates!("handle_taken", "first_name");
 
 interface_component!(Settings);
@@ -27,6 +26,7 @@ impl Local {
 }
 
 pub enum LocalMsg {
+    NewStates,
     UpdateHandleText(InputData),
     OnHandleSubmit,
     Ignore,
@@ -35,6 +35,8 @@ pub enum LocalMsg {
 impl Settings {
     fn local_update(&mut self, msg: LocalMsg) -> ShouldRender {
         match msg {
+            LocalMsg::NewStates => (),
+
             LocalMsg::UpdateHandleText(input) => {
                 self.local.use_handle_text = input.value;
                 return true;

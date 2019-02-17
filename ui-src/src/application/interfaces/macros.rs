@@ -21,7 +21,9 @@ macro_rules! interface_view_only {
                 Local
             }
         }
-        pub enum LocalMsg {}
+        pub enum LocalMsg {
+            NewStates,
+        }
 
         impl $name {
             fn local_update(&self, _msg: LocalMsg) -> ShouldRender {
@@ -116,6 +118,7 @@ macro_rules! interface_component {
                         context::Response::GetStates(getstate) => {
                             if self.getstate != getstate {
                                 self.getstate = getstate;
+                                self.update(LocalMsg::NewStates.into());
                                 return true;
                             }
                         }
@@ -133,7 +136,7 @@ macro_rules! interface_component {
             fn change(&mut self, props: Self::Properties) -> ShouldRender {
                 self.counter = props.counter;
                 self.update(Msg::GetStates);
-                false
+                true
             }
         }
     };

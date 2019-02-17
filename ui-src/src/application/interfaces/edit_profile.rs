@@ -9,7 +9,6 @@ use crate::application::{
 
 const MAX_PIC_SIZE: u32 = 2_000_000;
 
-// Declare what state keys will be used by this component
 interface_getstates!("handle", "profile_pic", "first_name");
 
 interface_component!(EditProfile);
@@ -33,6 +32,7 @@ impl Local {
 }
 
 pub enum LocalMsg {
+    NewStates,
     UpdateNameText(InputData),
     ReadImage,
     OnSubmit,
@@ -42,6 +42,8 @@ pub enum LocalMsg {
 impl EditProfile {
     fn local_update(&mut self, msg: LocalMsg) -> ShouldRender {
         match msg {
+            LocalMsg::NewStates => (),
+
             LocalMsg::UpdateNameText(input) => {
                 self.local.new_name_text = input.value;
                 return true;

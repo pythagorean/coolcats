@@ -6,7 +6,6 @@ use crate::application::{
     state::State,
 };
 
-// Declare what state keys will be used by this component
 interface_getstates!("follows");
 
 interface_view_only!(Follow);

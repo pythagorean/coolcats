@@ -88,6 +88,10 @@ impl Dict {
         self.0.is_empty()
     }
 
+    pub fn raw(&self) -> &DictType {
+        &self.0
+    }
+
     pub fn insert(&mut self, key: DictKey, value: DictValue) {
         self.0.insert(key, value);
     }

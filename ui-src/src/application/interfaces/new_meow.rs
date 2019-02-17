@@ -26,6 +26,7 @@ impl Local {
 }
 
 pub enum LocalMsg {
+    NewStates,
     UpdateMeowText(InputData),
     OnSubmit,
 }
@@ -33,6 +34,8 @@ pub enum LocalMsg {
 impl NewMeow {
     fn local_update(&mut self, msg: LocalMsg) -> ShouldRender {
         match msg {
+            LocalMsg::NewStates => (),
+
             LocalMsg::UpdateMeowText(input) => {
                 self.local.new_meow_text = input.value;
             }
