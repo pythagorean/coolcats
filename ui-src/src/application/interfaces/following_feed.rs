@@ -1,13 +1,13 @@
 use yew::prelude::*;
-
 use std::collections::HashSet;
 
 use crate::{
-    utils::DictValue,
+    utils::Dict,
     application::{
         Action,
         context::{ self, ContextAgent },
         state::State,
+        interfaces::meow::Meow,
     },
 };
 
@@ -17,7 +17,7 @@ interface_component!(FollowingFeed);
 
 // This will be mapped to FollowingFeed.local:
 pub struct Local {
-    post_list: Vec<DictValue>,
+    post_list: Vec<Dict>,
 }
 
 impl Local {
@@ -74,7 +74,7 @@ impl FollowingFeed {
                     };
                     post.insert("user_handle".into(), user_handle.into());
 
-                    self.local.post_list.push(post.into());
+                    self.local.post_list.push(post);
                 }
             }
         }
@@ -88,8 +88,7 @@ impl Renderable<FollowingFeed> for FollowingFeed {
 
         html! {<>
             <div id="meows",>
-                {format!("{:?}", post_list)}
-                // {this.props.postList.map(post => <Meow post={post} key={post.stamp} />)}
+                { for post_list.iter().map(|post| html! {<Meow: post = post,/>}) }
             </div>
         </>}
     }

@@ -63,7 +63,7 @@ impl NewMeow {
 
 impl Renderable<NewMeow> for NewMeow {
     fn view(&self) -> Html<Self> {
-        let new_meow_text = self.local.new_meow_text.clone();
+        let new_meow_text = &self.local.new_meow_text;
 
         html! {<>
             <div class="form-group col-xs-12",>

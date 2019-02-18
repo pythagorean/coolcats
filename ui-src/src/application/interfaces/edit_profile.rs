@@ -42,7 +42,10 @@ pub enum LocalMsg {
 impl EditProfile {
     fn local_update(&mut self, msg: LocalMsg) -> ShouldRender {
         match msg {
-            LocalMsg::NewStates => (),
+            LocalMsg::NewStates => {
+                self.local.new_name_text = self.getstate.string("first_name");
+                return true;
+            }
 
             LocalMsg::UpdateNameText(input) => {
                 self.local.new_name_text = input.value;
@@ -114,8 +117,8 @@ impl Renderable<EditProfile> for EditProfile {
         if self.getstate.is_empty() {
             return html! { <></> };
         };
-        let handle = self.getstate.string("handle");
-        let _new_name_text = self.local.new_name_text.clone();
+        let handle = &self.getstate.string("handle");
+        let new_name_text = &self.local.new_name_text;
 
         html! {
             <div class="panel panel-default",>
@@ -136,6 +139,7 @@ impl Renderable<EditProfile> for EditProfile {
                                 class="form-control",
                                 id="inputName",
                                 placeholder="name",
+                                value={new_name_text},
                                 oninput=|input| LocalMsg::UpdateNameText(input).into(),
                                 onkeypress=|pressed| {
                                     if pressed.key() == "Enter" { LocalMsg::OnSubmit.into() }
