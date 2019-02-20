@@ -1,10 +1,14 @@
-use yew::prelude::*;
-use yew_router::{ routes, Route, RouterAgent };
-use serde::{ Serialize, Deserialize };
-use std::sync::Mutex;
 use std::str::FromStr;
+use std::time::Duration;
+use std::sync::Mutex;
 use strum::AsStaticRef;
 use stdweb::web::Date;
+use serde::{Serialize, Deserialize};
+use yew::{
+    prelude::*,
+    services::{IntervalService, Task},
+};
+use yew_router::{routes, Route, RouterAgent};
 
 use crate::{
     utils::Dict,
@@ -12,7 +16,7 @@ use crate::{
 };
 
 use super::{
-    context::{ self, ContextAgent },
+    context::{self, ContextAgent},
     state::State,
     interfaces::{
         app::App,
@@ -38,6 +42,9 @@ pub struct Root {
     child: RouterTarget,
     router: Box<Bridge<RouterAgent<()>>>,
     context: Box<Bridge<ContextAgent>>,
+    link: ComponentLink<Root>,
+    interval: IntervalService,
+    interval_job: Option<Box<Task>>,
 }
 
 #[derive(PartialEq, Clone, Debug)]
@@ -52,8 +59,9 @@ pub struct Params(pub ToRoot);
 
 #[derive(Serialize, Deserialize)]
 pub enum Action {
-    GetReady,
     Redirect(String),
+    GetReady,
+    GetHandles,
     UseHandle(String),
     SetFirstName(String),
     SetProfilePic(String),
@@ -65,6 +73,7 @@ pub enum Redux {
     GetConductor,
     UseHandle,
     AgentHandle,
+    GetHandles,
     SetFirstName,
     GetFirstName,
     SetProfilePic,
@@ -122,6 +131,9 @@ impl Component for Root {
             child: RouterTarget::App,
             router,
             context,
+            link,
+            interval: IntervalService::new(),
+            interval_job: None,
         };
         root.load_profile();
         root.context.send(context::Request::SetRoot);
@@ -179,18 +191,26 @@ impl Component for Root {
             }
 
             Msg::Action(action) => match action {
-                Action::GetReady => {
-                    self.get_my_handle();
-                    //self.get_handles();
-                    self.get_profile_pic();
-                    self.get_first_name();
-                    //self.interval = setInterval(self.props.getHandles, 2000)
-                }
-
                 Action::Redirect(path) => {
                     if path.as_str() == "/#/" {
                         self.update(Msg::ChangeRoute(RouterTarget::App));
                     }
+                }
+
+                Action::GetReady => {
+                    self.get_my_handle();
+                    self.get_handles();
+                    self.get_profile_pic();
+                    self.get_first_name();
+                    if self.interval_job.is_none() {
+                        let send_msg = self.link.send_back(|_| Action::GetHandles.into());
+                        let handle = self.interval.spawn(Duration::from_secs(2), send_msg);
+                        self.interval_job = Some(Box::new(handle));
+                    }
+                }
+
+                Action::GetHandles => {
+                    self.get_handles();
                 }
 
                 Action::UseHandle(handle) => {
@@ -298,6 +318,25 @@ impl Component for Root {
                         }
                     }
 
+                    Redux::GetHandles => {
+                        if !value.is_null() {
+                            let mut changed = false;
+                            let mut elem_num = 0;
+                            while !value[elem_num].is_null() {
+                                let element = &value[elem_num];
+                                let address = element["address"].to_string();
+                                let handle = element["handle"].to_string();
+                                let handles = self.state.mut_dict("handles");
+                                if handles.string(&address) != handle {
+                                    handles.insert(address, handle.into());
+                                    changed = true;
+                                }
+                                elem_num += 1;
+                            }
+                            return changed;
+                        }
+                    }
+
                     Redux::SetFirstName | Redux::GetFirstName => {
                         if !value.is_null() {
                             let first_name = value.to_string();
@@ -391,6 +430,10 @@ impl Root {
         self.coolcats("app_property", &[("key", "Agent_Handle")], Redux::AgentHandle.as_static());
     }
 
+    fn get_handles(&mut self) {
+        self.coolcats_np("get_handles", Redux::GetHandles.as_static());
+    }
+
     fn get_first_name(&mut self) {
         self.coolcats_np("get_first_name", Redux::GetFirstName.as_static());
     }
@@ -413,6 +456,7 @@ impl RouterTarget {
 
 impl Renderable<Root> for Root {
     fn view(&self) -> Html<Self> {
+        js!{ console.log(@{format!("state: {:#?}", self.state)}) };
         self.child.view()
     }
 }

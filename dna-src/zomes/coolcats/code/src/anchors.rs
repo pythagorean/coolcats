@@ -69,8 +69,16 @@ impl Anchor {
         create_anchor(&Anchor::new(anchor_type, anchor_text))
     }
 
+    pub fn address(anchor_type: &str, anchor_text: &str) -> ZomeApiResult<Address> {
+        anchor_address(&Anchor::new(anchor_type, anchor_text))
+    }
+
     pub fn exists(anchor_type: &str, anchor_text: &str) -> ZomeApiResult<bool> {
         anchor_exists(&Anchor::new(anchor_type, anchor_text))
+    }
+
+    pub fn list(anchor_type: &str) -> ZomeApiResult<Vec<Anchor>> {
+        get_anchors(anchor_type)
     }
 
     pub fn get(addr: &Address) -> ZomeApiResult<Anchor> {
@@ -174,9 +182,13 @@ fn create_anchor(anchor: &Anchor) -> ZomeApiResult<Address> {
     Ok(anchor_addr)
 }
 
-fn anchor_exists(anchor: &Anchor) -> ZomeApiResult<bool> {
+fn anchor_address(anchor: &Anchor) -> ZomeApiResult<Address> {
     let anchor_entry = anchor.entry();
-    let anchor_addr = hdk::entry_address(&anchor_entry)?;
+    hdk::entry_address(&anchor_entry)
+}
+
+fn anchor_exists(anchor: &Anchor) -> ZomeApiResult<bool> {
+    let anchor_addr = anchor_address(anchor)?;
     Ok(hdk_address_exists(&anchor_addr)?)
 }
 

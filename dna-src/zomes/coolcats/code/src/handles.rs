@@ -1,4 +1,5 @@
 use std::convert::TryFrom;
+use serde::Serialize;
 
 use hdk::{
     AGENT_ADDRESS,
@@ -76,8 +77,17 @@ impl Handle {
         hdk::commit_entry(&Entry::App(HANDLE.into(), Anchor::create(HANDLE, handle)?.into()))
     }
 
+    fn address(handle: &str) -> ZomeApiResult<Address> {
+        Anchor::address(HANDLE, handle)
+    }
+
     fn exists(handle: &str) -> ZomeApiResult<bool> {
         Anchor::exists(HANDLE, handle)
+    }
+
+    fn list() -> ZomeApiResult<Vec<String>> {
+        let anchors = Anchor::list(HANDLE)?;
+        Ok(anchors.iter().map(|anchor| anchor.get_text().to_string()).collect())
     }
 }
 
@@ -91,6 +101,13 @@ pub fn handle_use_handle(handle: String) -> JsonString {
 pub fn handle_get_handle(address: String) -> JsonString {
     match get_handle(&address.into()) {
         Ok(handle) => json!({ "value": handle }).into(),
+        Err(hdk_err) => json!({ "error": hdk_err }).into(),
+    }
+}
+
+pub fn handle_get_handles() -> JsonString {
+    match get_handles() {
+        Ok(handles) => json!({ "value": handles }).into(),
         Err(hdk_err) => json!({ "error": hdk_err }).into(),
     }
 }
@@ -137,4 +154,29 @@ pub fn get_handle_addr(addr: Option<&Address>) -> ZomeApiResult<Address> {
         }
     }
     Err(ZomeApiError::ValidationFailed("handle_not_found".into()))
+}
+
+#[derive(Serialize)]
+pub struct GetHandle {
+    address: Address,
+    handle: String,
+}
+
+impl GetHandle {
+    fn new(address: Address, handle: String) -> Self {
+        GetHandle {
+            address,
+            handle,
+        }
+    }
+}
+
+// not very efficient or anything but should work for testing
+pub fn get_handles() -> ZomeApiResult<Vec<GetHandle>> {
+    let mut handles: Vec<GetHandle> = Vec::new();
+    for handle in Handle::list()? {
+        let address = Handle::address(&handle)?;
+        handles.push(GetHandle::new(address, handle));
+    }
+    Ok(handles)
 }

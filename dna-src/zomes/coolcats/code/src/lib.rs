@@ -65,6 +65,11 @@ define_zome! {
             outputs: |result: JsonString|,
             handler: handles::handle_get_handle
         }
+        get_handles: {
+            inputs: | |,
+            outputs: |result: JsonString|,
+            handler: handles::handle_get_handles
+        }
         app_property: {
             inputs: |key: String|,
             outputs: |result: JsonString|,
@@ -99,7 +104,8 @@ define_zome! {
 
     traits: {
         hc_public [
-            create_anchor, anchor_exists, get_anchor, get_anchors, use_handle, get_handle,
+            create_anchor, anchor_exists, get_anchor, get_anchors,
+            use_handle, get_handle, get_handles,
             app_property, set_first_name, get_first_name, set_profile_pic, get_profile_pic,
             post
         ]
