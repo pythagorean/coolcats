@@ -246,7 +246,7 @@ impl Component for Root {
                 Action::Post(message) => {
                     let stamp = Date::now().to_string();
                     let mut post = Dict::new();
-                    post.insert("author".into(), self.state.string("handle").into());
+                    post.insert("author".into(), self.state.string("handle").clone().into());
                     post.insert("message".into(), message.clone().into());
                     self.state.mut_dict("posts").insert(stamp.clone(), post.into());
                     self.coolcats_idx(
@@ -290,7 +290,7 @@ impl Component for Root {
                                 return true;
                             }
                         } else {
-                            let me = self.state.string("me");
+                            let me = self.state.string("me").clone();
                             self.state.mut_dict("handles").set_string(me, value.to_string());
                             self.state.set_bool("handle_taken".into(), false);
                             self.get_my_handle();
@@ -300,7 +300,7 @@ impl Component for Root {
                     Redux::AgentHandle => {
                         if !value.is_null() {
                             let handle = value.to_string();
-                            if self.state.string("handle") != handle {
+                            if handle != *self.state.string("handle") {
                                 self.state.set_string("handle".into(), handle.clone());
                                 self.state
                                     .mut_dict("app_properties")
@@ -340,7 +340,7 @@ impl Component for Root {
                     Redux::SetFirstName | Redux::GetFirstName => {
                         if !value.is_null() {
                             let first_name = value.to_string();
-                            if self.state.string("first_name") != first_name {
+                            if first_name != *self.state.string("first_name") {
                                 self.state.set_string("first_name".into(), first_name);
                                 self.save_profile();
                                 return true;
@@ -355,7 +355,7 @@ impl Component for Root {
                     Redux::SetProfilePic | Redux::GetProfilePic => {
                         if !value.is_null() {
                             let profile_pic = value.to_string();
-                            if self.state.string("profile_pic") != profile_pic {
+                            if profile_pic != *self.state.string("profile_pic") {
                                 self.state.set_string("profile_pic".into(), profile_pic);
                                 self.save_profile();
                                 return true;
@@ -456,7 +456,7 @@ impl RouterTarget {
 
 impl Renderable<Root> for Root {
     fn view(&self) -> Html<Self> {
-        js!{ console.log(@{format!("state: {:#?}", self.state)}) };
+        js! { console.log(@{format!("state: {:#?}", self.state)}) };
         self.child.view()
     }
 }

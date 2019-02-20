@@ -57,12 +57,12 @@ impl State {
         self.0.merge(&other.0);
     }
 
-    pub fn get_dict(&self, key: &str) -> Dict {
-        self.0.get_dict(key).clone()
+    pub fn get_dict(&self, key: &str) -> &Dict {
+        self.0.get_dict(key)
     }
 
-    pub fn string(&self, key: &str) -> String {
-        self.0.string(key).clone()
+    pub fn string(&self, key: &str) -> &String {
+        self.0.string(key)
     }
 
     //pub fn strings( &self, key: &str) -> Vec<String>  { self.0.strings(key)  }

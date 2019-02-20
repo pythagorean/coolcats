@@ -43,7 +43,7 @@ impl EditProfile {
     fn local_update(&mut self, msg: LocalMsg) -> ShouldRender {
         match msg {
             LocalMsg::NewStates => {
-                self.local.new_name_text = self.getstate.string("first_name");
+                self.local.new_name_text = self.getstate.string("first_name").clone();
                 return true;
             }
 
@@ -75,12 +75,12 @@ impl EditProfile {
 
     fn on_submit(&mut self) {
         let new_profile_pic = { NEW_PROFILE_PIC.lock().unwrap().clone() };
-        if !new_profile_pic.is_empty() && new_profile_pic != self.getstate.string("profile_pic") {
+        if !new_profile_pic.is_empty() && new_profile_pic != *self.getstate.string("profile_pic") {
             self.set_profile_pic(&new_profile_pic);
         }
 
         let new_name_text = self.local.new_name_text.clone();
-        if !new_name_text.is_empty() && new_name_text != self.getstate.string("first_name") {
+        if !new_name_text.is_empty() && new_name_text != *self.getstate.string("first_name") {
             self.set_first_name(&new_name_text);
         }
 

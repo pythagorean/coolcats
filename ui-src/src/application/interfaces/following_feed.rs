@@ -45,7 +45,7 @@ impl FollowingFeed {
                 for key in follows.raw().keys() {
                     follows_plus_self.insert(key.to_string());
                 }
-                follows_plus_self.insert(handle);
+                follows_plus_self.insert(handle.clone());
 
                 let mut stamps: Vec<String> = Vec::new();
                 for stamp in posts.raw().keys().filter(|stamp| {
