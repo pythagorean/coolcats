@@ -327,7 +327,7 @@ impl Component for Root {
                                 let address = element["address"].to_string();
                                 let handle = element["handle"].to_string();
                                 let handles = self.state.mut_dict("handles");
-                                if handles.string(&address) != handle {
+                                if handle != *handles.string(&address) {
                                     handles.insert(address, handle.into());
                                     changed = true;
                                 }

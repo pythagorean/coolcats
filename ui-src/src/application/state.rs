@@ -58,11 +58,11 @@ impl State {
     }
 
     pub fn get_dict(&self, key: &str) -> Dict {
-        self.0.get_dict(key)
+        self.0.get_dict(key).clone()
     }
 
     pub fn string(&self, key: &str) -> String {
-        self.0.string(key)
+        self.0.string(key).clone()
     }
 
     //pub fn strings( &self, key: &str) -> Vec<String>  { self.0.strings(key)  }

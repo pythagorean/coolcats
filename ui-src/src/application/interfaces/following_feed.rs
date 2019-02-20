@@ -49,8 +49,9 @@ impl FollowingFeed {
 
                 let mut stamps: Vec<String> = Vec::new();
                 for stamp in posts.raw().keys().filter(|stamp| {
-                    let author = posts.get_dict(stamp).string("author");
-                    follows_plus_self.contains(&author)
+                    let post = posts.get_dict(stamp);
+                    let author = post.string("author");
+                    follows_plus_self.contains(author)
                 }) {
                     stamps.push(stamp.to_string());
                 }
@@ -62,7 +63,7 @@ impl FollowingFeed {
 
                 self.local.post_list = Vec::new();
                 for stamp in stamps {
-                    let mut post = posts.get_dict(&stamp);
+                    let mut post = posts.get_dict(&stamp).clone();
                     if post.string("stamp").is_empty() {
                         post.insert("stamp".into(), stamp.into());
                     }
@@ -72,7 +73,7 @@ impl FollowingFeed {
                     if user_handle.is_empty() {
                         user_handle = author
                     };
-                    post.insert("user_handle".into(), user_handle.into());
+                    post.insert("user_handle".into(), user_handle.clone().into());
 
                     self.local.post_list.push(post);
                 }

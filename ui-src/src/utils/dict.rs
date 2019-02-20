@@ -12,7 +12,6 @@ pub enum DictValue {
     Strings(Vec<String>),
     Integer(i32),
     Bool(bool),
-    Undefined,
 }
 
 pub type DictType = HashMap<DictKey, DictValue>;
@@ -64,7 +63,6 @@ impl Clone for DictValue {
             DictValue::Strings(value) => DictValue::Strings((*value).clone()),
             DictValue::Integer(value) => DictValue::Integer(*value),
             DictValue::Bool(value) => DictValue::Bool(*value),
-            DictValue::Undefined => DictValue::Undefined,
         }
     }
 }
@@ -100,10 +98,13 @@ impl Dict {
         self.0.remove(key);
     }
 
-    pub fn get_dict(&self, key: &str) -> Dict {
+    pub fn get_dict(&self, key: &str) -> &Dict {
+        lazy_static! {
+            static ref EMPTY: Dict = Dict::new();
+        }
         match self.get(key) {
-            DictValue::Dict(value) => value,
-            DictValue::Undefined => Dict::new(),
+            None => &EMPTY,
+            Some(DictValue::Dict(value)) => value,
             _ => panic! {
                 "Dict::get_dict called on non-dict key"
             },
@@ -119,10 +120,13 @@ impl Dict {
         }
     }
 
-    pub fn string(&self, key: &str) -> String {
+    pub fn string(&self, key: &str) -> &String {
+        lazy_static! {
+            static ref EMPTY: String = String::new();
+        }
         match self.get(key) {
-            DictValue::String(value) => value,
-            DictValue::Undefined => String::new(),
+            None => &EMPTY,
+            Some(DictValue::String(value)) => value,
             _ => panic! {
                 "Dict::string called on non-string key"
             },
@@ -166,8 +170,8 @@ impl Dict {
 
     pub fn bool(&self, key: &str) -> Option<bool> {
         match self.get(key) {
-            DictValue::Bool(value) => Some(value),
-            DictValue::Undefined => None,
+            None => None,
+            Some(DictValue::Bool(value)) => Some(*value),
             _ => panic! {
                 "Dict::bool called on non-bool key"
             },
@@ -194,15 +198,12 @@ impl Dict {
 
     pub fn merge(&mut self, other: &Self) {
         for key in other.0.keys() {
-            self.insert(key.clone(), other.get(key));
+            self.insert(key.clone(), other.get(key).unwrap().clone());
         }
     }
 
-    fn get(&self, key: &str) -> DictValue {
-        match self.0.get(key) {
-            Some(value) => value.clone(),
-            None => DictValue::Undefined,
-        }
+    fn get(&self, key: &str) -> Option<&DictValue> {
+        self.0.get(key)
     }
 
     fn get_mut(&mut self, key: &str) -> &mut DictValue {
