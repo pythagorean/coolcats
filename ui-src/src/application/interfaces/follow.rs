@@ -1,22 +1,94 @@
 use yew::prelude::*;
 
-use crate::application::{
-    Action,
-    context::{ self, ContextAgent },
-    state::State,
+use crate::{
+    utils::Dict,
+    application::{
+        Action,
+        context::{ self, ContextAgent },
+        state::State,
+    },
 };
 
-interface_getstates!("follows");
+interface_getstates!("handles", "handle", "follows");
 
-interface_view_only!(Follow);
 interface_component!(Follow);
+
+// This will be mapped to Follow.local:
+pub struct Local {
+    following: Vec<Dict>,
+    not_following: Vec<Dict>,
+    new_follow_text: String,
+}
+
+impl Local {
+    fn new() -> Self {
+        Self {
+            following: Vec::new(),
+            not_following: Vec::new(),
+            new_follow_text: String::new(),
+        }
+    }
+}
+
+pub enum LocalMsg {
+    NewStates,
+}
+
+impl Follow {
+    fn local_update(&mut self, msg: LocalMsg) -> ShouldRender {
+        match msg {
+            LocalMsg::NewStates => {
+                let handles = self.getstate.get_dict("handles");
+                let my_handle = self.getstate.string("handle");
+                let follows = self.getstate.get_dict("follows");
+
+                self.local.following = follows
+                    .raw()
+                    .keys()
+                    .map(|handle| {
+                        let mut follow = Dict::new();
+                        follow.insert("handle".into(), handle.clone().into());
+                        follow
+                    })
+                    .collect();
+
+                self.local.not_following = handles
+                    .raw()
+                    .keys()
+                    .filter(|address| {
+                        let user_handle = handles.string(address);
+                        !follows.bool(user_handle).unwrap_or(false) && user_handle != my_handle
+                    })
+                    .map(|address| {
+                        let user_handle = handles.string(address);
+                        let mut no_follow = Dict::new();
+                        no_follow.insert("address".into(), address.clone().into());
+                        no_follow.insert("handle".into(), user_handle.clone().into());
+                        no_follow
+                    })
+                    .collect();
+            }
+        }
+        true
+    }
+}
 
 impl Renderable<Follow> for Follow {
     fn view(&self) -> Html<Self> {
-        if self.getstate.is_empty() {
-            return html! { <></> };
-        };
-        let disable = true;
+        let following = &self.local.following;
+        let not_following = &self.local.not_following;
+        let new_follow_text = &self.local.new_follow_text;
+        let filtered_not_following: Vec<Dict> = not_following
+            .iter()
+            .filter(|unfollowed| {
+                unfollowed
+                    .string("handle")
+                    .to_lowercase()
+                    .starts_with(&new_follow_text.to_lowercase())
+            })
+            .cloned()
+            .collect();
+
         html! {
             <div class="panel panel-default",>
                 <div class="close",>
@@ -26,11 +98,9 @@ impl Renderable<Follow> for Follow {
                     <div class="row",>
                         <h3>{"Following"}</h3>
                         <ul id="following",>
-                            //{this.props.following.length === 0 && (
+                            {if following.is_empty() {html! {
                                 <li>{"You currently aren't following anyone."}</li>
-                            //)}
-                            //{this.props.following.length > 0 && (
-                            {if disable {html! {<></>}} else {html! {
+                            }} else {html! {
                                 <div
                                     class="panel-body",
                                     style="overflow-y: scroll; height: 100px",
@@ -69,7 +139,6 @@ impl Renderable<Follow> for Follow {
                                     </div>
                                 </div>
                             }}}
-                            //)}
                         </ul>
                     </div>
 
@@ -91,10 +160,9 @@ impl Renderable<Follow> for Follow {
                             </div>
                         </div>
                         <ul id="not-following",>
-                            //{filteredNotFollowing.length === 0 && (
+                            {if filtered_not_following.is_empty() {html! {
                                 <li>{"There are no users that you aren't already following."}</li>
-                            //)}
-                            //{filteredNotFollowing.length > 0 && (
+                            }} else {html! {
                                 <div
                                     class="panel-body",
                                     style="overflow-y: scroll; height: 200px",
@@ -132,7 +200,7 @@ impl Renderable<Follow> for Follow {
                                         */
                                     </div>
                                 </div>
-                            //}
+                            }}}
                         </ul>
                         <div class="row",>
                             <div class="col-sm-1",/>

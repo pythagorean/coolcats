@@ -188,7 +188,7 @@ impl Dict {
         let mut uniq = HashSet::new();
         for key in keys {
             if uniq.insert(*key) {
-                if let Some(value) = self.0.get(*key) {
+                if let Some(value) = self.get(*key) {
                     dict.insert((*key).into(), (*value).clone());
                 }
             }

@@ -6,7 +6,7 @@ edition = "2018"
 build = "build.rs"
 
 [dependencies]
-yew = "0.6.0"
+yew = "0.7.0"
 yew-router = "0.1.0"
 stdweb = "0.4.14"
 serde = {version = "1.0.88", features = ["derive"]}

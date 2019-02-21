@@ -37,7 +37,7 @@ impl FollowingFeed {
         match msg {
             LocalMsg::NewStates => {
                 let handles = self.getstate.get_dict("handles");
-                let handle = self.getstate.string("handle");
+                let my_handle = self.getstate.string("handle");
                 let follows = self.getstate.get_dict("follows");
                 let posts = self.getstate.get_dict("posts");
 
@@ -45,7 +45,7 @@ impl FollowingFeed {
                 for key in follows.raw().keys() {
                     follows_plus_self.insert(key.to_string());
                 }
-                follows_plus_self.insert(handle.clone());
+                follows_plus_self.insert(my_handle.clone());
 
                 let mut stamps: Vec<String> = Vec::new();
                 for stamp in posts.raw().keys().filter(|stamp| {
@@ -61,22 +61,23 @@ impl FollowingFeed {
                     b.cmp(&a)
                 });
 
-                self.local.post_list = Vec::new();
-                for stamp in stamps {
-                    let mut post = posts.get_dict(&stamp).clone();
-                    if post.string("stamp").is_empty() {
-                        post.insert("stamp".into(), stamp.into());
-                    }
+                self.local.post_list = stamps
+                    .iter()
+                    .map(|stamp| {
+                        let mut post = posts.get_dict(stamp).clone();
+                        if post.string("stamp").is_empty() {
+                            post.insert("stamp".into(), stamp.clone().into());
+                        }
 
-                    let author = post.string("author");
-                    let mut user_handle = handles.string(&author);
-                    if user_handle.is_empty() {
-                        user_handle = author
-                    };
-                    post.insert("user_handle".into(), user_handle.clone().into());
-
-                    self.local.post_list.push(post);
-                }
+                        let author = post.string("author");
+                        let mut user_handle = handles.string(author);
+                        if user_handle.is_empty() {
+                            user_handle = author
+                        };
+                        post.insert("user_handle".into(), user_handle.clone().into());
+                        post
+                    })
+                    .collect();
             }
         }
         true
