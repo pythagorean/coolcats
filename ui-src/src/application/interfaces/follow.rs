@@ -32,6 +32,9 @@ impl Local {
 
 pub enum LocalMsg {
     NewStates,
+    UpdateFollowText(InputData),
+    Follow(String),
+    Unfollow(String),
 }
 
 impl Follow {
@@ -68,6 +71,20 @@ impl Follow {
                     })
                     .collect();
             }
+
+            LocalMsg::UpdateFollowText(input) => {
+                self.local.new_follow_text = input.value;
+            }
+
+            LocalMsg::Follow(user_handle) => {
+                js! {alert(@{format!("LocalMsg::Follow({})", user_handle)}) };
+                return false;
+            }
+
+            LocalMsg::Unfollow(user_handle) => {
+                js! {alert(@{format!("LocalMsg::Unfollow({})", user_handle)}) };
+                return false;
+            }
         }
         true
     }
@@ -78,6 +95,7 @@ impl Renderable<Follow> for Follow {
         let following = &self.local.following;
         let not_following = &self.local.not_following;
         let new_follow_text = &self.local.new_follow_text;
+
         let filtered_not_following: Vec<Dict> = not_following
             .iter()
             .filter(|unfollowed| {
@@ -88,6 +106,52 @@ impl Renderable<Follow> for Follow {
             })
             .cloned()
             .collect();
+
+        let following_list: Vec<Html<Self>> = following.iter().map(|user| {
+            let user_handle = user.string("handle").clone();
+            html! {
+                <li class="following-handle", key={&user_handle},>
+                    <div class="col-xs-9",>
+                        <span class="handle",>{&user_handle}</span>
+                    </div>
+                    <div
+                        class="col-xs-3",
+                        style="padding-bottom: 10px;",
+                    >
+                        <button
+                            type="button",
+                            class="btn btn default",
+                            onclick=|_| LocalMsg::Unfollow(user_handle.to_string()).into(),
+                        >
+                            {"Unfollow"}
+                        </button>
+                    </div>
+                </li>
+            }
+        }).collect();
+
+        let not_following_list: Vec<Html<Self>> = filtered_not_following.iter().map(|user| {
+            let user_handle = user.string("handle").clone();
+            html! {
+                <li class="following-handle", key={&user_handle},>
+                    <div class="col-xs-9",>
+                        <span class="handle",>{&user_handle}</span>
+                    </div>
+                    <div
+                      class="col-xs-3",
+                      style="padding-bottom: 10px;",
+                    >
+                        <button
+                            type="button",
+                            class="btn btn-default",
+                            onclick=|_| LocalMsg::Follow(user_handle.to_string()).into(),
+                        >
+                            {"Follow"}
+                        </button>
+                    </div>
+                </li>
+            }
+        }).collect();
 
         html! {
             <div class="panel panel-default",>
@@ -100,7 +164,7 @@ impl Renderable<Follow> for Follow {
                         <ul id="following",>
                             {if following.is_empty() {html! {
                                 <li>{"You currently aren't following anyone."}</li>
-                            }} else {html! {
+                            }} else { html! {
                                 <div
                                     class="panel-body",
                                     style="overflow-y: scroll; height: 100px",
@@ -113,29 +177,7 @@ impl Renderable<Follow> for Follow {
                                             height: 100px;\
                                         ",
                                     >
-                                        /*
-                                        {this.props.following.map(user => {
-                                          return (
-                                            <li className="following-handle" key={user.handle}>
-                                              <div className="col-xs-9">
-                                                <span className="handle">{user.handle}</span>
-                                              </div>
-                                              <div
-                                                className="col-xs-3"
-                                                style={{ 'padding-bottom': '10px' }}
-                                              >
-                                                <button
-                                                  type="button"
-                                                  className="btn btn-default"
-                                                  onClick={() => this.props.unfollow(user.handle)}
-                                                >
-                                                  Unfollow
-                                                </button>
-                                              </div>
-                                            </li>
-                                          )
-                                        })}
-                                        */
+                                        {for following_list}
                                     </div>
                                 </div>
                             }}}
@@ -147,16 +189,14 @@ impl Renderable<Follow> for Follow {
                         <div class="col-xs-12",>
                             <div class="form-group input-icon",>
                                 <i>{"@"}</i>
-                                /*
                                 <input
-                                    value={this.state.newFollowText}
-                                    onChange={this.updateFollowText}
-                                    type="text"
-                                    className="form-control"
-                                    id="followHandle"
-                                    placeholder="handle"
+                                    value={new_follow_text},
+                                    type="text",
+                                    class="form-control",
+                                    id="followHandle",
+                                    placeholder="handle",
+                                    oninput=|input| LocalMsg::UpdateFollowText(input).into(),
                                 />
-                                */
                             </div>
                         </div>
                         <ul id="not-following",>
@@ -175,29 +215,7 @@ impl Renderable<Follow> for Follow {
                                             height: 200px;\
                                         ",
                                     >
-                                        /*
-                                        {filteredNotFollowing.map(user => {
-                                          return (
-                                            <li className="following-handle" key={user.handle}>
-                                              <div className="col-xs-9">
-                                                <span className="handle">{user.handle}</span>
-                                              </div>
-                                              <div
-                                                className="col-xs-3"
-                                                style={{ 'padding-bottom': '10px' }}
-                                              >
-                                                <button
-                                                  type="button"
-                                                  className="btn btn-default"
-                                                  onClick={() => this.props.follow(user.handle)}
-                                                >
-                                                  Follow
-                                                </button>
-                                              </div>
-                                            </li>
-                                          )
-                                        })}
-                                        */
+                                        {for not_following_list}
                                     </div>
                                 </div>
                             }}}
@@ -206,16 +224,14 @@ impl Renderable<Follow> for Follow {
                             <div class="col-sm-1",/>
                             <div class="col-sm-4",/>
                             <div class="col-sm-6",>
-                                /*
                                 <button
-                                  type="button"
-                                  id="close"
-                                  className="btn btn-primary pull-right"
-                                  onClick={() => this.props.history.push('/')}
+                                    type="button",
+                                    id="close",
+                                    class="btn btn-primary pull-right",
+                                    onclick=|_| Action::Redirect("/#/".into()).into(),
                                 >
-                                  Close
+                                    {"Close"}
                                 </button>
-                                */
                             </div>
                         </div>
                     </div>
