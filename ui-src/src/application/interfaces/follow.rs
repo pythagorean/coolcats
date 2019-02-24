@@ -77,16 +77,24 @@ impl Follow {
             }
 
             LocalMsg::Follow(user_handle) => {
-                js! {alert(@{format!("LocalMsg::Follow({})", user_handle)}) };
+                self.follow(&user_handle);
                 return false;
             }
 
             LocalMsg::Unfollow(user_handle) => {
-                js! {alert(@{format!("LocalMsg::Unfollow({})", user_handle)}) };
+                self.unfollow(&user_handle);
                 return false;
             }
         }
         true
+    }
+
+    fn follow(&mut self, user_handle: &str) {
+        self.update(Action::Follow(user_handle.into()).into());
+    }
+
+    fn unfollow(&mut self, user_handle: &str) {
+        self.update(Action::Unfollow(user_handle.into()).into());
     }
 }
 
@@ -107,51 +115,57 @@ impl Renderable<Follow> for Follow {
             .cloned()
             .collect();
 
-        let following_list: Vec<Html<Self>> = following.iter().map(|user| {
-            let user_handle = user.string("handle").clone();
-            html! {
-                <li class="following-handle", key={&user_handle},>
-                    <div class="col-xs-9",>
-                        <span class="handle",>{&user_handle}</span>
-                    </div>
-                    <div
-                        class="col-xs-3",
-                        style="padding-bottom: 10px;",
-                    >
-                        <button
-                            type="button",
-                            class="btn btn default",
-                            onclick=|_| LocalMsg::Unfollow(user_handle.to_string()).into(),
+        let following_list: Vec<Html<Self>> = following
+            .iter()
+            .map(|user| {
+                let user_handle = user.string("handle").clone();
+                html! {
+                    <li class="following-handle", key={&user_handle},>
+                        <div class="col-xs-9",>
+                            <span class="handle",>{&user_handle}</span>
+                        </div>
+                        <div
+                            class="col-xs-3",
+                            style="padding-bottom: 10px;",
                         >
-                            {"Unfollow"}
-                        </button>
-                    </div>
-                </li>
-            }
-        }).collect();
+                            <button
+                                type="button",
+                                class="btn btn default",
+                                onclick=|_| LocalMsg::Unfollow(user_handle.to_string()).into(),
+                            >
+                                {"Unfollow"}
+                            </button>
+                        </div>
+                    </li>
+                }
+            })
+            .collect();
 
-        let not_following_list: Vec<Html<Self>> = filtered_not_following.iter().map(|user| {
-            let user_handle = user.string("handle").clone();
-            html! {
-                <li class="following-handle", key={&user_handle},>
-                    <div class="col-xs-9",>
-                        <span class="handle",>{&user_handle}</span>
-                    </div>
-                    <div
-                      class="col-xs-3",
-                      style="padding-bottom: 10px;",
-                    >
-                        <button
-                            type="button",
-                            class="btn btn-default",
-                            onclick=|_| LocalMsg::Follow(user_handle.to_string()).into(),
+        let not_following_list: Vec<Html<Self>> = filtered_not_following
+            .iter()
+            .map(|user| {
+                let user_handle = user.string("handle").clone();
+                html! {
+                    <li class="following-handle", key={&user_handle},>
+                        <div class="col-xs-9",>
+                            <span class="handle",>{&user_handle}</span>
+                        </div>
+                        <div
+                          class="col-xs-3",
+                          style="padding-bottom: 10px;",
                         >
-                            {"Follow"}
-                        </button>
-                    </div>
-                </li>
-            }
-        }).collect();
+                            <button
+                                type="button",
+                                class="btn btn-default",
+                                onclick=|_| LocalMsg::Follow(user_handle.to_string()).into(),
+                            >
+                                {"Follow"}
+                            </button>
+                        </div>
+                    </li>
+                }
+            })
+            .collect();
 
         html! {
             <div class="panel panel-default",>

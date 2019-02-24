@@ -65,6 +65,8 @@ pub enum Action {
     UseHandle(String),
     SetFirstName(String),
     SetProfilePic(String),
+    Follow(String),
+    Unfollow(String),
     Post(String),
 }
 
@@ -78,6 +80,8 @@ pub enum Redux {
     GetFirstName,
     SetProfilePic,
     GetProfilePic,
+    Follow,
+    Unfollow,
     Post,
 }
 
@@ -249,13 +253,27 @@ impl Component for Root {
                     post.insert("author".into(), self.state.string("handle").clone().into());
                     post.insert("message".into(), message.clone().into());
                     self.state.mut_dict("posts").insert(stamp.clone(), post.into());
-                    self.coolcats_idx(
+                    self.coolcats_meta(
                         "post",
                         &[("message", &*message), ("stamp", &stamp)],
                         Redux::Post.as_static(),
                         &stamp,
                     );
                 }
+
+                Action::Follow(user_handle) => self.coolcats_meta(
+                    "follow",
+                    &[("user_handle", &*user_handle)],
+                    Redux::Follow.as_static(),
+                    &user_handle,
+                ),
+
+                Action::Unfollow(user_handle) => self.coolcats_meta(
+                    "unfollow",
+                    &[("user_handle", &*user_handle)],
+                    Redux::Unfollow.as_static(),
+                    &user_handle,
+                ),
             },
         }
         false
@@ -271,7 +289,7 @@ impl Component for Root {
                 );
             }
 
-            ToApplication::Redux(result, redux, index) => {
+            ToApplication::Redux(result, redux, meta) => {
                 let result = &json::parse(&result).unwrap();
                 let redux = Redux::from_str(&redux).unwrap();
                 let value = &result["value"];
@@ -367,8 +385,26 @@ impl Component for Root {
                         }
                     }
 
+                    Redux::Follow => {
+                        let user_handle = meta;
+                        if !value.is_null() && value == true {
+                            let follows = self.state.mut_dict("follows");
+                            follows.insert(user_handle, true.into());
+                            return true;
+                        }
+                    }
+
+                    Redux::Unfollow => {
+                        let user_handle = meta;
+                        if !value.is_null() && value == true {
+                            let follows = self.state.mut_dict("follows");
+                            follows.remove(&user_handle);
+                            return true;
+                        }
+                    }
+
                     Redux::Post => {
-                        let stamp = index;
+                        let stamp = meta;
                         if !value.is_null() {
                             let address = value.to_string();
                             let post = self.state.mut_dict("posts").mut_dict(&stamp);
@@ -407,9 +443,9 @@ impl Root {
         }
     }
 
-    fn coolcats_idx(&mut self, method: &str, params: &[(&str, &str)], redux: &str, index: &str) {
+    fn coolcats_meta(&mut self, method: &str, params: &[(&str, &str)], redux: &str, meta: &str) {
         let call = ToHoloclient::Call(
-            (&[self.conductor.as_str(), "coolcats", method][..], params, redux, index).into(),
+            (&[self.conductor.as_str(), "coolcats", method][..], params, redux, meta).into(),
         );
         self.update(call.into());;
     }

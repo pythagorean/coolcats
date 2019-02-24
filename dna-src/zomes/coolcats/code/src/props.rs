@@ -1,6 +1,7 @@
 use std::convert::TryFrom;
 
 use hdk::{
+    DNA_ADDRESS,
     AGENT_ADDRESS,
     entry_definition::{
         ValidatingEntryType,
@@ -127,6 +128,7 @@ pub fn handle_get_profile_pic() -> JsonString {
 // incomplete
 fn app_property(key: &str) -> ZomeApiResult<String> {
     match key {
+        "DNA_Address" => Ok(DNA_ADDRESS.to_string()),
         "Agent_Address" => Ok(AGENT_ADDRESS.to_string()),
         "Agent_Handle" => handles::get_handle(&AGENT_ADDRESS),
         _ => Err(ZomeApiError::ValidationFailed(format!("No App Property with key: {}", key))),

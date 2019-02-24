@@ -95,6 +95,16 @@ define_zome! {
             outputs: |result: JsonString|,
             handler: props::handle_get_profile_pic
         }
+        follow: {
+            inputs: |user_handle: String|,
+            outputs: |result: JsonString|,
+            handler: handles::handle_follow
+        }
+        unfollow: {
+            inputs: |user_handle: String|,
+            outputs: |result: JsonString|,
+            handler: handles::handle_unfollow
+        }
         post: {
             inputs: |message: String, stamp: String|,
             outputs: |result: JsonString|,
@@ -105,7 +115,7 @@ define_zome! {
     traits: {
         hc_public [
             create_anchor, anchor_exists, get_anchor, get_anchors,
-            use_handle, get_handle, get_handles,
+            use_handle, get_handle, get_handles, follow, unfollow,
             app_property, set_first_name, get_first_name, set_profile_pic, get_profile_pic,
             post
         ]
