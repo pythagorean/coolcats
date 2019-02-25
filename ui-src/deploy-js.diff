@@ -1,0 +1,15 @@
+--- coolcats2.js.old
++++ coolcats2.js
+@@ -27,11 +27,7 @@
+         } else {
+             var file = fetch( "coolcats2.wasm", {credentials: "same-origin"} );
+ 
+-            var wasm_instance = ( typeof WebAssembly.instantiateStreaming === "function"
+-                ? WebAssembly.instantiateStreaming( file, instance.imports )
+-                    .then( function( result ) { return result.instance; } )
+-
+-                : file
++            var wasm_instance = ( file
+                     .then( function( response ) { return response.arrayBuffer(); } )
+                     .then( function( bytes ) { return WebAssembly.compile( bytes ); } )
+                     .then( function( mod ) { return WebAssembly.instantiate( mod, instance.imports ) } ) );

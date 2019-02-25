@@ -1,11 +1,13 @@
 const { Config, Conductor, DnaInstance } = require('@holochain/holochain-nodejs')
 
-const test = require('tape');
-const tapSpec = require('tap-spec');
+const test = require('tape')
+const tapSpec = require('tap-spec')
 
 test.createStream()
   .pipe(tapSpec())
-  .pipe(process.stdout);
+  .pipe(process.stdout)
+
+const runtests = ["anchors", "properties", "handles", "posts", "profile"]
 
 const dnaPath = "./dist/bundle.json"
 const aliceName = "alice"
@@ -30,10 +32,11 @@ function sleep(milliseconds) {
   }
 }
 
-Conductor.run(conductorAlice, (stop, conductor) => {
-  alice = new DnaInstance(aliceName, conductor)
-  call = (method, params) => alice.call("coolcats", method, params);
-  test('anchors', (t) => {
+runtests.includes('anchors') && test('anchors', (t) => {
+  Conductor.run(conductorAlice, (stop, conductor) => {
+    alice = new DnaInstance(aliceName, conductor)
+    call = (method, params) => alice.call("coolcats", method, params);
+
     t.test('create and get anchors', (t) => {
       t.plan(1)
       const addr = call("create_anchor", {anchor:
@@ -65,50 +68,188 @@ Conductor.run(conductorAlice, (stop, conductor) => {
       t.deepEqual(result.value, [
         {anchor_type: "testing", anchor_text: "1-2-3"}
       ])
-    })
 
-    t.end()
+      stop()
+    })
   })
+  t.end()
+})
 
-  test('clutter', (t) => {
-    t.test('get the agent address', (t) => {
-      t.plan(1)
-      const result = display(call("app_property", {key: "Agent_Address"}))
-      t.equal(result.value, "alice-----------------------------------------------------------------------------AAAIuDJb4M")
-    })
+runtests.includes('properties') && test('properties', (t) => {
+  Conductor.run(conductorAlice, (stop, conductor) => {
+    alice = new DnaInstance(aliceName, conductor)
+    call = (method, params) => alice.call("coolcats", method, params);
 
-    t.test('get the agent handle which is not set', (t) => {
+    t.test('test for unset agent handle', (t) => {
       t.plan(1)
       const result = display(call("app_property", {key: "Agent_Handle"}))
-      t.equal(result.error.ValidationFailed, "handle_not_found")
+      t.equal(result.value, undefined)
     })
 
-    t.test('set the agent handle', (t) => {
+    t.test('we can create a new handle', (t) => {
       t.plan(1)
       const result = display(call("use_handle", {handle: "buffaloBill"}))
       t.equal(result.value, "QmUXkCgPqXcniV2JvRLeNZs21j4UyXoPWJ4pMtygRCdo8c")
       sleep(1000)
     })
 
-    t.test('get the agent handle which is now set', (t) => {
+    t.test('test for now set agent handle', (t) => {
       t.plan(1)
       const result = display(call("app_property", {key: "Agent_Handle"}))
       t.equal(result.value, "buffaloBill")
     })
 
-    t.test("trying to use a handle already in use returns error", (t) => {
+    t.test('we can obtain the dna address', (t) => {
       t.plan(1)
-      const result = display(call("use_handle", {handle: "buffaloBill"}))
-      t.equal(result.error.ValidationFailed, "handle_in_use")
+      const result = display(call("app_property", {key: "DNA_Address"}))
+      t.equal(result.error, undefined)
     })
 
-    t.test('get the handle by its own address', (t) => {
+    t.test('we can obtain the agent address', (t) => {
+      t.plan(1)
+      const result = display(call("app_property", {key: "Agent_Address"}))
+      t.equal(result.value, "alice-----------------------------------------------------------------------------AAAIuDJb4M")
+    })
+
+    t.test('test requesting invalid app property', (t) => {
+      t.plan(1)
+      const result = display(call("app_property", {key: "garbage"}))
+      t.equal(result.error.ValidationFailed, "No App Property with key: garbage")
+
+      stop()
+    })
+    // No tests on get_property until supported by Holochain Rust
+  })
+  t.end()
+})
+
+runtests.includes('handles') && test('handles', (t) => {
+  Conductor.run(conductorAlice, (stop, conductor) => {
+    alice = new DnaInstance(aliceName, conductor)
+    call = (method, params) => alice.call("coolcats", method, params);
+
+    t.test('test that handle is not set', (t) => {
+      t.plan(1)
+      const result = display(call("get_handle",
+        {address: "QmUXkCgPqXcniV2JvRLeNZs21j4UyXoPWJ4pMtygRCdo8c"}
+      ))
+      t.equal(result.value, undefined)
+    })
+
+    t.test("we can create a new handle", (t) => {
+      t.plan(1)
+      const result = display(call("use_handle", {handle: "buffaloBill"}))
+      t.equal(result.value, "QmUXkCgPqXcniV2JvRLeNZs21j4UyXoPWJ4pMtygRCdo8c")
+      sleep(1000)
+    })
+
+    t.test('we can retrieve the new handle', (t) => {
       t.plan(1)
       const result = display(call("get_handle",
         {address: "QmUXkCgPqXcniV2JvRLeNZs21j4UyXoPWJ4pMtygRCdo8c"}
       ))
       t.equal(result.value, "buffaloBill")
     })
+
+    t.test("we can update our handle to a unique handle", (t) => {
+      t.plan(1)
+      const result = display(call("use_handle", {handle: "phil"}))
+      t.equal(result.value, "QmZeUu4dzkJpcZLbbn4pTN8n39CZncmQoRAWKjCuKYazN2")
+      sleep(1000)
+    })
+
+    t.test("trying to use a handle already in use returns error", (t) => {
+      t.plan(1)
+      const result = display(call("use_handle", {handle: "phil"}))
+      t.equal(result.error.ValidationFailed, "handle_in_use")
+    })
+
+    t.test("we can retrieve list of handles, in single node mode there will be only one", (t) => {
+      t.plan(1)
+      const result = display(call("get_handles", {}))
+      t.deepEqual(result.value,
+        [{handle: "phil", address: "QmZeUu4dzkJpcZLbbn4pTN8n39CZncmQoRAWKjCuKYazN2"}]
+      )
+
+      stop()
+      // We should add agent tests once we can perform them
+    })
+  })
+  t.end()
+})
+
+runtests.includes('posts') && test('posts', (t) => {
+  Conductor.run(conductorAlice, (stop, conductor) => {
+    alice = new DnaInstance(aliceName, conductor)
+    call = (method, params) => alice.call("coolcats", method, params);
+
+    t.test("setup handle for posting", (t) => {
+      t.plan(1)
+      const result = display(call("use_handle", {handle: "buffaloBill"}))
+      t.equal(result.value, "QmUXkCgPqXcniV2JvRLeNZs21j4UyXoPWJ4pMtygRCdo8c")
+      sleep(1000)
+    })
+
+    t.test('getting non-existent posts returns empty list', (t) => {
+      t.plan(1)
+      const result = display(call("get_posts_by", {user_handle: "buffaloBill"}))
+      t.deepEqual(result.value, [])
+    })
+
+    t.test('post must have non-zero length', (t) => {
+      t.plan(1)
+      const result = display(call("post",
+        {message: "", stamp: "12345"}
+      ))
+      t.equal(result.value, undefined)
+    })
+
+    t.test('we can create a new post', (t) => {
+      t.plan(1)
+      const result = display(call("post",
+        {message: "This is a test post", stamp: "12345"}
+      ))
+      t.equal(result.value, "QmWZZxnYwVuBBShQSqK7E8TTjix8bKMaA1nKkiyFhbfxHv")
+      sleep(1000)
+    })
+
+    t.test('we can retrieve posts', (t) => {
+      t.plan(1)
+      const result = display(call("get_posts_by", {user_handle: "buffaloBill"}))
+      t.deepEqual(result.value, [{
+        address: "QmWZZxnYwVuBBShQSqK7E8TTjix8bKMaA1nKkiyFhbfxHv",
+        post: {message: "This is a test post", stamp: "12345"}
+      }])
+    })
+
+    t.test('we can retrieve a single post', (t) => {
+      t.plan(1)
+      const result = display(call("get_post",
+        {address: "QmWZZxnYwVuBBShQSqK7E8TTjix8bKMaA1nKkiyFhbfxHv"}
+      ))
+      t.deepEqual(result.value,
+        {message: "This is a test post", stamp: "12345"}
+      )
+    })
+
+    t.test('retrieving single post will fail if not found', (t) => {
+      t.plan(1)
+      const result = display(call("get_post",
+        {address: "QmWZZxnYwVuBBShQSqK7E8TTjix8bKMaA1nKkiyFhbfbad"}
+      ))
+      t.equal(result.value, undefined)
+
+      stop()
+      // We can consider supporting post modifications later if desirable
+    })
+  })
+  t.end()
+})
+
+runtests.includes('profile') && test('profile', (t) => {
+  Conductor.run(conductorAlice, (stop, conductor) => {
+    alice = new DnaInstance(aliceName, conductor)
+    call = (method, params) => alice.call("coolcats", method, params);
 
     t.test('get the first name of the user which is not set', (t) => {
       t.plan(1)
@@ -180,18 +321,9 @@ Conductor.run(conductorAlice, (stop, conductor) => {
       t.plan(1)
       const result = display(call("get_profile_pic", {}))
       t.equal(result.value, "random other stuff")
-    })
-
-    t.test('make a post', (t) => {
-      t.plan(1)
-      const result = display(call("post",
-        {message: "This is a test message", stamp: "12345"}
-      ))
-      t.equal(result.value, "Qmef7MUqr5ecqZQGDZYAek2gJwiQNyZkAxPv3hNwGidE76")
 
       stop()
     })
-
-    t.end()
   })
+  t.end()
 })

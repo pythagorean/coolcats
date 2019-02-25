@@ -118,7 +118,7 @@ impl Handle {
         hdk::update_entry(Handle::entry(handle)?, old_address)
     }
 
-    fn address(handle: &str) -> ZomeApiResult<Address> {
+    pub fn address(handle: &str) -> ZomeApiResult<Address> {
         hdk::entry_address(&Handle::entry(handle)?)
     }
 
@@ -126,10 +126,12 @@ impl Handle {
         hdk_address_exists(&Handle::address(handle)?)
     }
 
-    // fix this to lookup or check existence of handles not anchors only
     fn list() -> ZomeApiResult<Vec<String>> {
-        let anchors = Anchor::list(HANDLE)?;
-        Ok(anchors.iter().map(|anchor| anchor.get_text().to_string()).collect())
+        Ok(Anchor::list(HANDLE)?
+            .iter()
+            .map(|anchor| anchor.get_text().to_string())
+            .filter(|handle| Handle::exists(handle).unwrap_or(false))
+            .collect())
     }
 }
 
@@ -177,7 +179,9 @@ pub fn use_handle(handle: &str) -> ZomeApiResult<Address> {
     let addrs = links.addresses();
     if !addrs.is_empty() {
         let old_handle_addr = &addrs[0];
-        let new_handle_addr = Handle::update(handle, old_handle_addr)?;
+        let new_handle_addr = Handle::create(handle)?;
+        Anchor::unlink(HANDLE, &get_handle(old_handle_addr)?)?;
+        Handle::update(handle, old_handle_addr)?;
         hdk::remove_link(&AGENT_ADDRESS, old_handle_addr, HANDLE)?;
         hdk::link_entries(&AGENT_ADDRESS, &new_handle_addr, HANDLE)?;
         return Ok(new_handle_addr);
@@ -236,7 +240,6 @@ impl GetHandle {
     }
 }
 
-// not very efficient or anything but should work for testing
 pub fn get_handles() -> ZomeApiResult<Vec<GetHandle>> {
     let mut handles: Vec<GetHandle> = Vec::new();
     for handle in Handle::list()? {

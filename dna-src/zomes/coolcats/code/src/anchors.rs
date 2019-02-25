@@ -69,6 +69,10 @@ impl Anchor {
         create_anchor(&Anchor::new(anchor_type, anchor_text))
     }
 
+    pub fn unlink(anchor_type: &str, anchor_text: &str) -> ZomeApiResult<bool> {
+        unlink_anchor(&Anchor::new(anchor_type, anchor_text))
+    }
+
     pub fn address(anchor_type: &str, anchor_text: &str) -> ZomeApiResult<Address> {
         anchor_address(&Anchor::new(anchor_type, anchor_text))
     }
@@ -180,6 +184,19 @@ fn create_anchor(anchor: &Anchor) -> ZomeApiResult<Address> {
     let anchor_link_addr = AnchorLink::create(&anchor_addr)?;
     hdk::link_entries(&anchor_type_addr, &anchor_link_addr, ANCHOR_LINK)?;
     Ok(anchor_addr)
+}
+
+fn unlink_anchor(anchor: &Anchor) -> ZomeApiResult<bool> {
+    let anchor_entry = anchor.entry();
+    let anchor_addr = hdk::entry_address(&anchor_entry)?;
+    if !hdk_address_exists(&anchor_addr)? {
+        return Ok(false)
+    }
+    let anchor_type_entry = Anchor::new(&anchor.anchor_type, "").entry();
+    let anchor_type_addr = hdk::entry_address(&anchor_type_entry)?;
+    let anchor_link_addr = AnchorLink::create(&anchor_addr)?;
+    hdk::remove_link(&anchor_type_addr, &anchor_link_addr, ANCHOR_LINK)?;
+    Ok(true)
 }
 
 fn anchor_address(anchor: &Anchor) -> ZomeApiResult<Address> {

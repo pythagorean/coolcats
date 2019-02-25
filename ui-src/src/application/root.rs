@@ -309,7 +309,7 @@ impl Component for Root {
                             }
                         } else {
                             let me = self.state.string("me").clone();
-                            self.state.mut_dict("handles").set_string(me, value.to_string());
+                            self.state.mut_dict("handles").set_string(value.to_string(), me);
                             self.state.set_bool("handle_taken".into(), false);
                             self.get_my_handle();
                         }
@@ -387,7 +387,7 @@ impl Component for Root {
 
                     Redux::Follow => {
                         let user_handle = meta;
-                        if !value.is_null() && value == true {
+                        if !value.is_null() && value.as_bool().unwrap() {
                             let follows = self.state.mut_dict("follows");
                             follows.insert(user_handle, true.into());
                             return true;
@@ -396,7 +396,7 @@ impl Component for Root {
 
                     Redux::Unfollow => {
                         let user_handle = meta;
-                        if !value.is_null() && value == true {
+                        if !value.is_null() && value.as_bool().unwrap() {
                             let follows = self.state.mut_dict("follows");
                             follows.remove(&user_handle);
                             return true;

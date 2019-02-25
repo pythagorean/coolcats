@@ -5,7 +5,7 @@
     "scripts": {
         "build": "webpack; cargo +stable web build",
         "start": "webpack; cargo +stable web start",
-        "deploy": "webpack; cargo +stable web deploy"
+        "deploy": "webpack; cargo +stable web deploy; patch -p0 target/deploy/*.js < deploy-js.diff"
     },
     "dependencies": {},
     "devDependencies": {
