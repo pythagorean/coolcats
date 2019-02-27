@@ -17,6 +17,10 @@ use hdk::{
         dna::entry_types::Sharing,
         json::JsonString,
     },
+    holochain_wasm_utils::api_serialization::get_entry::{
+        GetEntryOptions,
+        GetEntryResultType
+    },
 };
 
 use crate::utils::hdk_address_exists;
@@ -137,21 +141,28 @@ impl Handle {
 
 pub fn handle_use_handle(handle: String) -> JsonString {
     match use_handle(&handle) {
-        Ok(address) => json!({ "value": address }).into(),
+        Ok(success) => json!({ "value": success }).into(),
         Err(hdk_err) => json!({ "error": hdk_err }).into(),
     }
 }
 
 pub fn handle_get_handle(address: String) -> JsonString {
     match get_handle(&address.into()) {
-        Ok(handle) => json!({ "value": handle }).into(),
+        Ok(success) => json!({ "value": success }).into(),
+        Err(hdk_err) => json!({ "error": hdk_err }).into(),
+    }
+}
+
+pub fn handle_get_agent(handle: String) -> JsonString {
+    match get_agent(&handle) {
+        Ok(success) => json!({ "value": success }).into(),
         Err(hdk_err) => json!({ "error": hdk_err }).into(),
     }
 }
 
 pub fn handle_get_handles() -> JsonString {
     match get_handles() {
-        Ok(handles) => json!({ "value": handles }).into(),
+        Ok(success) => json!({ "value": success }).into(),
         Err(hdk_err) => json!({ "error": hdk_err }).into(),
     }
 }
@@ -172,14 +183,14 @@ pub fn handle_unfollow(user_handle: String) -> JsonString {
 
 pub fn handle_get_followers(user_handle: String) -> JsonString {
     match get_follow(&user_handle, FOLLOWERS) {
-        Ok(followers) => json!({ "value": followers }).into(),
+        Ok(success) => json!({ "value": success }).into(),
         Err(hdk_err) => json!({ "error": hdk_err }).into(),
     }
 }
 
 pub fn handle_get_following(user_handle: String) -> JsonString {
     match get_follow(&user_handle, FOLLOWING) {
-        Ok(following) => json!({ "value": following }).into(),
+        Ok(success) => json!({ "value": success }).into(),
         Err(hdk_err) => json!({ "error": hdk_err }).into(),
     }
 }
@@ -220,6 +231,31 @@ pub fn get_handle(addr: &Address) -> ZomeApiResult<String> {
         }
     }
     Err(ZomeApiError::ValidationFailed("handle_not_found".into()))
+}
+
+pub fn get_agent(handle: &str) -> ZomeApiResult<Address> {
+    if !Handle::exists(handle)? {
+        return Err(ZomeApiError::ValidationFailed("handle_not_found".into()));
+    }
+    if let GetEntryResultType::Single(result) = hdk::get_entry_result(
+        &Handle::address(handle)?,
+        GetEntryOptions {
+            headers: true,
+            ..Default::default()
+        },
+    )?
+    .result
+    {
+        let source = result
+            .headers
+            .into_iter()
+            .map(|header| header.provenances().first().unwrap().clone().0)
+            .next()
+            .unwrap();
+        return Ok(source);
+    } else {
+        unimplemented!()
+    }
 }
 
 pub fn get_handle_addr(addr: Option<&Address>) -> ZomeApiResult<Address> {

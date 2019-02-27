@@ -65,6 +65,11 @@ define_zome! {
             outputs: |result: JsonString|,
             handler: handles::handle_get_handle
         }
+        get_agent: {
+            inputs: |handle: String|,
+            outputs: |result: JsonString|,
+            handler: handles::handle_get_agent
+        }
         get_handles: {
             inputs: | |,
             outputs: |result: JsonString|,
@@ -135,7 +140,8 @@ define_zome! {
     traits: {
         hc_public [
             create_anchor, anchor_exists, get_anchor, get_anchors,
-            use_handle, get_handle, get_handles, follow, unfollow, get_followers, get_following,
+            use_handle, get_handle, get_agent, get_handles,
+            follow, unfollow, get_followers, get_following,
             app_property, set_first_name, get_first_name, set_profile_pic, get_profile_pic,
             post, get_post, get_posts_by
         ]

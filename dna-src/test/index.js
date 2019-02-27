@@ -7,7 +7,7 @@ test.createStream()
   .pipe(tapSpec())
   .pipe(process.stdout)
 
-var runtests = ["anchors", "properties", "handles", "posts", "profile", "collisions"]
+var runtests = ["anchors", "properties", "handles", "posts", "profile", "collisions", "follows"]
 if (process.env.RUNTEST) {runtests = [process.env.RUNTEST]}
 
 const dnaPath = "./dist/bundle.json"
@@ -183,6 +183,18 @@ runtests.includes('handles') && test('handles', (t) => {
       t.equal(result.error.ValidationFailed, "handle_in_use")
     })
 
+    t.test("get_agent request on non-existent handle returns undefined", (t) => {
+      t.plan(1)
+      const result = display(call("get_agent", {handle: "fooHandle"}))
+      t.equal(result.value, undefined)
+    })
+
+    t.test("we can retrieve agent by handle", (t) => {
+      t.plan(1)
+      const result = display(call("get_agent", {handle: "buffaloBill"}))
+      t.equal(result.value, alice.agentId)
+    })
+
     t.test("we can retrieve list of handles, in single node mode there will be only one", (t) => {
       t.plan(1)
       const result = display(call("get_handles", {}))
@@ -191,7 +203,6 @@ runtests.includes('handles') && test('handles', (t) => {
       )
 
       stop()
-      // We should add agent tests once we can perform them
     })
   })
   t.end()
@@ -390,7 +401,7 @@ runtests.includes('collisions') && scenario3.runTape('collisions',
   t.equal(result.error.ValidationFailed, "handle_in_use")
 })
 
-runtests.includes('follow') && scenario2.runTape('follow',
+runtests.includes('follows') && scenario2.runTape('follows',
   async (t, { alice, bob }) => {
   underline("setup handle for posting")
   var result = display(await alice.callSync("coolcats", "use_handle",
