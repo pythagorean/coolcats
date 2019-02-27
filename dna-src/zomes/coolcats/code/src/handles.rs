@@ -170,6 +170,20 @@ pub fn handle_unfollow(user_handle: String) -> JsonString {
     }
 }
 
+pub fn handle_get_followers(user_handle: String) -> JsonString {
+    match get_follow(&user_handle, FOLLOWERS) {
+        Ok(followers) => json!({ "value": followers }).into(),
+        Err(hdk_err) => json!({ "error": hdk_err }).into(),
+    }
+}
+
+pub fn handle_get_following(user_handle: String) -> JsonString {
+    match get_follow(&user_handle, FOLLOWING) {
+        Ok(following) => json!({ "value": following }).into(),
+        Err(hdk_err) => json!({ "error": hdk_err }).into(),
+    }
+}
+
 // does not implement directory_links yet
 pub fn use_handle(handle: &str) -> ZomeApiResult<Address> {
     if Handle::exists(handle)? {
@@ -249,18 +263,28 @@ pub fn get_handles() -> ZomeApiResult<Vec<GetHandle>> {
     Ok(handles)
 }
 
-pub fn follow(user_handle: &str) -> ZomeApiResult<bool> {
+pub fn follow(user_handle: &str) -> ZomeApiResult<()> {
     let follow_addr = Handle::address(user_handle)?;
     let handle_addr = get_handle_addr(None)?;
     hdk::link_entries(&follow_addr, &handle_addr, FOLLOWERS)?;
     hdk::link_entries(&handle_addr, &follow_addr, FOLLOWING)?;
-    Ok(true)
+    Ok(())
 }
 
-pub fn unfollow(user_handle: &str) -> ZomeApiResult<bool> {
+pub fn unfollow(user_handle: &str) -> ZomeApiResult<()> {
     let follow_addr = Handle::address(user_handle)?;
     let handle_addr = get_handle_addr(None)?;
     hdk::remove_link(&follow_addr, &handle_addr, FOLLOWERS)?;
     hdk::remove_link(&handle_addr, &follow_addr, FOLLOWING)?;
-    Ok(true)
+    Ok(())
+}
+
+pub fn get_follow(user_handle: &str, tag: &str) -> ZomeApiResult<Vec<String>> {
+    let user_addr = Handle::address(user_handle)?;
+    let links = hdk::get_links(&user_addr, tag)?;
+    let mut follow: Vec<String> = Vec::new();
+    for follow_addr in links.addresses() {
+        follow.push(get_handle(&follow_addr)?);
+    }
+    Ok(follow)
 }

@@ -8,8 +8,6 @@ extern crate serde;
 #[macro_use]
 extern crate serde_json;
 
-extern crate boolinator;
-
 mod utils;
 mod anchors;
 mod handles;
@@ -107,6 +105,16 @@ define_zome! {
             outputs: |result: JsonString|,
             handler: handles::handle_unfollow
         }
+        get_followers: {
+            inputs: |user_handle: String|,
+            outputs: |result: JsonString|,
+            handler: handles::handle_get_followers
+        }
+        get_following: {
+            inputs: |user_handle: String|,
+            outputs: |result: JsonString|,
+            handler: handles::handle_get_following
+        }
         post: {
             inputs: |message: String, stamp: String|,
             outputs: |result: JsonString|,
@@ -127,7 +135,7 @@ define_zome! {
     traits: {
         hc_public [
             create_anchor, anchor_exists, get_anchor, get_anchors,
-            use_handle, get_handle, get_handles, follow, unfollow,
+            use_handle, get_handle, get_handles, follow, unfollow, get_followers, get_following,
             app_property, set_first_name, get_first_name, set_profile_pic, get_profile_pic,
             post, get_post, get_posts_by
         ]

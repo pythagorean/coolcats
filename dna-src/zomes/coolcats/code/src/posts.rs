@@ -1,5 +1,4 @@
 use std::convert::TryFrom;
-use boolinator::Boolinator;
 
 use hdk::{
     entry_definition::ValidatingEntryType,
@@ -42,8 +41,13 @@ impl Post {
             },
 
             validation: |post: Post, _ctx: hdk::ValidationData| {
-                (post.message.len() > 0)
-                    .ok_or_else(|| String::from("Empty message"))
+                if post.message.is_empty() {
+                    return Err(String::from("Empty message"));
+                }
+                if post.message.len() > 255 {
+                    return Err(String::from("Message too long"))
+                }
+                Ok(())
             }
         )
     }
@@ -98,7 +102,7 @@ fn get_post(addr: &Address) -> ZomeApiResult<Post> {
     if let Some(entry) = hdk::get_entry(addr)? {
         if let Entry::App(entry_type, value) = entry {
             if entry_type.to_string() == POST {
-                return Ok(Post::try_from(value)?)
+                return Ok(Post::try_from(value)?);
             }
         }
     }

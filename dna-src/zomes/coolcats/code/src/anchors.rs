@@ -190,7 +190,7 @@ fn unlink_anchor(anchor: &Anchor) -> ZomeApiResult<bool> {
     let anchor_entry = anchor.entry();
     let anchor_addr = hdk::entry_address(&anchor_entry)?;
     if !hdk_address_exists(&anchor_addr)? {
-        return Ok(false)
+        return Ok(false);
     }
     let anchor_type_entry = Anchor::new(&anchor.anchor_type, "").entry();
     let anchor_type_addr = hdk::entry_address(&anchor_type_entry)?;

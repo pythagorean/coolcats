@@ -1,4 +1,4 @@
-const { Config, Conductor, DnaInstance } = require('@holochain/holochain-nodejs')
+const { Config, Conductor, DnaInstance, Scenario } = require('@holochain/holochain-nodejs')
 
 const test = require('tape')
 const tapSpec = require('tap-spec')
@@ -7,16 +7,35 @@ test.createStream()
   .pipe(tapSpec())
   .pipe(process.stdout)
 
-const runtests = ["anchors", "properties", "handles", "posts", "profile"]
+var runtests = ["anchors", "properties", "handles", "posts", "profile", "collisions"]
+if (process.env.RUNTEST) {runtests = [process.env.RUNTEST]}
 
 const dnaPath = "./dist/bundle.json"
 const aliceName = "alice"
 const bobName = "bob"
+const carolName = "carol"
 
 const dna = Config.dna(dnaPath)
+
 const agentAlice = Config.agent(aliceName)
 const instanceAlice = Config.instance(agentAlice, dna)
 const conductorAlice = Config.conductor([instanceAlice])
+
+const agentBob = Config.agent(bobName)
+const instanceBob = Config.instance(agentBob, dna)
+
+const agentCarol = Config.agent(carolName)
+const instanceCarol = Config.instance(agentCarol, dna)
+
+const scenario1 = new Scenario([instanceAlice])
+const scenario2 = new Scenario([instanceAlice, instanceBob])
+const scenario3 = new Scenario([instanceAlice, instanceBob, instanceCarol])
+
+const colors = require('colors')
+
+function underline(text) {
+  console.log(text.underline)
+}
 
 function display(result) {
   console.dir(result, {depth: null, colors: true})
@@ -102,13 +121,13 @@ runtests.includes('properties') && test('properties', (t) => {
     t.test('we can obtain the dna address', (t) => {
       t.plan(1)
       const result = display(call("app_property", {key: "DNA_Address"}))
-      t.equal(result.error, undefined)
+      t.equal(result.value, alice.dnaAddress)
     })
 
     t.test('we can obtain the agent address', (t) => {
       t.plan(1)
       const result = display(call("app_property", {key: "Agent_Address"}))
-      t.equal(result.value, "alice-----------------------------------------------------------------------------AAAIuDJb4M")
+      t.equal(result.value, alice.agentId)
     })
 
     t.test('test requesting invalid app property', (t) => {
@@ -200,6 +219,14 @@ runtests.includes('posts') && test('posts', (t) => {
       t.plan(1)
       const result = display(call("post",
         {message: "", stamp: "12345"}
+      ))
+      t.equal(result.value, undefined)
+    })
+
+    t.test('post must have length < 256 chars', (t) => {
+      t.plan(1)
+      const result = display(call("post",
+        {message: "1234567890".repeat(26), stamp: "12345"}
       ))
       t.equal(result.value, undefined)
     })
@@ -326,4 +353,95 @@ runtests.includes('profile') && test('profile', (t) => {
     })
   })
   t.end()
+})
+
+Scenario.setTape(test)
+
+runtests.includes('collisions') && scenario3.runTape('collisions',
+  async (t, { alice, bob, carol }) => {
+  underline('Bob creates a new handle the first time he uses coolcats')
+  var result = display(await bob.callSync("coolcats", "use_handle",
+    {handle: "bob"}
+  ))
+  t.equal(result.value, "QmQ19PsiG92X1Jc2zjV6CTE68CNY1X1W4WUDGjBnCE5kze")
+
+  underline("Alice can retrieve a list of all handles")
+  var result = display(alice.call("coolcats", "get_handles", {}))
+  t.equal(result.value.length, 1)
+
+  underline("Bob can retrieve a list of all handles")
+  var result = display(bob.call("coolcats", "get_handles", {}))
+  t.equal(result.value.length, 1)
+
+  underline("Carol can retrieve a list of all handles")
+  var result = display(carol.call("coolcats", "get_handles", {}))
+  t.equal(result.value.length, 1)
+
+  underline("Carol creates a new handle 'Archer' the first time she uses coolcats")
+  var result = display(await carol.callSync("coolcats", "use_handle",
+    {handle: "Archer"}
+  ))
+  t.equal(result.value, "QmQz48TQHbpqnF4MEVxwTXmpzQs1kFuFkMDQKc3qMBPTYx")
+
+  underline("Alice tries to use handle 'Archer' which is already taken")
+  var result = display(await alice.callSync("coolcats", "use_handle",
+    {handle: "Archer"}
+  ))
+  t.equal(result.error.ValidationFailed, "handle_in_use")
+})
+
+runtests.includes('follow') && scenario2.runTape('follow',
+  async (t, { alice, bob }) => {
+  underline("setup handle for posting")
+  var result = display(await alice.callSync("coolcats", "use_handle",
+    {handle: "alice"}
+  ))
+  t.equal(result.value, "QmNUHXyeperNGU2FBo5YxBZ5TvZLtgWBJQwaJ3CzmxJL3g")
+
+  underline("we can retrieve a list of all handles")
+  var result = display(alice.call("coolcats", "get_handles", {}))
+  t.equal(result.value.length, 1)
+
+  underline("create a new post")
+  var result = display(await alice.callSync("coolcats", "post",
+    {message: "hello world", stamp: "12345"}
+  ))
+  t.equal(result.value, "Qmf3ddxyxXFjHpCCQqGg187mytBLBWa2AZNofYkLPLP4Fg")
+
+  underline("setup handle for posting")
+  var result = display(await bob.callSync("coolcats", "use_handle",
+    {handle: "bob"}
+  ))
+  t.equal(result.value, "QmQ19PsiG92X1Jc2zjV6CTE68CNY1X1W4WUDGjBnCE5kze")
+
+  underline("There are no followers for Bob yet")
+  var result = display(bob.call("coolcats", "get_followers",
+    {user_handle: "bob"}
+  ))
+  t.deepEqual(result.value, [])
+
+  underline("follow Alice")
+  var result = display(await bob.callSync("coolcats", "follow",
+    {user_handle: "alice"}
+  ))
+  t.equal(result.value, null)
+
+  underline("retrieve Alice's posts")
+  var result = display(bob.call("coolcats", "get_posts_by",
+    {user_handle: "alice"}
+  ))
+  t.deepEqual(result.value, [{
+    address: "Qmf3ddxyxXFjHpCCQqGg187mytBLBWa2AZNofYkLPLP4Fg",
+    post: {message: "hello world", stamp: "12345"}
+  }])
+
+  underline("we can retrieve a list of all handles")
+  var result = display(alice.call("coolcats", "get_handles", {}))
+  t.equal(result.value.length, 2)
+
+  underline("we can retrieve a list of people Bob is following")
+  var result = display(bob.call("coolcats", "get_following",
+    {user_handle: "bob"}
+  ))
+  t.deepEqual(result.value, ["alice"])
 })
