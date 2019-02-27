@@ -1,4 +1,9 @@
-const { Config, Conductor, DnaInstance, Scenario } = require('@holochain/holochain-nodejs')
+const {
+  Config,
+  Conductor,
+  DnaInstance,
+  Scenario
+} = require('@holochain/holochain-nodejs')
 
 const test = require('tape')
 const tapSpec = require('tap-spec')
@@ -10,7 +15,9 @@ test.createStream()
 var runtests = [
   "anchors", "properties", "handles", "posts", "hashtags", "profile", "collisions", "follows"
 ]
-if (process.env.RUNTEST) {runtests = [process.env.RUNTEST]}
+if (process.env.RUNTEST) {
+  runtests = [process.env.RUNTEST]
+}
 
 const dnaPath = "./dist/bundle.json"
 const aliceName = "alice"
@@ -40,14 +47,17 @@ function underline(text) {
 }
 
 function display(result) {
-  console.dir(result, {depth: null, colors: true})
+  console.dir(result, {
+    depth: null,
+    colors: true
+  })
   return result
 }
 
 function sleep(milliseconds) {
   var start = new Date().getTime();
   for (var i = 0; i < 1e7; i++) {
-    if ((new Date().getTime() - start) > milliseconds){
+    if ((new Date().getTime() - start) > milliseconds) {
       break;
     }
   }
@@ -60,22 +70,34 @@ runtests.includes('anchors') && test('anchors', (t) => {
 
     t.test('create and get anchors', (t) => {
       t.plan(1)
-      const addr = call("create_anchor", {anchor:
-        {anchor_type: "testing", anchor_text: "1-2-3"}
+      const addr = call("create_anchor", {
+        anchor: {
+          anchor_type: "testing",
+          anchor_text: "1-2-3"
+        }
       })
-      const result = display(call("get_anchor", {address: addr.value}))
-      t.deepEqual(result.value,
-        {anchor_type: "testing", anchor_text: "1-2-3"}
-      )
+      const result = display(call("get_anchor", {
+        address: addr.value
+      }))
+      t.deepEqual(result.value, {
+        anchor_type: "testing",
+        anchor_text: "1-2-3"
+      })
     })
 
     t.test('check that anchor exists works', (t) => {
       t.plan(2)
-      const result1 = display(call("anchor_exists", {anchor:
-        {anchor_type: "testing", anchor_text: "1-2-3"}
+      const result1 = display(call("anchor_exists", {
+        anchor: {
+          anchor_type: "testing",
+          anchor_text: "1-2-3"
+        }
       }))
-      const result2 = display(call("anchor_exists", {anchor:
-        {anchor_type: "testing", anchor_text: "3-2-1"}
+      const result2 = display(call("anchor_exists", {
+        anchor: {
+          anchor_type: "testing",
+          anchor_text: "3-2-1"
+        }
       }))
       t.equal(result1.value, true)
       t.equal(result2.value, false)
@@ -83,12 +105,13 @@ runtests.includes('anchors') && test('anchors', (t) => {
 
     t.test('get anchors from links', (t) => {
       t.plan(1)
-      const result = display(call("get_anchors",
-        {anchor_type: "testing"}
-      ))
-      t.deepEqual(result.value, [
-        {anchor_type: "testing", anchor_text: "1-2-3"}
-      ])
+      const result = display(call("get_anchors", {
+        anchor_type: "testing"
+      }))
+      t.deepEqual(result.value, [{
+        anchor_type: "testing",
+        anchor_text: "1-2-3"
+      }])
 
       stop()
     })
@@ -103,38 +126,50 @@ runtests.includes('properties') && test('properties', (t) => {
 
     t.test('test for unset agent handle', (t) => {
       t.plan(1)
-      const result = display(call("app_property", {key: "Agent_Handle"}))
+      const result = display(call("app_property", {
+        key: "Agent_Handle"
+      }))
       t.equal(result.value, undefined)
     })
 
     t.test('we can create a new handle', (t) => {
       t.plan(1)
-      const result = display(call("use_handle", {handle: "buffaloBill"}))
+      const result = display(call("use_handle", {
+        handle: "buffaloBill"
+      }))
       t.equal(result.value, "QmUXkCgPqXcniV2JvRLeNZs21j4UyXoPWJ4pMtygRCdo8c")
       sleep(1000)
     })
 
     t.test('test for now set agent handle', (t) => {
       t.plan(1)
-      const result = display(call("app_property", {key: "Agent_Handle"}))
+      const result = display(call("app_property", {
+        key: "Agent_Handle"
+      }))
       t.equal(result.value, "buffaloBill")
     })
 
     t.test('we can obtain the dna address', (t) => {
       t.plan(1)
-      const result = display(call("app_property", {key: "DNA_Address"}))
+      const result = display(call("app_property", {
+        key: "DNA_Address"
+      }))
       t.equal(result.value, alice.dnaAddress)
     })
 
     t.test('we can obtain the agent address', (t) => {
       t.plan(1)
-      const result = display(call("app_property", {key: "Agent_Address"}))
+      const result = display(call("app_property", {
+        key: "Agent_Address"
+      }))
       t.equal(result.value, alice.agentId)
     })
 
     t.test('test requesting invalid app property', (t) => {
       t.plan(1)
-      const result = display(call("app_property", {key: "garbage"}))
+      const result = display(call("app_property", {
+        key: "garbage"
+      }))
       t.equal(result.error.ValidationFailed, "No App Property with key: garbage")
 
       stop()
@@ -151,49 +186,59 @@ runtests.includes('handles') && test('handles', (t) => {
 
     t.test('test that handle is not set', (t) => {
       t.plan(1)
-      const result = display(call("get_handle",
-        {address: "QmUXkCgPqXcniV2JvRLeNZs21j4UyXoPWJ4pMtygRCdo8c"}
-      ))
+      const result = display(call("get_handle", {
+        address: "QmUXkCgPqXcniV2JvRLeNZs21j4UyXoPWJ4pMtygRCdo8c"
+      }))
       t.equal(result.value, undefined)
     })
 
     t.test("we can create a new handle", (t) => {
       t.plan(1)
-      const result = display(call("use_handle", {handle: "buffaloBill"}))
+      const result = display(call("use_handle", {
+        handle: "buffaloBill"
+      }))
       t.equal(result.value, "QmUXkCgPqXcniV2JvRLeNZs21j4UyXoPWJ4pMtygRCdo8c")
       sleep(1000)
     })
 
     t.test('we can retrieve the new handle', (t) => {
       t.plan(1)
-      const result = display(call("get_handle",
-        {address: "QmUXkCgPqXcniV2JvRLeNZs21j4UyXoPWJ4pMtygRCdo8c"}
-      ))
+      const result = display(call("get_handle", {
+        address: "QmUXkCgPqXcniV2JvRLeNZs21j4UyXoPWJ4pMtygRCdo8c"
+      }))
       t.equal(result.value, "buffaloBill")
     })
 
     t.test("we can update our handle to a unique handle", (t) => {
       t.plan(1)
-      const result = display(call("use_handle", {handle: "phil"}))
+      const result = display(call("use_handle", {
+        handle: "phil"
+      }))
       t.equal(result.value, "QmZeUu4dzkJpcZLbbn4pTN8n39CZncmQoRAWKjCuKYazN2")
       sleep(1000)
     })
 
     t.test("trying to use a handle already in use returns error", (t) => {
       t.plan(1)
-      const result = display(call("use_handle", {handle: "phil"}))
+      const result = display(call("use_handle", {
+        handle: "phil"
+      }))
       t.equal(result.error.ValidationFailed, "handle_in_use")
     })
 
     t.test("get_agent request on non-existent handle returns undefined", (t) => {
       t.plan(1)
-      const result = display(call("get_agent", {handle: "fooHandle"}))
+      const result = display(call("get_agent", {
+        handle: "fooHandle"
+      }))
       t.equal(result.value, undefined)
     })
 
     t.test("we can retrieve agent by handle", (t) => {
       t.plan(1)
-      const result = display(call("get_agent", {handle: "buffaloBill"}))
+      const result = display(call("get_agent", {
+        handle: "buffaloBill"
+      }))
       t.equal(result.value, alice.agentId)
     })
 
@@ -201,7 +246,10 @@ runtests.includes('handles') && test('handles', (t) => {
       t.plan(1)
       const result = display(call("get_handles", {}))
       t.deepEqual(result.value,
-        [{handle: "phil", address: "QmZeUu4dzkJpcZLbbn4pTN8n39CZncmQoRAWKjCuKYazN2"}]
+        [{
+          handle: "phil",
+          address: "QmZeUu4dzkJpcZLbbn4pTN8n39CZncmQoRAWKjCuKYazN2"
+        }]
       )
 
       stop()
@@ -217,69 +265,84 @@ runtests.includes('posts') && test('posts', (t) => {
 
     t.test("setup handle for posting", (t) => {
       t.plan(1)
-      const result = display(call("use_handle", {handle: "buffaloBill"}))
+      const result = display(call("use_handle", {
+        handle: "buffaloBill"
+      }))
       t.equal(result.value, "QmUXkCgPqXcniV2JvRLeNZs21j4UyXoPWJ4pMtygRCdo8c")
       sleep(1000)
     })
 
     t.test('getting non-existent posts returns empty list', (t) => {
       t.plan(1)
-      const result = display(call("get_posts_by", {user_handle: "buffaloBill"}))
+      const result = display(call("get_posts_by", {
+        user_handle: "buffaloBill"
+      }))
       t.deepEqual(result.value, [])
     })
 
     t.test('post must have non-zero length', (t) => {
       t.plan(1)
-      const result = display(call("post",
-        {message: "", stamp: "12345"}
-      ))
+      const result = display(call("post", {
+        message: "",
+        stamp: "12345"
+      }))
       t.equal(result.value, undefined)
     })
 
     t.test('post must have length < 256 chars', (t) => {
       t.plan(1)
-      const result = display(call("post",
-        {message: "1234567890".repeat(26), stamp: "12345"}
-      ))
+      const result = display(call("post", {
+        message: "1234567890".repeat(26),
+        stamp: "12345"
+      }))
       t.equal(result.value, undefined)
     })
 
     t.test('we can create a new post', (t) => {
       t.plan(1)
-      const result = display(call("post",
-        {message: "This is a test post", stamp: "12345"}
-      ))
+      const result = display(call("post", {
+        message: "This is a test post",
+        stamp: "12345"
+      }))
       t.equal(result.value, "QmWZZxnYwVuBBShQSqK7E8TTjix8bKMaA1nKkiyFhbfxHv")
       sleep(1000)
     })
 
     t.test('we can retrieve posts', (t) => {
       t.plan(1)
-      const result = display(call("get_posts_by", {user_handle: "buffaloBill"}))
+      const result = display(call("get_posts_by", {
+        user_handle: "buffaloBill"
+      }))
       t.deepEqual(result.value, [{
         address: "QmWZZxnYwVuBBShQSqK7E8TTjix8bKMaA1nKkiyFhbfxHv",
-        post: {message: "This is a test post", stamp: "12345"},
+        post: {
+          message: "This is a test post",
+          stamp: "12345"
+        },
         author: "buffaloBill"
       }])
     })
 
     t.test('we can retrieve a single post', (t) => {
       t.plan(1)
-      const result = display(call("get_post",
-        {address: "QmWZZxnYwVuBBShQSqK7E8TTjix8bKMaA1nKkiyFhbfxHv"}
-      ))
+      const result = display(call("get_post", {
+        address: "QmWZZxnYwVuBBShQSqK7E8TTjix8bKMaA1nKkiyFhbfxHv"
+      }))
       t.deepEqual(result.value, {
         address: "QmWZZxnYwVuBBShQSqK7E8TTjix8bKMaA1nKkiyFhbfxHv",
-        post: {message: "This is a test post", stamp: "12345"},
+        post: {
+          message: "This is a test post",
+          stamp: "12345"
+        },
         author: "buffaloBill"
       })
     })
 
     t.test('retrieving single post will fail if not found', (t) => {
       t.plan(1)
-      const result = display(call("get_post",
-        {address: "QmWZZxnYwVuBBShQSqK7E8TTjix8bKMaA1nKkiyFhbfbad"}
-      ))
+      const result = display(call("get_post", {
+        address: "QmWZZxnYwVuBBShQSqK7E8TTjix8bKMaA1nKkiyFhbfbad"
+      }))
       t.equal(result.value, undefined)
 
       stop()
@@ -296,26 +359,34 @@ runtests.includes('hashtags') && test('hashtags', (t) => {
 
     t.test('a handle is setup correctly', (t) => {
       t.plan(1)
-      const result = display(call("use_handle", {handle: "hashmasterBill"}))
+      const result = display(call("use_handle", {
+        handle: "hashmasterBill"
+      }))
       t.equal(result.value, "QmWWgqWEyVpNY2qcP3S1MJrmDUySeJr1mSH146VcMTLL6p")
       sleep(1000)
     })
 
     t.test("a message with a hashtag is successfully created", (t) => {
       t.plan(1)
-      const result = display(call("post",
-        {message: "here is a test post with a #hashtag", stamp: "12345"}
-      ))
+      const result = display(call("post", {
+        message: "here is a test post with a #hashtag",
+        stamp: "12345"
+      }))
       t.equal(result.value, "Qmc91z3qNcyAFu5boQXZbTkjm27gqLXQxvaq9iPj6LyWwW")
       sleep(1000)
     })
 
     t.test("given a hashtag, a post containing that hashtag is returned", (t) => {
       t.plan(1)
-      const result = display(call("get_posts_with_hashtag", {hashtag: "#hashtag"}))
+      const result = display(call("get_posts_with_hashtag", {
+        hashtag: "#hashtag"
+      }))
       t.deepEqual(result.value, [{
         address: "Qmc91z3qNcyAFu5boQXZbTkjm27gqLXQxvaq9iPj6LyWwW",
-        post: {message: "here is a test post with a #hashtag", stamp: "12345"},
+        post: {
+          message: "here is a test post with a #hashtag",
+          stamp: "12345"
+        },
         author: "hashmasterBill"
       }])
 
@@ -338,9 +409,9 @@ runtests.includes('profile') && test('profile', (t) => {
 
     t.test('set the first name of the user', (t) => {
       t.plan(1)
-      const result = display(call("set_first_name",
-        {name: aliceName}
-      ))
+      const result = display(call("set_first_name", {
+        name: aliceName
+      }))
       t.equal(result.value, aliceName)
       sleep(1000)
     })
@@ -353,9 +424,9 @@ runtests.includes('profile') && test('profile', (t) => {
 
     t.test('reset the first name of the user', (t) => {
       t.plan(1)
-      const result = display(call("set_first_name",
-        {name: bobName}
-      ))
+      const result = display(call("set_first_name", {
+        name: bobName
+      }))
       t.equal(result.value, bobName)
       sleep(1000)
     })
@@ -374,9 +445,9 @@ runtests.includes('profile') && test('profile', (t) => {
 
     t.test('set the profile_pic of the user', (t) => {
       t.plan(1)
-      const result = display(call("set_profile_pic",
-        {dataurl: "random stuff for now"}
-      ))
+      const result = display(call("set_profile_pic", {
+        dataurl: "random stuff for now"
+      }))
       t.equal(result.value, "random stuff for now")
       sleep(1000)
     })
@@ -389,9 +460,9 @@ runtests.includes('profile') && test('profile', (t) => {
 
     t.test('reset the profile_pic of the user', (t) => {
       t.plan(1)
-      const result = display(call("set_profile_pic",
-        {dataurl: "random other stuff"}
-      ))
+      const result = display(call("set_profile_pic", {
+        dataurl: "random other stuff"
+      }))
       t.equal(result.value, "random other stuff")
       sleep(1000)
     })
@@ -409,92 +480,109 @@ runtests.includes('profile') && test('profile', (t) => {
 
 Scenario.setTape(test)
 
-runtests.includes('collisions') && scenario3.runTape('collisions',
-  async (t, { alice, bob, carol }) => {
-  underline('Bob creates a new handle the first time he uses coolcats')
-  var result = display(await bob.callSync("coolcats", "use_handle",
-    {handle: "bob"}
-  ))
-  t.equal(result.value, "QmQ19PsiG92X1Jc2zjV6CTE68CNY1X1W4WUDGjBnCE5kze")
+runtests.includes('collisions') && scenario3.runTape('collisions', async (t, {
+  alice,
+  bob,
+  carol
+}) => {
+  try {
+    underline('Bob creates a new handle the first time he uses coolcats')
+    var result = display(await bob.callSync("coolcats", "use_handle", {
+      handle: "bob"
+    }))
+    t.equal(result.value, "QmQ19PsiG92X1Jc2zjV6CTE68CNY1X1W4WUDGjBnCE5kze")
 
-  underline("Alice can retrieve a list of all handles")
-  var result = display(alice.call("coolcats", "get_handles", {}))
-  t.equal(result.value.length, 1)
+    underline("Alice can retrieve a list of all handles")
+    var result = display(alice.call("coolcats", "get_handles", {}))
+    t.equal(result.value.length, 1)
 
-  underline("Bob can retrieve a list of all handles")
-  var result = display(bob.call("coolcats", "get_handles", {}))
-  t.equal(result.value.length, 1)
+    underline("Bob can retrieve a list of all handles")
+    var result = display(bob.call("coolcats", "get_handles", {}))
+    t.equal(result.value.length, 1)
 
-  underline("Carol can retrieve a list of all handles")
-  var result = display(carol.call("coolcats", "get_handles", {}))
-  t.equal(result.value.length, 1)
+    underline("Carol can retrieve a list of all handles")
+    var result = display(carol.call("coolcats", "get_handles", {}))
+    t.equal(result.value.length, 1)
 
-  underline("Carol creates a new handle 'Archer' the first time she uses coolcats")
-  var result = display(await carol.callSync("coolcats", "use_handle",
-    {handle: "Archer"}
-  ))
-  t.equal(result.value, "QmQz48TQHbpqnF4MEVxwTXmpzQs1kFuFkMDQKc3qMBPTYx")
+    underline("Carol creates a new handle 'Archer' the first time she uses coolcats")
+    var result = display(await carol.callSync("coolcats", "use_handle", {
+      handle: "Archer"
+    }))
+    t.equal(result.value, "QmQz48TQHbpqnF4MEVxwTXmpzQs1kFuFkMDQKc3qMBPTYx")
 
-  underline("Alice tries to use handle 'Archer' which is already taken")
-  var result = display(await alice.callSync("coolcats", "use_handle",
-    {handle: "Archer"}
-  ))
-  t.equal(result.error.ValidationFailed, "handle_in_use")
+    underline("Alice tries to use handle 'Archer' which is already taken")
+    var result = display(await alice.callSync("coolcats", "use_handle", {
+      handle: "Archer"
+    }))
+    t.equal(result.error.ValidationFailed, "handle_in_use")
+  } catch (err) {
+    t.fail(err.message)
+  }
 })
 
-runtests.includes('follows') && scenario2.runTape('follows',
-  async (t, { alice, bob }) => {
-  underline("setup handle for posting")
-  var result = display(await alice.callSync("coolcats", "use_handle",
-    {handle: "alice"}
-  ))
-  t.equal(result.value, "QmNUHXyeperNGU2FBo5YxBZ5TvZLtgWBJQwaJ3CzmxJL3g")
+runtests.includes('follows') && scenario2.runTape('follows', async (t, {
+  alice,
+  bob
+}) => {
+  try {
+    underline("setup handle for posting")
+    var result = display(await alice.callSync("coolcats", "use_handle", {
+      handle: "alice"
+    }))
+    t.equal(result.value, "QmNUHXyeperNGU2FBo5YxBZ5TvZLtgWBJQwaJ3CzmxJL3g")
 
-  underline("we can retrieve a list of all handles")
-  var result = display(alice.call("coolcats", "get_handles", {}))
-  t.equal(result.value.length, 1)
+    underline("we can retrieve a list of all handles")
+    var result = display(alice.call("coolcats", "get_handles", {}))
+    t.equal(result.value.length, 1)
 
-  underline("create a new post")
-  var result = display(await alice.callSync("coolcats", "post",
-    {message: "hello world", stamp: "12345"}
-  ))
-  t.equal(result.value, "Qmf3ddxyxXFjHpCCQqGg187mytBLBWa2AZNofYkLPLP4Fg")
+    underline("create a new post")
+    var result = display(await alice.callSync("coolcats", "post", {
+      message: "hello world",
+      stamp: "12345"
+    }))
+    t.equal(result.value, "Qmf3ddxyxXFjHpCCQqGg187mytBLBWa2AZNofYkLPLP4Fg")
 
-  underline("setup handle for posting")
-  var result = display(await bob.callSync("coolcats", "use_handle",
-    {handle: "bob"}
-  ))
-  t.equal(result.value, "QmQ19PsiG92X1Jc2zjV6CTE68CNY1X1W4WUDGjBnCE5kze")
+    underline("setup handle for posting")
+    var result = display(await bob.callSync("coolcats", "use_handle", {
+      handle: "bob"
+    }))
+    t.equal(result.value, "QmQ19PsiG92X1Jc2zjV6CTE68CNY1X1W4WUDGjBnCE5kze")
 
-  underline("There are no followers for Bob yet")
-  var result = display(bob.call("coolcats", "get_followers",
-    {user_handle: "bob"}
-  ))
-  t.deepEqual(result.value, [])
+    underline("There are no followers for Bob yet")
+    var result = display(bob.call("coolcats", "get_followers", {
+      user_handle: "bob"
+    }))
+    t.deepEqual(result.value, [])
 
-  underline("follow Alice")
-  var result = display(await bob.callSync("coolcats", "follow",
-    {user_handle: "alice"}
-  ))
-  t.equal(result.value, null)
+    underline("follow Alice")
+    var result = display(await bob.callSync("coolcats", "follow", {
+      user_handle: "alice"
+    }))
+    t.equal(result.value, null)
 
-  underline("retrieve Alice's posts")
-  var result = display(bob.call("coolcats", "get_posts_by",
-    {user_handle: "alice"}
-  ))
-  t.deepEqual(result.value, [{
-    address: "Qmf3ddxyxXFjHpCCQqGg187mytBLBWa2AZNofYkLPLP4Fg",
-    post: {message: "hello world", stamp: "12345"},
-    author: "alice"
-  }])
+    underline("retrieve Alice's posts")
+    var result = display(bob.call("coolcats", "get_posts_by", {
+      user_handle: "alice"
+    }))
+    t.deepEqual(result.value, [{
+      address: "Qmf3ddxyxXFjHpCCQqGg187mytBLBWa2AZNofYkLPLP4Fg",
+      post: {
+        message: "hello world",
+        stamp: "12345"
+      },
+      author: "alice"
+    }])
 
-  underline("we can retrieve a list of all handles")
-  var result = display(alice.call("coolcats", "get_handles", {}))
-  t.equal(result.value.length, 2)
+    underline("we can retrieve a list of all handles")
+    var result = display(alice.call("coolcats", "get_handles", {}))
+    t.equal(result.value.length, 2)
 
-  underline("we can retrieve a list of people Bob is following")
-  var result = display(bob.call("coolcats", "get_following",
-    {user_handle: "bob"}
-  ))
-  t.deepEqual(result.value, ["alice"])
+    underline("we can retrieve a list of people Bob is following")
+    var result = display(bob.call("coolcats", "get_following", {
+      user_handle: "bob"
+    }))
+    t.deepEqual(result.value, ["alice"])
+  } catch (err) {
+    t.fail(err.message)
+  }
 })
