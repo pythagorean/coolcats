@@ -23,9 +23,11 @@ use hdk::{
     },
 };
 
-use crate::utils::hdk_address_exists;
-use crate::anchors::Anchor;
-use crate::posts::POST;
+use crate::{
+    utils::hdk_address_exists,
+    anchors::Anchor,
+    posts::POST,
+};
 
 pub const HANDLE: &str = "handle";
 pub struct Handle;
@@ -240,19 +242,20 @@ pub fn get_agent(handle: &str) -> ZomeApiResult<Address> {
     if let GetEntryResultType::Single(result) = hdk::get_entry_result(
         &Handle::address(handle)?,
         GetEntryOptions {
+            entry: false,
             headers: true,
             ..Default::default()
         },
     )?
     .result
     {
-        let source = result
+        let agent = result
             .headers
             .into_iter()
             .map(|header| header.provenances().first().unwrap().clone().0)
             .next()
             .unwrap();
-        return Ok(source);
+        return Ok(agent);
     } else {
         unimplemented!()
     }

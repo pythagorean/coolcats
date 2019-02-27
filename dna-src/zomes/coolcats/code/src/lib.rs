@@ -135,6 +135,11 @@ define_zome! {
             outputs: |result: JsonString|,
             handler: posts::handle_get_posts_by
         }
+        get_posts_with_hashtag: {
+            inputs: |hashtag: String|,
+            outputs: |result: JsonString|,
+            handler: posts::handle_get_posts_with_hashtag
+        }
     ]
 
     traits: {
@@ -143,7 +148,7 @@ define_zome! {
             use_handle, get_handle, get_agent, get_handles,
             follow, unfollow, get_followers, get_following,
             app_property, set_first_name, get_first_name, set_profile_pic, get_profile_pic,
-            post, get_post, get_posts_by
+            post, get_post, get_posts_by, get_posts_with_hashtag
         ]
     }
 }

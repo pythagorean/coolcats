@@ -7,7 +7,9 @@ test.createStream()
   .pipe(tapSpec())
   .pipe(process.stdout)
 
-var runtests = ["anchors", "properties", "handles", "posts", "profile", "collisions", "follows"]
+var runtests = [
+  "anchors", "properties", "handles", "posts", "hashtags", "profile", "collisions", "follows"
+]
 if (process.env.RUNTEST) {runtests = [process.env.RUNTEST]}
 
 const dnaPath = "./dist/bundle.json"
@@ -256,7 +258,8 @@ runtests.includes('posts') && test('posts', (t) => {
       const result = display(call("get_posts_by", {user_handle: "buffaloBill"}))
       t.deepEqual(result.value, [{
         address: "QmWZZxnYwVuBBShQSqK7E8TTjix8bKMaA1nKkiyFhbfxHv",
-        post: {message: "This is a test post", stamp: "12345"}
+        post: {message: "This is a test post", stamp: "12345"},
+        author: "buffaloBill"
       }])
     })
 
@@ -265,9 +268,11 @@ runtests.includes('posts') && test('posts', (t) => {
       const result = display(call("get_post",
         {address: "QmWZZxnYwVuBBShQSqK7E8TTjix8bKMaA1nKkiyFhbfxHv"}
       ))
-      t.deepEqual(result.value,
-        {message: "This is a test post", stamp: "12345"}
-      )
+      t.deepEqual(result.value, {
+        address: "QmWZZxnYwVuBBShQSqK7E8TTjix8bKMaA1nKkiyFhbfxHv",
+        post: {message: "This is a test post", stamp: "12345"},
+        author: "buffaloBill"
+      })
     })
 
     t.test('retrieving single post will fail if not found', (t) => {
@@ -279,6 +284,42 @@ runtests.includes('posts') && test('posts', (t) => {
 
       stop()
       // We can consider supporting post modifications later if desirable
+    })
+  })
+  t.end()
+})
+
+runtests.includes('hashtags') && test('hashtags', (t) => {
+  Conductor.run(conductorAlice, (stop, conductor) => {
+    alice = new DnaInstance(aliceName, conductor)
+    call = (method, params) => alice.call("coolcats", method, params);
+
+    t.test('a handle is setup correctly', (t) => {
+      t.plan(1)
+      const result = display(call("use_handle", {handle: "hashmasterBill"}))
+      t.equal(result.value, "QmWWgqWEyVpNY2qcP3S1MJrmDUySeJr1mSH146VcMTLL6p")
+      sleep(1000)
+    })
+
+    t.test("a message with a hashtag is successfully created", (t) => {
+      t.plan(1)
+      const result = display(call("post",
+        {message: "here is a test post with a #hashtag", stamp: "12345"}
+      ))
+      t.equal(result.value, "Qmc91z3qNcyAFu5boQXZbTkjm27gqLXQxvaq9iPj6LyWwW")
+      sleep(1000)
+    })
+
+    t.test("given a hashtag, a post containing that hashtag is returned", (t) => {
+      t.plan(1)
+      const result = display(call("get_posts_with_hashtag", {hashtag: "#hashtag"}))
+      t.deepEqual(result.value, [{
+        address: "Qmc91z3qNcyAFu5boQXZbTkjm27gqLXQxvaq9iPj6LyWwW",
+        post: {message: "here is a test post with a #hashtag", stamp: "12345"},
+        author: "hashmasterBill"
+      }])
+
+      stop()
     })
   })
   t.end()
@@ -443,7 +484,8 @@ runtests.includes('follows') && scenario2.runTape('follows',
   ))
   t.deepEqual(result.value, [{
     address: "Qmf3ddxyxXFjHpCCQqGg187mytBLBWa2AZNofYkLPLP4Fg",
-    post: {message: "hello world", stamp: "12345"}
+    post: {message: "hello world", stamp: "12345"},
+    author: "alice"
   }])
 
   underline("we can retrieve a list of all handles")

@@ -27,7 +27,7 @@ use crate::utils::hdk_address_exists;
 
 const ANCHOR_TYPES: &str = "anchor_types";
 
-const ANCHOR: &str = "anchor";
+pub const ANCHOR: &str = "anchor";
 #[derive(Serialize, Deserialize, Debug, DefaultJson)]
 pub struct Anchor {
     anchor_type: String,
