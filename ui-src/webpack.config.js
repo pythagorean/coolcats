@@ -1,6 +1,7 @@
 const path = require('path');
 const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const HtmlBeautifyPlugin = require('html-beautify-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
@@ -60,6 +61,14 @@ module.exports = {
       appMountIds: [ 'holoclient', 'application' ],
       scripts: [ 'coolcats2.js' ],
       chunks: [ ],
+    }),
+    new HtmlBeautifyPlugin({
+      config: {
+        html: {
+          end_with_newline: true,
+          indent_size: 2,
+        },
+      },
     }),
   ],
   mode: 'none',
