@@ -213,7 +213,11 @@ fn get_hashtags(message: &str) -> Vec<String> {
 }
 
 fn get_posts_with_hashtag(hashtag: &str) -> ZomeApiResult<Vec<GetPost>> {
-    let hashtag = if hashtag.starts_with('#') { &hashtag[1..] } else { hashtag };
+    let hashtag = if hashtag.starts_with('#') {
+        &hashtag[1..]
+    } else {
+        hashtag
+    };
     let mut posts: Vec<GetPost> = Vec::new();
     let post_links = hdk::get_links(&Anchor::address(HASHTAG, &hashtag)?, HASHTAG)?;
     for addr in post_links.addresses() {

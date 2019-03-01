@@ -1,0 +1,144 @@
+use std::convert::TryFrom;
+
+use hdk::{
+    AGENT_ADDRESS,
+    entry_definition::{
+        ValidatingEntryType,
+        ValidatingLinkDefinition,
+    },
+    error::ZomeApiResult,
+    holochain_core_types::{
+        cas::content::Address,
+        entry::Entry,
+        dna::entry_types::Sharing,
+        error::HolochainError,
+        json::JsonString,
+    },
+};
+
+use serde::{
+    Serialize,
+    Deserialize,
+};
+
+use crate::utils::hdk_address_exists;
+
+pub const FAVOURITE: &str = "favourite";
+#[derive(Serialize, Deserialize, Debug, DefaultJson)]
+pub struct Favourite(Address);
+
+impl Favourite {
+    pub fn definition() -> ValidatingEntryType {
+        entry!(
+            name: FAVOURITE,
+            description: "An array of favourites",
+            sharing: Sharing::Public,
+            native_type: Favourite,
+
+            validation_package: || {
+                hdk::ValidationPackageDefinition::Entry
+            },
+
+            validation: |_favourites_anchor: Address, _ctx: hdk::ValidationData| {
+                Ok(())
+            },
+
+            links: [
+                Self::link_from_agent()
+            ]
+        )
+    }
+
+    fn link_from_agent() -> ValidatingLinkDefinition {
+        from!(
+            "%agent_id",
+            tag: FAVOURITE,
+            validation_package: || {
+                hdk::ValidationPackageDefinition::Entry
+            },
+            validation: |_source: Address, _target: Address, _ctx: hdk::ValidationData| {
+                Ok(())
+            }
+        )
+    }
+
+    fn new(fave_addr: &Address) -> Self {
+        Favourite(fave_addr.clone())
+    }
+
+    fn entry(&self) -> Entry {
+        Entry::App(FAVOURITE.into(), self.into())
+    }
+
+    fn create(fave_addr: &Address) -> ZomeApiResult<Address> {
+        hdk::commit_entry(&Favourite::new(fave_addr).entry())
+    }
+
+    fn address(fave_addr: &Address) -> ZomeApiResult<Address> {
+        hdk::entry_address(&Favourite::new(fave_addr).entry())
+    }
+}
+
+pub fn handle_add_favourite(address: String) -> JsonString {
+    match add_favourite(&address.into()) {
+        Ok(success) => json!({ "value": success }).into(),
+        Err(hdk_err) => json!({ "error": hdk_err }).into(),
+    }
+}
+
+pub fn handle_remove_favourite(address: String) -> JsonString {
+    match remove_favourite(&address.into()) {
+        Ok(success) => json!({ "value": success }).into(),
+        Err(hdk_err) => json!({ "error": hdk_err }).into(),
+    }
+}
+
+pub fn handle_get_favourites() -> JsonString {
+    match get_favourites() {
+        Ok(success) => json!({ "value": success }).into(),
+        Err(hdk_err) => json!({ "error": hdk_err }).into(),
+    }
+}
+
+fn add_favourite(fave_addr: &Address) -> ZomeApiResult<Vec<Address>> {
+    if !hdk_address_exists(fave_addr)? {
+        return Ok(Vec::new());
+    }
+    let mut faves = get_favourites()?;
+    if !faves.iter().any(|x| *x == *fave_addr) {
+        hdk::link_entries(&AGENT_ADDRESS, &Favourite::create(fave_addr)?, FAVOURITE)?;
+        faves.push(fave_addr.clone());
+    }
+    Ok(faves)
+}
+
+fn remove_favourite(fave_addr: &Address) -> ZomeApiResult<Vec<Address>> {
+    let mut had_fave = false;
+    let faves: Vec<Address> = get_favourites()?
+        .into_iter()
+        .filter(|x| {
+            if *x != *fave_addr {
+                true
+            } else {
+                had_fave = true;
+                false
+            }
+        })
+        .collect();
+    if had_fave {
+        hdk::remove_link(&AGENT_ADDRESS, &Favourite::address(fave_addr)?, FAVOURITE)?;
+    }
+    Ok(faves)
+}
+
+fn get_favourites() -> ZomeApiResult<Vec<Address>> {
+    let mut faves: Vec<Address> = Vec::new();
+    for entry in hdk::get_links_and_load(&AGENT_ADDRESS, FAVOURITE)? {
+        if let Entry::App(entry_type, value) = entry? {
+            if entry_type.to_string() == FAVOURITE {
+                faves.push(Favourite::try_from(value)?.0);
+            }
+        }
+    }
+    Ok(faves)
+}

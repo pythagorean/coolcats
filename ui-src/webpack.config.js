@@ -7,33 +7,30 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
   entry: './src/runtime.ts',
   module: {
-    rules: [
-      {
+    rules: [{
         test: /\.ts$/,
         use: 'ts-loader',
         exclude: /node_modules/
       },
       {
         test: /\.css$/,
-        use: [ 'style-loader', 'css-loader' ]
+        use: ['style-loader', 'css-loader']
       },
       {
         test: /\.(png|jpg|gif)$/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              name: '[name].[ext]',
-              outputPath: '../static',
-              publicPath: './',
-            },
+        use: [{
+          loader: 'file-loader',
+          options: {
+            name: '[name].[ext]',
+            outputPath: '../static',
+            publicPath: './',
           },
-        ],
+        }, ],
       },
     ],
   },
   resolve: {
-    extensions: [ '.ts', '.js' ]
+    extensions: ['.ts', '.js']
   },
   output: {
     filename: 'runtime.js',
@@ -41,7 +38,7 @@ module.exports = {
   },
   plugins: [
     new HardSourceWebpackPlugin(),
-    new CleanWebpackPlugin([ 'static' ]),
+    new CleanWebpackPlugin(['static']),
     new HtmlWebpackPlugin({
       inject: false,
       template: require('html-webpack-template'),
@@ -58,9 +55,9 @@ module.exports = {
         crossorigin: 'anonymous',
       }],
       favicon: 'src/application/interfaces/images/favicon.png',
-      appMountIds: [ 'holoclient', 'application' ],
-      scripts: [ 'coolcats2.js' ],
-      chunks: [ ],
+      appMountIds: ['holoclient', 'application'],
+      scripts: ['coolcats2.js'],
+      chunks: [],
     }),
     new HtmlBeautifyPlugin({
       config: {

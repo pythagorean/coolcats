@@ -13,6 +13,7 @@ mod anchors;
 mod handles;
 mod props;
 mod posts;
+mod favourites;
 
 use hdk::holochain_core_types::{
     error::HolochainError,
@@ -25,11 +26,13 @@ use anchors::{Anchor, AnchorLink};
 use handles::Handle;
 use props::{FirstName, ProfilePic};
 use posts::Post;
+use favourites::Favourite;
 
 define_zome! {
     entries: [
        Anchor::definition(), AnchorLink::definition(), Handle::definition(),
-       FirstName::definition(), ProfilePic::definition(), Post::definition()
+       FirstName::definition(), ProfilePic::definition(), Post::definition(),
+       Favourite::definition()
     ]
 
     genesis: || { Ok(()) }
@@ -140,6 +143,21 @@ define_zome! {
             outputs: |result: JsonString|,
             handler: posts::handle_get_posts_with_hashtag
         }
+        add_favourite: {
+            inputs: |address: String|,
+            outputs: |result: JsonString|,
+            handler: favourites::handle_add_favourite
+        }
+        remove_favourite: {
+            inputs: |address: String|,
+            outputs: |result: JsonString|,
+            handler: favourites::handle_remove_favourite
+        }
+        get_favourites: {
+            inputs: | |,
+            outputs: |result: JsonString|,
+            handler: favourites::handle_get_favourites
+        }
     ]
 
     traits: {
@@ -148,7 +166,8 @@ define_zome! {
             use_handle, get_handle, get_agent, get_handles,
             follow, unfollow, get_followers, get_following,
             app_property, set_first_name, get_first_name, set_profile_pic, get_profile_pic,
-            post, get_post, get_posts_by, get_posts_with_hashtag
+            post, get_post, get_posts_by, get_posts_with_hashtag,
+            add_favourite, remove_favourite, get_favourites
         ]
     }
 }

@@ -41,6 +41,7 @@ dna-build: dna
 
 dna-fmt:
 	(cd dna-src/zomes/coolcats/code; cargo +$(NIGHTLY) fmt)
+	(cd dna-src/test; js-beautify -r -s 2 -n *.js)
 
 dna-lint:
 	(cd dna-src/zomes/coolcats/code; cargo +$(NIGHTLY) clippy)
@@ -67,6 +68,7 @@ ui-build: ui
 
 ui-fmt:
 	(cd ui-src; cargo +stable fmt)
+	(cd ui-src; js-beautify -r -s 2 -n *.js)
 
 ui-lint:
 	(cd ui-src; cargo +stable clippy)

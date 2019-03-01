@@ -136,7 +136,7 @@ fn app_property(key: &str) -> ZomeApiResult<String> {
 }
 
 fn set_first_name(name: &str) -> ZomeApiResult<String> {
-    set_profile_prop(name, FIRST_NAME)
+    set_profile_prop(FIRST_NAME, name)
 }
 
 fn get_first_name() -> ZomeApiResult<String> {
@@ -144,14 +144,14 @@ fn get_first_name() -> ZomeApiResult<String> {
 }
 
 fn set_profile_pic(dataurl: &str) -> ZomeApiResult<String> {
-    set_profile_prop(dataurl, PROFILE_PIC)
+    set_profile_prop(PROFILE_PIC, dataurl)
 }
 
 fn get_profile_pic() -> ZomeApiResult<String> {
     get_profile_prop(PROFILE_PIC)
 }
 
-fn set_profile_prop(data: &str, tag: &str) -> ZomeApiResult<String> {
+fn set_profile_prop(tag: &str, data: &str) -> ZomeApiResult<String> {
     let prop_addr = PropValue::create(tag, data)?;
     hdk::link_entries(&AGENT_ADDRESS, &prop_addr, tag)?;
     Ok(data.to_string())

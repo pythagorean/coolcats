@@ -13,7 +13,8 @@ test.createStream()
   .pipe(process.stdout)
 
 var runtests = [
-  "anchors", "properties", "handles", "posts", "hashtags", "profile", "collisions", "follows"
+  "anchors", "properties", "handles", "posts", "hashtags", "favourites",
+  "profile", "collisions", "follows"
 ]
 if (process.env.RUNTEST) {
   runtests = [process.env.RUNTEST]
@@ -66,7 +67,7 @@ function sleep(milliseconds) {
 runtests.includes('anchors') && test('anchors', (t) => {
   Conductor.run(conductorAlice, (stop, conductor) => {
     alice = new DnaInstance(aliceName, conductor)
-    call = (method, params) => alice.call("coolcats", method, params);
+    call = (method, params) => alice.call("coolcats", method, params)
 
     t.test('create and get anchors', (t) => {
       t.plan(1)
@@ -122,7 +123,7 @@ runtests.includes('anchors') && test('anchors', (t) => {
 runtests.includes('properties') && test('properties', (t) => {
   Conductor.run(conductorAlice, (stop, conductor) => {
     alice = new DnaInstance(aliceName, conductor)
-    call = (method, params) => alice.call("coolcats", method, params);
+    call = (method, params) => alice.call("coolcats", method, params)
 
     t.test('test for unset agent handle', (t) => {
       t.plan(1)
@@ -182,7 +183,7 @@ runtests.includes('properties') && test('properties', (t) => {
 runtests.includes('handles') && test('handles', (t) => {
   Conductor.run(conductorAlice, (stop, conductor) => {
     alice = new DnaInstance(aliceName, conductor)
-    call = (method, params) => alice.call("coolcats", method, params);
+    call = (method, params) => alice.call("coolcats", method, params)
 
     t.test('test that handle is not set', (t) => {
       t.plan(1)
@@ -261,7 +262,7 @@ runtests.includes('handles') && test('handles', (t) => {
 runtests.includes('posts') && test('posts', (t) => {
   Conductor.run(conductorAlice, (stop, conductor) => {
     alice = new DnaInstance(aliceName, conductor)
-    call = (method, params) => alice.call("coolcats", method, params);
+    call = (method, params) => alice.call("coolcats", method, params)
 
     t.test("setup handle for posting", (t) => {
       t.plan(1)
@@ -396,10 +397,93 @@ runtests.includes('hashtags') && test('hashtags', (t) => {
   t.end()
 })
 
+runtests.includes('favourites') && test('favourites', (t) => {
+  Conductor.run(conductorAlice, (stop, conductor) => {
+    alice = new DnaInstance(aliceName, conductor)
+    call = (method, params) => alice.call("coolcats", method, params)
+
+    t.test("setting up a new handle to test favourites", (t) => {
+      t.plan(1)
+      const result = display(call("use_handle", {
+        handle: "lindsey"
+      }))
+      t.equal(result.value, "QmTf5gGdsyCXZnZFrhvrWgB1DS29zGeFAvfub43y5YBSLH")
+      sleep(1000)
+    })
+
+    t.test("creating a new post to add later as a favourite", (t) => {
+      t.plan(1)
+      const result = display(call("post", {
+        message: "here is a test post",
+        stamp: "12345"
+      }))
+      t.equal(result.value, "QmYDs49zjGfcL5ZDhA6bcXE3kX7GkGe2S8jBtWicYk1NLt")
+      sleep(1000)
+    })
+
+    t.test("adding the last post as a favourite returns an array of one favourite", (t) => {
+      t.plan(1)
+      const result = display(call("add_favourite", {
+        address: "QmYDs49zjGfcL5ZDhA6bcXE3kX7GkGe2S8jBtWicYk1NLt"
+      }))
+      t.deepEqual(result.value, ["QmYDs49zjGfcL5ZDhA6bcXE3kX7GkGe2S8jBtWicYk1NLt"])
+      sleep(1000)
+    })
+
+    t.test("creating a new post to add later as a favourite", (t) => {
+      t.plan(1)
+      const result = display(call("post", {
+        message: "here is another test post",
+        stamp: "12345"
+      }))
+      t.equal(result.value, "QmaeajZ8BtH9sRthShKdfa3ChcenUwX7GczuHRiY45Kj51")
+      sleep(1000)
+    })
+
+    t.test("adding another favourite (2 favourites) returns an array of 2 items", (t) => {
+      t.plan(3)
+      const result = display(call("add_favourite", {
+        address: "QmaeajZ8BtH9sRthShKdfa3ChcenUwX7GczuHRiY45Kj51"
+      }))
+      t.equal(result.value.length, 2)
+      t.equal(result.value.includes("QmaeajZ8BtH9sRthShKdfa3ChcenUwX7GczuHRiY45Kj51"), true)
+      t.equal(result.value.includes("QmYDs49zjGfcL5ZDhA6bcXE3kX7GkGe2S8jBtWicYk1NLt"), true)
+      sleep(1000)
+    })
+
+    t.test("adding a favourite that is not an address returns empty list", (t) => {
+      t.plan(1)
+      const result = display(call("add_favourite", {
+        address: "Hello!"
+      }))
+      t.deepEqual(result.value, [])
+    })
+
+    t.test("removing a favourite that exists from a list of 2 will leave the one favourite", (t) => {
+      t.plan(1)
+      const result = display(call("remove_favourite", {
+        address: "QmYDs49zjGfcL5ZDhA6bcXE3kX7GkGe2S8jBtWicYk1NLt"
+      }))
+      t.deepEqual(result.value, ["QmaeajZ8BtH9sRthShKdfa3ChcenUwX7GczuHRiY45Kj51"])
+      sleep(1000)
+    })
+
+    t.test("removing a favourite that doesn't exist returns an unchanged list of favourites", (t) => {
+      t.plan(1)
+      const result = display(call("remove_favourite", {
+        address: "QmaeajZ8BtH9sRthShKdfa3ChcenUwX7GczuHRiY45KBAD"
+      }))
+      t.deepEqual(result.value, ["QmaeajZ8BtH9sRthShKdfa3ChcenUwX7GczuHRiY45Kj51"])
+
+      stop()
+    })
+  })
+})
+
 runtests.includes('profile') && test('profile', (t) => {
   Conductor.run(conductorAlice, (stop, conductor) => {
     alice = new DnaInstance(aliceName, conductor)
-    call = (method, params) => alice.call("coolcats", method, params);
+    call = (method, params) => alice.call("coolcats", method, params)
 
     t.test('get the first name of the user which is not set', (t) => {
       t.plan(1)
