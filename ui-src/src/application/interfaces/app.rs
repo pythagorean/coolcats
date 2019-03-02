@@ -11,7 +11,7 @@ use crate::application::{
     },
 };
 
-const DEFAULT_PROFILE_PIC: &str = "/cat-eating-bird-circle.png";
+const DEFAULT_PROFILE_PIC: &str = "cat-eating-bird-circle.png";
 
 interface_getstates!("app_properties", "first_name", "handle", "profile_pic");
 

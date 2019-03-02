@@ -31,7 +31,7 @@ impl Favourite {
     pub fn definition() -> ValidatingEntryType {
         entry!(
             name: FAVOURITE,
-            description: "An array of favourites",
+            description: "A favourited address",
             sharing: Sharing::Public,
             native_type: Favourite,
 
@@ -39,7 +39,7 @@ impl Favourite {
                 hdk::ValidationPackageDefinition::Entry
             },
 
-            validation: |_favourites_anchor: Address, _ctx: hdk::ValidationData| {
+            validation: |_favourite: Address, _ctx: hdk::ValidationData| {
                 Ok(())
             },
 
@@ -113,19 +113,19 @@ fn add_favourite(fave_addr: &Address) -> ZomeApiResult<Vec<Address>> {
 }
 
 fn remove_favourite(fave_addr: &Address) -> ZomeApiResult<Vec<Address>> {
-    let mut had_fave = false;
+    let mut found_fave = false;
     let faves: Vec<Address> = get_favourites()?
         .into_iter()
         .filter(|x| {
-            if *x != *fave_addr {
+            if found_fave || *x != *fave_addr {
                 true
             } else {
-                had_fave = true;
+                found_fave = true;
                 false
             }
         })
         .collect();
-    if had_fave {
+    if found_fave {
         hdk::remove_link(&AGENT_ADDRESS, &Favourite::address(fave_addr)?, FAVOURITE)?;
     }
     Ok(faves)

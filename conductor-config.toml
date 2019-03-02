@@ -1,43 +1,113 @@
 [network]
-n3h_path = _N3H_
+n3h_path = "_N3H_"
 n3h_persistence_path = "/tmp"
 bootstrap_nodes = []
 
 [[agents]]
-id = "test agent 1"
-name = "Holo Tester 1"
-public_address = "HoloTester1-----------------------------------------------------------------------AAACZp4xHB"
-key_file = "unused"
+id = "test_agent1"
+name = "HoloTester1"
+public_address = "sandwich--------------------------------------------------------------------------AAAEqzh28L"
+key_file = "holo_tester.key"
+
+[[agents]]
+id = "test_agent2"
+name = "HoloTester2"
+public_address = "bagel-----------------------------------------------------------------------------AAADAq0mCu"
+key_file = "holo_tester.key"
+
+[[agents]]
+id = "test_agent3"
+name = "HoloTester3"
+public_address = "croissant-------------------------------------------------------------------------AAAEuHzxV4"
+key_file = "holo_tester.key"
 
 [[dnas]]
 id = "coolcats2"
 file = "dna-src/dist/bundle.json"
 
 [[instances]]
-id = "coolcats2 instance 1"
-agent = "test agent 1"
+id = "coolcats2-instance1"
+agent = "test_agent1"
 dna = "coolcats2"
-
 [instances.storage]
 type = "file"
-path = "tmp-storage"
+path = "tmp-storage/instance1"
+
+#[[instances]]
+#id = "coolcats2-instance2"
+#agent = "test_agent2"
+#dna = "coolcats2"
+#[instances.storage]
+#type = "file"
+#path = "tmp-storage/instance2"
+
+#[[instances]]
+#id = "coolcats2-instance3"
+#agent = "test_agent3"
+#dna = "coolcats2"
+#[instances.storage]
+#type = "file"
+#path = "tmp-storage/instance3"
 
 [[interfaces]]
-id = "websocket interface"
-
+id = "websocket-interface1"
 [[interfaces.instances]]
-id = "coolcats2 instance 1"
-
+id = "coolcats2-instance1"
 [interfaces.driver]
 type = "websocket"
 port = 8888
+
+#[[interfaces]]
+#id = "websocket-interface2"
+#[[interfaces.instances]]
+#id = "coolcats2-instance2"
+#[interfaces.driver]
+#type = "websocket"
+#port = 8882
+
+#[[interfaces]]
+#id = "websocket-interface3"
+#[[interfaces.instances]]
+#id = "coolcats2-instance3"
+#[interfaces.driver]
+#type = "websocket"
+#port = 8883
 
 [[ui_bundles]]
 id = "bundle1"
 root_dir = "ui-src/target/deploy"
 
 [[ui_interfaces]]
-id = "ui-interface-1"
+id = "ui-interface1"
 bundle = "bundle1"
 port = 8001
-dna_interface = "websocket interface"
+dna_interface = "websocket-interface1"
+
+#[[ui_interfaces]]
+#id = "ui-interface2"
+#bundle = "bundle1"
+#port = 8002
+#dna_interface = "websocket-interface2"
+
+#[[ui_interfaces]]
+#id = "ui-interface3"
+#bundle = "bundle1"
+#port = 8003
+#dna_interface = "websocket-interface3"
+
+[logger]
+type = "debug"
+
+[[logger.rules.rules]]
+color = "red"
+exclude = false
+pattern = "^err/"
+
+[[logger.rules.rules]]
+color = "white"
+exclude = false
+pattern = "^debug/dna"
+
+[[logger.rules.rules]]
+exclude = true
+pattern = ".*"

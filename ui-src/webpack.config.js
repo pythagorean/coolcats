@@ -62,8 +62,8 @@ module.exports = {
     new HtmlBeautifyPlugin({
       config: {
         html: {
-          end_with_newline: true,
           indent_size: 2,
+          end_with_newline: true,
         },
       },
     }),

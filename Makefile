@@ -1,13 +1,14 @@
 NIGHTLY = nightly-2019-01-24
+N3H = n3h-0.0.4-alpha1
 
 all: dna ui
 
-start: dna ui-deploy
-	-mkdir tmp-storage
-	sed "s;_N3H_;\"`pwd`/../n3h\";" < conductor-config.toml > tmp-storage/conductor-config.toml
+net-start: dna ui-deploy
+	-mkdir tmp-storage tmp-storage/instance1 tmp-storage/instance2 tmp-storage/instance3
+	sed "s;_N3H_;`pwd`/../${N3H};" < conductor-config.toml > tmp-storage/conductor-config.toml
 	holochain -c tmp-storage/conductor-config.toml
 
-reset:
+net-reset:
 	rm -rf tmp-storage
 
 fmt: dna-fmt ui-fmt
@@ -30,7 +31,7 @@ update-conductor:
 	cargo install holochain --force --git https://github.com/holochain/holochain-rust.git --branch develop
 	rustup default stable
 
-clean: reset dna-clean ui-clean
+clean: net-reset dna-clean ui-clean
 
 build: dna-build ui-build
 
@@ -78,6 +79,9 @@ ui-start:
 
 ui-deploy:
 	(cd ui-src; yarn; yarn deploy)
+
+ui-watch:
+	fswatch -o ui-src/src | xargs -n 1 -I{} make ui-lint ui-deploy
 
 ui-update:
 	(cd ui-src; cargo +stable update)
