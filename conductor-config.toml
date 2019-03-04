@@ -1,7 +1,7 @@
 [network]
 n3h_path = "_N3H_"
 n3h_persistence_path = "/tmp"
-bootstrap_nodes = []
+bootstrap_nodes = [_BOOTSTRAP_]
 
 [[agents]]
 id = "test_agent1"
@@ -22,78 +22,24 @@ public_address = "croissant-----------------------------------------------------
 key_file = "holo_tester.key"
 
 [[dnas]]
-id = "coolcats2"
+id = "coolcats"
 file = "dna-src/dist/bundle.json"
 
 [[instances]]
-id = "coolcats2-instance1"
-agent = "test_agent1"
-dna = "coolcats2"
+id = "coolcats-instance_AGENT_"
+agent = "test_agent_AGENT_"
+dna = "coolcats"
 [instances.storage]
 type = "file"
-path = "tmp-storage/instance1"
-
-#[[instances]]
-#id = "coolcats2-instance2"
-#agent = "test_agent2"
-#dna = "coolcats2"
-#[instances.storage]
-#type = "file"
-#path = "tmp-storage/instance2"
-
-#[[instances]]
-#id = "coolcats2-instance3"
-#agent = "test_agent3"
-#dna = "coolcats2"
-#[instances.storage]
-#type = "file"
-#path = "tmp-storage/instance3"
+path = "tmp-storage/instance_AGENT_"
 
 [[interfaces]]
-id = "websocket-interface1"
+id = "websocket-interface_AGENT_"
 [[interfaces.instances]]
-id = "coolcats2-instance1"
+id = "coolcats-instance_AGENT_"
 [interfaces.driver]
 type = "websocket"
-port = 8888
-
-#[[interfaces]]
-#id = "websocket-interface2"
-#[[interfaces.instances]]
-#id = "coolcats2-instance2"
-#[interfaces.driver]
-#type = "websocket"
-#port = 8882
-
-#[[interfaces]]
-#id = "websocket-interface3"
-#[[interfaces.instances]]
-#id = "coolcats2-instance3"
-#[interfaces.driver]
-#type = "websocket"
-#port = 8883
-
-[[ui_bundles]]
-id = "bundle1"
-root_dir = "ui-src/target/deploy"
-
-[[ui_interfaces]]
-id = "ui-interface1"
-bundle = "bundle1"
-port = 8001
-dna_interface = "websocket-interface1"
-
-#[[ui_interfaces]]
-#id = "ui-interface2"
-#bundle = "bundle1"
-#port = 8002
-#dna_interface = "websocket-interface2"
-
-#[[ui_interfaces]]
-#id = "ui-interface3"
-#bundle = "bundle1"
-#port = 8003
-#dna_interface = "websocket-interface3"
+port = _PORT_
 
 [logger]
 type = "debug"

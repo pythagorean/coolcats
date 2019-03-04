@@ -35,6 +35,7 @@ pub enum ModelType {
 }
 
 pub struct Model {
+    ws_server: String,
     model_type: Option<ModelType>,
     partner: Option<Scope<Model>>,
     holoclient_params: holoclient::Params,
@@ -42,6 +43,7 @@ pub struct Model {
 }
 
 pub enum Msg {
+    SetServerPort(u16),
     SetModel(ModelType, Scope<Model>),
     FromApplication(ToHoloclient),
     ToHoloclient(ToHoloclient),
@@ -55,6 +57,7 @@ impl Component for Model {
 
     fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
         Model {
+            ws_server: String::new(),
             model_type: None,
             partner: None,
             holoclient_params: holoclient::Params::new(),
@@ -64,6 +67,14 @@ impl Component for Model {
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
+            Msg::SetServerPort(server_port) => {
+                if self.model_type.is_none() {
+                    self.ws_server = format!("ws://localhost:{}", server_port);
+                } else {
+                    panic! { "Msg::SetServerPort received within already defined model" };
+                }
+            }
+
             Msg::SetModel(model_type, partner) => {
                 if self.model_type.is_none() {
                     self.model_type = Some(model_type);
@@ -117,6 +128,7 @@ impl Renderable<Model> for Model {
         match self.model_type {
             Some(ModelType::Holoclient) => html! {
                 <Holoclient:
+                    ws_server = &self.ws_server,
                     params = self.holoclient_params.clone(),
                     callback = Msg::FromHoloclient,
                 />

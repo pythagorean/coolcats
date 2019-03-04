@@ -15,8 +15,6 @@ use super::{
     },
 };
 
-const HOLOCHAIN_SERVER: &str = "ws://localhost:8888";
-
 pub struct Holoclient {
     websocket: Option<WebSocketService>,
     link: ComponentLink<Holoclient>,
@@ -30,7 +28,7 @@ pub struct WsResponse {
 }
 
 pub enum WsAction {
-    Connect,
+    Connect(String),
     Initialize,
     Call(WsRpc),
     Lost,
@@ -134,6 +132,7 @@ pub enum ToHoloclient {
 
 #[derive(PartialEq, Clone)]
 pub struct Props {
+    pub ws_server: String,
     pub params: Params,
     pub callback: Option<Callback<ToApplication>>,
 }
@@ -141,6 +140,7 @@ pub struct Props {
 impl Default for Props {
     fn default() -> Self {
         Props {
+            ws_server: String::new(),
             params: Params::new(),
             callback: None,
         }
@@ -158,7 +158,7 @@ impl Component for Holoclient {
             callback: props.callback,
             rpc_id: 0,
         };
-        holoclient.update(WsAction::Connect.into());
+        holoclient.update(WsAction::Connect(props.ws_server).into());
         holoclient
     }
 
@@ -181,7 +181,7 @@ impl Component for Holoclient {
             }
 
             Msg::WsAction(action) => match action {
-                WsAction::Connect => {
+                WsAction::Connect(server) => {
                     if self.websocket.is_some() {
                         return false;
                     }
@@ -190,7 +190,7 @@ impl Component for Holoclient {
                         WebSocketStatus::Opened => WsAction::Initialize.into(),
                         WebSocketStatus::Closed | WebSocketStatus::Error => WsAction::Lost.into(),
                     });
-                    let service = WebSocketService::new(HOLOCHAIN_SERVER, callback, notification);
+                    let service = WebSocketService::new(&server, callback, notification);
                     self.websocket = Some(service);
                 }
 
