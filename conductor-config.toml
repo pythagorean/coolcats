@@ -1,24 +1,24 @@
 [network]
 n3h_path = "_N3H_"
 n3h_persistence_path = "/tmp"
-bootstrap_nodes = [_BOOTSTRAP_]
+bootstrap_nodes = ["_BOOTSTRAP_"]
 
 [[agents]]
 id = "test_agent1"
 name = "HoloTester1"
-public_address = "sandwich--------------------------------------------------------------------------AAAEqzh28L"
+public_address = "apple-----------------------------------------------------------------------------AAAM8opNM0"
 key_file = "holo_tester.key"
 
 [[agents]]
 id = "test_agent2"
 name = "HoloTester2"
-public_address = "bagel-----------------------------------------------------------------------------AAADAq0mCu"
+public_address = "banana----------------------------------------------------------------------------AAANN98S74"
 key_file = "holo_tester.key"
 
 [[agents]]
 id = "test_agent3"
 name = "HoloTester3"
-public_address = "croissant-------------------------------------------------------------------------AAAEuHzxV4"
+public_address = "cantaloupe------------------------------------------------------------------------AAAPIbDCOo"
 key_file = "holo_tester.key"
 
 [[dnas]]
@@ -42,18 +42,4 @@ type = "websocket"
 port = _PORT_
 
 [logger]
-type = "debug"
-
-[[logger.rules.rules]]
-color = "red"
-exclude = false
-pattern = "^err/"
-
-[[logger.rules.rules]]
-color = "white"
-exclude = false
-pattern = "^debug/dna"
-
-[[logger.rules.rules]]
-exclude = true
-pattern = ".*"
+type = "simple"

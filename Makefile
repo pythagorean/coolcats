@@ -3,7 +3,10 @@ N3H = n3h-0.0.4-alpha1
 
 all: dna ui
 
-testnet: dna-testnet ui-testnet
+net-start: dna-startnet ui-startnet
+
+net-stop:
+	killall holochain
 
 fmt: dna-fmt ui-fmt
 
@@ -25,7 +28,9 @@ update-conductor:
 	cargo install holochain --force --git https://github.com/holochain/holochain-rust.git --branch develop
 	rustup default stable
 
-clean: dna-reset dna-clean ui-clean
+clean: reset dna-clean ui-clean
+
+reset: dna-reset
 
 build: dna-build ui-build
 
@@ -48,30 +53,23 @@ dna-test:
 dna-start: dna
 	-(cd dna-src; hc run) || make dna-start
 
-dna-testnet: dna
-	-mkdir tmp-storage tmp-storage/instance1 tmp-storage/instance2 tmp-storage/instance3
+dna-startnet: dna
+	@-mkdir tmp-storage tmp-storage/instance1 tmp-storage/instance2 tmp-storage/instance3 > /dev/null 2>&1
 	@sed -e "s;_N3H_;`pwd`/../${N3H};" \
-	     -e "s;_BOOTSTRAP_;;" \
+	     -e "s;\"_BOOTSTRAP_\";;" \
        -e "s;_AGENT_;1;g" \
        -e "s;_PORT_;8888;" \
 	  < conductor-config.toml > tmp-storage/conductor-config.toml
 	holochain -c tmp-storage/conductor-config.toml > tmp-storage/dna-testnet.log 2>&1 &
 	@sleep 5
 	@cat tmp-storage/dna-testnet.log | grep READY! | sed '/.*\[\"\(.*\)\",.*/ s//\1/' > tmp-storage/dna-testnet.address
-	@export BOOTSTRAP=\"`cat tmp-storage/dna-testnet.address`\"; \
+	@export BOOTSTRAP=`cat tmp-storage/dna-testnet.address`; \
 	  sed -e "s;_N3H_;`pwd`/../${N3H};" \
 		    -e "s;_BOOTSTRAP_;$${BOOTSTRAP};" \
 				-e "s;_AGENT_;2;g" \
 				-e "s;_PORT_;8889;" \
 	  < conductor-config.toml > tmp-storage/conductor-config2.toml
 	holochain -c tmp-storage/conductor-config2.toml > tmp-storage/dna-testnet2.log 2>&1 &
-	#@export BOOTSTRAP=\"`cat tmp-storage/dna-testnet.address`\"; \
-	#  sed -e "s;_N3H_;`pwd`/../${N3H};" \
-	#	    -e "s;_BOOTSTRAP_;$${BOOTSTRAP};" \
-	#			-e "s;_AGENT_;3;g" \
-	#			-e "s;_PORT_;8890;" \
-	#  < conductor-config.toml > tmp-storage/conductor-config3.toml
-	#holochain -c tmp-storage/conductor-config3.toml > tmp-storage/dna-testnet3.log 2>&1 &
 
 dna-reset:
 	rm -rf tmp-storage
@@ -102,7 +100,7 @@ ui-start:
 ui-deploy:
 	(cd ui-src; yarn; yarn deploy)
 
-ui-testnet: ui-deploy
+ui-startnet: ui-deploy
 	http-server ui-src/target/deploy -p8000 -s -c-1 &
 	http-server ui-src/target/deploy -p8001 -s -c-1 &
 	http-server ui-src/target/deploy -p8002 -s -c-1 &

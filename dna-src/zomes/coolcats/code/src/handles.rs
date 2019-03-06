@@ -302,20 +302,20 @@ pub fn get_handles() -> ZomeApiResult<Vec<GetHandle>> {
     Ok(handles)
 }
 
-pub fn follow(user_handle: &str) -> ZomeApiResult<()> {
+pub fn follow(user_handle: &str) -> ZomeApiResult<bool> {
     let follow_addr = Handle::address(user_handle)?;
     let handle_addr = get_handle_addr(None)?;
     hdk::link_entries(&follow_addr, &handle_addr, FOLLOWERS)?;
     hdk::link_entries(&handle_addr, &follow_addr, FOLLOWING)?;
-    Ok(())
+    Ok(true)
 }
 
-pub fn unfollow(user_handle: &str) -> ZomeApiResult<()> {
+pub fn unfollow(user_handle: &str) -> ZomeApiResult<bool> {
     let follow_addr = Handle::address(user_handle)?;
     let handle_addr = get_handle_addr(None)?;
     hdk::remove_link(&follow_addr, &handle_addr, FOLLOWERS)?;
     hdk::remove_link(&handle_addr, &follow_addr, FOLLOWING)?;
-    Ok(())
+    Ok(true)
 }
 
 pub fn get_follow(user_handle: &str, tag: &str) -> ZomeApiResult<Vec<String>> {

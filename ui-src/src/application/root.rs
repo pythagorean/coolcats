@@ -82,6 +82,7 @@ pub enum Redux {
     GetProfilePic,
     Follow,
     Unfollow,
+    GetFollows,
     Post,
 }
 
@@ -318,6 +319,7 @@ impl Component for Root {
                     Redux::AgentHandle => {
                         if !value.is_null() {
                             let handle = value.to_string();
+                            self.get_following(&handle);
                             if handle != *self.state.string("handle") {
                                 self.state.set_string("handle".into(), handle.clone());
                                 self.state
@@ -403,6 +405,21 @@ impl Component for Root {
                         }
                     }
 
+                    Redux::GetFollows => {
+                        if !value.is_null() {
+                            let follows = self.state.mut_dict("follows");
+                            let mut i = 0;
+                            while !value[i].is_null() {
+                                let user_handle = value[i].to_string();
+                                follows.insert(user_handle, true.into());
+                                i += 1;
+                            }
+                            if i > 0 {
+                                return true;
+                            }
+                        }
+                    }
+
                     Redux::Post => {
                         let stamp = meta;
                         if !value.is_null() {
@@ -476,6 +493,14 @@ impl Root {
 
     fn get_profile_pic(&mut self) {
         self.coolcats_np("get_profile_pic", Redux::GetProfilePic.as_static());
+    }
+
+    fn get_following(&mut self, user_handle: &str) {
+        self.coolcats(
+            "get_following",
+            &[("user_handle", user_handle)],
+            Redux::GetFollows.as_static(),
+        );
     }
 }
 

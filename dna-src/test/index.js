@@ -21,19 +21,18 @@ if (process.env.RUNTEST) {
 }
 
 const dnaPath = "./dist/bundle.json"
-const aliceName = "alice"
-const bobName = "bob"
-const carolName = "carol"
-
 const dna = Config.dna(dnaPath)
 
+const aliceName = "alice"
 const agentAlice = Config.agent(aliceName)
 const instanceAlice = Config.instance(agentAlice, dna)
 const conductorAlice = Config.conductor([instanceAlice])
 
+const bobName = "bob"
 const agentBob = Config.agent(bobName)
 const instanceBob = Config.instance(agentBob, dna)
 
+const carolName = "carol"
 const agentCarol = Config.agent(carolName)
 const instanceCarol = Config.instance(agentCarol, dna)
 
@@ -642,7 +641,7 @@ runtests.includes('follows') && scenario2.runTape('follows', async (t, {
     var result = display(await bob.callSync("coolcats", "follow", {
       user_handle: "alice"
     }))
-    t.equal(result.value, null)
+    t.equal(result.value, true)
 
     underline("retrieve Alice's posts")
     var result = display(bob.call("coolcats", "get_posts_by", {
