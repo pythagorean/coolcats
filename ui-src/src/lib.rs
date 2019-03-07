@@ -1,24 +1,21 @@
 #![recursion_limit = "144"]
 #[macro_use]
 extern crate yew;
+extern crate yew_router;
+#[macro_use]
+extern crate stdweb;
+extern crate json;
+extern crate strum;
+#[macro_use]
+extern crate strum_macros;
+#[macro_use]
+extern crate lazy_static;
+extern crate regex;
+
 use yew::{
     prelude::*,
     html::Scope,
 };
-
-extern crate yew_router;
-
-#[macro_use]
-extern crate stdweb;
-
-extern crate json;
-
-extern crate strum;
-#[macro_use]
-extern crate strum_macros;
-
-#[macro_use]
-extern crate lazy_static;
 
 mod holoclient;
 mod application;
