@@ -44,60 +44,29 @@ impl Component for Meow {
 }
 
 impl Meow {
-    // replace URLs with links
-    fn urlify(&self, text: &str) -> Html<Self> {
-        let re = Regex::new(r"(https?://[^\\s]+)").unwrap();
-        let mut matches = 0;
-        let v: Vec<Html<Self>> = text
-            .split_whitespace()
-            .map(|s| {
-                if re.is_match(s) {
-                    matches += 1;
+    // replace URLs and hashtags with links
+    fn linkify(&self, text: &str) -> Html<Self> {
+        lazy_static! {
+            static ref URL: Regex = Regex::new(r"(https?://[^\\s]+)").unwrap();
+            static ref HASHTAG: Regex = Regex::new(r"(\B#\w*[a-zA-Z]+\w*)").unwrap();
+        }
+        html! {<>
+            {for text.split_whitespace().map(|s| {
+                if URL.is_match(s) {
                     html! {<>
-                        <a
-                            key={matches},
-                            target="_blank",
-                            href={s},
-                        >
-                            {s}
-                        </a>
+                        <a href={s}, target="_blank",>{s}</a>
                         {' '}
                     </>}
-                } else if s.contains('#') {
-                    self.hashify(s)
-                } else {
-                    html! {<>{s}{' '}</>}
-                }
-            })
-            .collect();
-        html! {<>{for v}{' '}</>}
-    }
-
-    //identify all hashtags and replace with links
-    fn hashify(&self, text: &str) -> Html<Self> {
-        let re = Regex::new(r"(\B#\w*[a-zA-Z]+\w*)").unwrap();
-        let mut matches = 0;
-        let v: Vec<Html<Self>> = text
-            .split_whitespace()
-            .map(|s| {
-                if re.is_match(s) {
-                    matches += 1;
+                } else if HASHTAG.is_match(s) {
                     html! {<>
-                        <a
-                            key={matches},
-                            href={format!("/#/tag/{}", s.replace("#", ""))},
-                            class="hashtag",
-                        >
-                            {s}
-                        </a>
+                        <a href={format!("/#/tag/{}", &s[1..])}, class="hashtag",>{s}</a>
                         {' '}
                     </>}
                 } else {
                     html! {<>{s}{' '}</>}
                 }
-            })
-            .collect();
-        html! {<>{for v}{' '}</>}
+            })}
+        </>}
     }
 }
 
@@ -125,7 +94,7 @@ impl Renderable<Meow> for Meow {
                 <a class="stamp", href={format!("/#/meow/{}", address)},>
                     { Date::from_time(stamp.parse().unwrap()).to_string() }
                 </a>
-                <div class="message",>{self.urlify(message)}</div>
+                <div class="message",>{self.linkify(message)}</div>
                 /*
                 <FavesContainer hash={hash} />
                 */
