@@ -1,6 +1,5 @@
 use yew::prelude::*;
 use stdweb::web::Date;
-use regex::Regex;
 
 use crate::utils::Dict;
 
@@ -44,20 +43,21 @@ impl Component for Meow {
 }
 
 impl Meow {
-    // replace URLs and hashtags with links
+    // replace https URLs and hashtags with links
     fn linkify(&self, text: &str) -> Html<Self> {
-        lazy_static! {
-            static ref URL: Regex = Regex::new(r"(https?://[^\\s]+)").unwrap();
-            static ref HASHTAG: Regex = Regex::new(r"(\B#\w*[a-zA-Z]+\w*)").unwrap();
-        }
         html! {<>
             {for text.split_whitespace().map(|s| {
-                if URL.is_match(s) {
+                if s.len() > 8
+                    && s.starts_with("https://")
+                {
                     html! {<>
                         <a href={s}, target="_blank",>{s}</a>
                         {' '}
                     </>}
-                } else if HASHTAG.is_match(s) {
+                } else if s.len() > 1
+                    && s.starts_with('#')
+                    && s[1..].chars().skip_while(|c| c.is_alphabetic()).next().is_none()
+                {
                     html! {<>
                         <a href={format!("/#/tag/{}", &s[1..])}, class="hashtag",>{s}</a>
                         {' '}

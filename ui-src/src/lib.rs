@@ -10,7 +10,6 @@ extern crate strum;
 extern crate strum_macros;
 #[macro_use]
 extern crate lazy_static;
-extern crate regex;
 
 use yew::{
     prelude::*,
