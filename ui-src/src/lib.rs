@@ -1,4 +1,4 @@
-#![recursion_limit = "144"]
+#![recursion_limit = "160"]
 #[macro_use]
 extern crate yew;
 extern crate yew_router;

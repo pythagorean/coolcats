@@ -30,8 +30,7 @@ id = "coolcats-instance_AGENT_"
 agent = "test_agent_AGENT_"
 dna = "coolcats"
 [instances.storage]
-type = "file"
-path = "tmp-storage/instance_AGENT_"
+type = "memory"
 
 [[interfaces]]
 id = "websocket-interface_AGENT_"

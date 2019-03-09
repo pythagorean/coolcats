@@ -17,7 +17,6 @@ pub enum Msg {}
 #[derive(Serialize, Deserialize)]
 pub enum Request {
     SetRoot,
-    GetPath,
     GetStates(Vec<String>),
     Action(Action),
     Response(HandlerId, Box<Response>),
@@ -34,7 +33,6 @@ impl From<(HandlerId, Response)> for Request {
 
 #[derive(Serialize, Deserialize)]
 pub enum Response {
-    GetPath(String),
     GetStates(State),
     Request(HandlerId, Box<Request>),
 }
@@ -82,11 +80,11 @@ impl Agent for ContextAgent {
     fn handle(&mut self, msg: Self::Input, who: HandlerId) {
         match msg {
             Request::SetRoot => self.root = Some(who),
-            Request::GetPath | Request::GetStates(_) | Request::Action(_) => {
+            Request::GetStates(_) | Request::Action(_) => {
                 self.sendroot(who, msg)
             }
             Request::Response(who, response) => match *response {
-                Response::GetPath(_) | Response::GetStates(_) => self.link.response(who, *response),
+                Response::GetStates(_) => self.link.response(who, *response),
                 Response::Request(_, _) => (),
             },
         }

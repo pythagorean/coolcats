@@ -56,7 +56,11 @@ impl Meow {
                     </>}
                 } else if s.len() > 1
                     && s.starts_with('#')
-                    && s[1..].chars().skip_while(|c| c.is_alphabetic()).next().is_none()
+                    && s[1..]
+                        .chars()
+                        .skip_while(|c| c.is_alphabetic())
+                        .next()
+                        .is_none()
                 {
                     html! {<>
                         <a href={format!("/#/tag/{}", &s[1..])}, class="hashtag",>{s}</a>

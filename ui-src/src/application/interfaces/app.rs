@@ -1,4 +1,5 @@
 use yew::prelude::*;
+use stdweb::web::window;
 
 use crate::application::{
     Action,
@@ -40,6 +41,20 @@ impl Renderable<App> for App {
                 </div>
             }
         } else {
+            let fragment = window().location().unwrap().hash().unwrap();
+            let mut path = if fragment.is_empty() { "/" } else { &fragment[1..] };
+            let mut path_value = "";
+            if path.len() > 1 {
+                match &path[1..].find('/') {
+                    Some(n) => {
+                        let (p, x) = path.split_at(n+1);
+                        path = p;
+                        path_value = &x[1..];
+                    },
+                    None => (),
+                }
+            }
+
             html! {
                 <div class="container",>
                     <div class="spinner transition500",/>
@@ -76,8 +91,9 @@ impl Renderable<App> for App {
                                         <div class="subtitle",>{"can haz herd cats?"}</div>
                                     </div>
                                     <div id="content",>
-                                        {match self.path.as_str() {
+                                        {match path {
                                             "/" => html! {<NewMeow: counter = self.counter,/>},
+                                            "/meow" => html! {<i>{"Meow: "}{path_value}</i>},
                                             _ => html! {<></>},
                                         }}
                                         /*
@@ -121,7 +137,7 @@ impl Renderable<App> for App {
                         <div class="row",>
                             <div class="contentcontainer", id="feedContent",>
                                 <div>
-                                    {match self.path.as_str() {
+                                    {match path {
                                         "/" => html! {<FollowingFeed: counter = self.counter,/>},
                                         _ => html! {<></>},
                                     }}

@@ -54,7 +54,7 @@ dna-start: dna
 	-(cd dna-src; hc run) || make dna-start
 
 dna-startnet: dna
-	@-mkdir tmp-storage tmp-storage/instance1 tmp-storage/instance2 tmp-storage/instance3 > /dev/null 2>&1
+	@if [ ! -d tmp-storage ]; then mkdir tmp-storage; fi
 	@sed -e "s;_N3H_;`pwd`/../${N3H};" \
 	     -e "s;\"_BOOTSTRAP_\";;" \
        -e "s;_AGENT_;1;g" \
