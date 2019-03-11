@@ -90,7 +90,9 @@ impl Renderable<FollowingFeed> for FollowingFeed {
 
         html! {<>
             <div id="meows",>
-                { for post_list.iter().map(|post| html! {<Meow: post = post,/>}) }
+                { for post_list.iter().map(|post| {
+                    html! { <Meow: post = post,/> }
+                })}
             </div>
         </>}
     }

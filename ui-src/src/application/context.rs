@@ -80,9 +80,7 @@ impl Agent for ContextAgent {
     fn handle(&mut self, msg: Self::Input, who: HandlerId) {
         match msg {
             Request::SetRoot => self.root = Some(who),
-            Request::GetStates(_) | Request::Action(_) => {
-                self.sendroot(who, msg)
-            }
+            Request::GetStates(_) | Request::Action(_) => self.sendroot(who, msg),
             Request::Response(who, response) => match *response {
                 Response::GetStates(_) => self.link.response(who, *response),
                 Response::Request(_, _) => (),
