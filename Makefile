@@ -1,5 +1,5 @@
 NIGHTLY = nightly-2019-01-24
-VERSION = --tag v0.0.5-alpha
+VERSION = --tag v0.0.6-alpha
 N3H = n3h-0.0.4-alpha1
 
 all: dna ui
@@ -77,6 +77,7 @@ dna-reset:
 
 dna-update:
 	(cd dna-src/zomes/coolcats/code; cargo +$(NIGHTLY) update)
+	-(cd dna-src/test; yarn upgrade)
 
 dna-clean:
 	(cd dna-src/zomes/coolcats/code; cargo +$(NIGHTLY) clean && rm -f Cargo.lock)
