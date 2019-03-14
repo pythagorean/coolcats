@@ -77,7 +77,7 @@ dna-reset:
 
 dna-update:
 	(cd dna-src/zomes/coolcats/code; cargo +$(NIGHTLY) update)
-	-(cd dna-src/test; yarn upgrade)
+	-(cd dna-src/test; yarn upgrade --latest)
 
 dna-clean:
 	(cd dna-src/zomes/coolcats/code; cargo +$(NIGHTLY) clean && rm -f Cargo.lock)
@@ -110,7 +110,7 @@ ui-startnet: ui-deploy
 
 ui-update:
 	(cd ui-src; cargo +stable update)
-	-(cd ui-src; yarn upgrade)
+	-(cd ui-src; yarn upgrade --latest)
 
 ui-clean:
 	(cd ui-src; cargo +stable clean && rm -f Cargo.lock)

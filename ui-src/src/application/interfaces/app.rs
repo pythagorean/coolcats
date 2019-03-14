@@ -10,6 +10,7 @@ use crate::application::{
         new_meow::NewMeow,
         find_meow::FindMeow,
         following_feed::FollowingFeed,
+        hashtag_feed::HashtagFeed,
     },
 };
 
@@ -96,15 +97,9 @@ impl Renderable<App> for App {
                                         {match route {
                                             "/" => html! {<NewMeow: counter = self.counter,/>},
                                             "/meow" => html! {<FindMeow: address = route_param,/>},
+                                            "/tag" => html! {<HashtagFeed: hashtag = route_param,/>},
                                             _ => html! {<></>},
                                         }}
-                                        /*
-                                        <Route path="/meow/:meowHash" component={MeowContainer} />
-                                        <Route
-                                            path="/tag/:hashtag"
-                                            component={HashtagFeedContainer}
-                                        />
-                                        */
                                     </div>
                                 </div>
                             </div>

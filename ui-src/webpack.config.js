@@ -38,7 +38,12 @@ module.exports = {
   },
   plugins: [
     new HardSourceWebpackPlugin(),
-    new CleanWebpackPlugin(['static']),
+    new CleanWebpackPlugin({
+      dry: false,
+      verbose: true,
+      cleanOnceBeforeBuildPatterns: ['../static'],
+      dangerouslyAllowCleanPatternsOutsideProject: true,
+    }),
     new HtmlWebpackPlugin({
       inject: false,
       template: require('html-webpack-template'),
