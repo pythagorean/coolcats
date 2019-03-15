@@ -1,8 +1,13 @@
-use yew::prelude::*;
+use std::time::Duration;
+use yew::{
+    prelude::*,
+    services::{IntervalService, Task},
+};
 
 use crate::{
     utils::Dict,
     application::{
+        Action,
         context::{ self, ContextAgent },
         state::State,
         interfaces::meow::Meow,
@@ -16,11 +21,33 @@ pub struct HashtagFeed {
     getstate: State,
     hashtag: String,
     post_list: Vec<Dict>,
+    link: ComponentLink<HashtagFeed>,
+    interval: IntervalService,
+    interval_job: Option<Box<Task>>,
 }
 
 pub enum Msg {
+    Action(Action),
     ContextMsg(context::Response),
     GetStates,
+    LocalAction(LocalAction),
+}
+
+pub enum LocalAction {
+    GetReady,
+    GetPosts,
+}
+
+impl From<Action> for Msg {
+    fn from(action: Action) -> Self {
+        Msg::Action(action)
+    }
+}
+
+impl From<LocalAction> for Msg {
+    fn from(local_action: LocalAction) -> Self {
+        Msg::LocalAction(local_action)
+    }
 }
 
 #[derive(PartialEq, Clone)]
@@ -47,6 +74,9 @@ impl Component for HashtagFeed {
             getstate: State::unset(),
             hashtag: props.hashtag,
             post_list: Vec::new(),
+            link,
+            interval: IntervalService::new(),
+            interval_job: None,
         };
         component.update(Msg::GetStates);
         component
@@ -58,13 +88,37 @@ impl Component for HashtagFeed {
                 self.context.send(context::Request::GetStates(getstates()));
             }
 
+            Msg::Action(action) => {
+                self.context.send(context::Request::Action(action));
+            }
+
             Msg::ContextMsg(response) => match response {
                 context::Response::GetStates(getstate) => {
+                    if self.getstate.is_empty() && !getstate.is_empty() {
+                        self.getstate = getstate;
+                        self.update(LocalAction::GetReady.into());
+                        return true;
+                    }
                     self.getstate = getstate;
                     return self.get_feed();
                 }
 
                 context::Response::Request(_, _) => (),
+            },
+
+            Msg::LocalAction(local_action) => match local_action {
+                LocalAction::GetReady => {
+                    self.get_feed();
+                    if self.interval_job.is_none() {
+                        let send_msg = self.link.send_back(|_| LocalAction::GetPosts.into());
+                        let handle = self.interval.spawn(Duration::from_secs(1), send_msg);
+                        self.interval_job = Some(Box::new(handle));
+                    }
+                }
+
+                LocalAction::GetPosts => {
+                    self.update(Action::GetPostsWithHashtag(self.hashtag.clone()).into());
+                }
             },
         };
         false

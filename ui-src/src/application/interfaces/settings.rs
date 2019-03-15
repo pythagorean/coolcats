@@ -33,8 +33,8 @@ pub enum LocalMsg {
 }
 
 impl Settings {
-    fn local_update(&mut self, msg: LocalMsg) -> ShouldRender {
-        match msg {
+    fn local_update(&mut self, local_msg: LocalMsg) -> ShouldRender {
+        match local_msg {
             LocalMsg::NewStates => (),
 
             LocalMsg::UpdateHandleText(input) => {

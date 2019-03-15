@@ -68,6 +68,7 @@ pub enum Action {
     Follow(String),
     Unfollow(String),
     Post(String),
+    GetPostsWithHashtag(String),
 }
 
 #[derive(EnumString, AsStaticStr)]
@@ -84,6 +85,7 @@ pub enum Redux {
     Unfollow,
     GetFollows,
     Post,
+    GetPostsWithHashtag,
 }
 
 pub enum Msg {
@@ -253,6 +255,12 @@ impl Component for Root {
                     );
                 }
 
+                Action::GetPostsWithHashtag(hashtag) => self.coolcats(
+                    "get_posts_with_hashtag",
+                    &[("hashtag", &*hashtag)],
+                    Redux::GetPostsWithHashtag.as_static(),
+                ),
+
                 Action::Follow(user_handle) => self.coolcats_meta(
                     "follow",
                     &[("user_handle", &*user_handle)],
@@ -421,6 +429,12 @@ impl Component for Root {
                         } else {
                             self.state.mut_dict("posts").remove(&stamp);
                             js! { alert("Redux::Post error") };
+                        }
+                    }
+
+                    Redux::GetPostsWithHashtag => {
+                        if !value.is_null() {
+                            js! { alert(@{format!("Redux::GetPostsWithHashtag: {:#?}", value)}) };
                         }
                     }
                 }

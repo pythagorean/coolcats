@@ -98,8 +98,8 @@ macro_rules! interface_component {
                         self.context.send(context::Request::GetStates(getstates()));
                     }
 
-                    Msg::Action(msg) => {
-                        self.context.send(context::Request::Action(msg));
+                    Msg::Action(action) => {
+                        self.context.send(context::Request::Action(action));
                     }
 
                     Msg::ContextMsg(response) => match response {
