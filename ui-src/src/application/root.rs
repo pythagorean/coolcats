@@ -405,17 +405,15 @@ impl Component for Root {
                     }
 
                     Redux::GetFollows => {
-                        if !value.is_null() {
-                            let follows = self.state.mut_dict("follows");
-                            let mut i = 0;
-                            while !value[i].is_null() {
-                                let user_handle = value[i].to_string();
-                                follows.insert(user_handle, true.into());
-                                i += 1;
-                            }
-                            if i > 0 {
-                                return true;
-                            }
+                        let follows = self.state.mut_dict("follows");
+                        let mut i = 0;
+                        while !value[i].is_null() {
+                            let user_handle = value[i].to_string();
+                            follows.insert(user_handle, true.into());
+                            i += 1;
+                        }
+                        if i > 0 {
+                            return true;
                         }
                     }
 
@@ -433,9 +431,28 @@ impl Component for Root {
                     }
 
                     Redux::GetPostsWithHashtag => {
-                        if !value.is_null() {
-                            js! { alert(@{format!("Redux::GetPostsWithHashtag: {:#?}", value)}) };
+                        let posts = self.state.mut_dict("posts");
+                        let mut updated = false;
+                        let mut i = 0;
+                        while !value[i].is_null() {
+                            let item = &value[i];
+                            let post = &item["post"];
+                            let stamp = post["stamp"].to_string();
+                            if posts.get_dict(&stamp).is_empty() {
+                                let address = item["address"].to_string();
+                                let author = item["author"].to_string();
+                                let message = post["message"].to_string();
+
+                                let mut new_post = Dict::new();
+                                new_post.insert("address".into(), address.into());
+                                new_post.insert("author".into(), author.into());
+                                new_post.insert("message".into(), message.into());
+                                posts.insert(stamp, new_post.into());
+                                updated = true;
+                            }
+                            i += 1;
                         }
+                        return updated;
                     }
                 }
             }

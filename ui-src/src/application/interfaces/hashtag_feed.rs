@@ -109,6 +109,7 @@ impl Component for HashtagFeed {
             Msg::LocalAction(local_action) => match local_action {
                 LocalAction::GetReady => {
                     self.get_feed();
+                    self.get_posts();
                     if self.interval_job.is_none() {
                         let send_msg = self.link.send_back(|_| LocalAction::GetPosts.into());
                         let handle = self.interval.spawn(Duration::from_secs(1), send_msg);
@@ -117,7 +118,7 @@ impl Component for HashtagFeed {
                 }
 
                 LocalAction::GetPosts => {
-                    self.update(Action::GetPostsWithHashtag(self.hashtag.clone()).into());
+                    self.get_posts();
                 }
             },
         };
@@ -132,6 +133,10 @@ impl Component for HashtagFeed {
 }
 
 impl HashtagFeed {
+    fn get_posts(&mut self) {
+        self.update(Action::GetPostsWithHashtag(self.hashtag.clone()).into());
+    }
+
     fn get_feed(&mut self) -> bool {
         let posts = self.getstate.get_dict("posts");
         let handles = self.getstate.get_dict("handles");
