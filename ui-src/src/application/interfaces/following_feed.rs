@@ -1,5 +1,9 @@
-use yew::prelude::*;
+use std::time::Duration;
 use std::collections::HashSet;
+use yew::{
+    prelude::*,
+    services::{IntervalService, Task},
+};
 
 use crate::{
     utils::Dict,
@@ -18,23 +22,38 @@ interface_component!(FollowingFeed);
 // This will be mapped to FollowingFeed.local:
 pub struct Local {
     post_list: Vec<Dict>,
+    interval: IntervalService,
+    interval_job: Option<Box<Task>>,
 }
 
 impl Local {
     fn new() -> Self {
         Self {
             post_list: Vec::new(),
+            interval: IntervalService::new(),
+            interval_job: None,
         }
     }
 }
 
 pub enum LocalMsg {
     NewStates,
+    LocalAction(LocalAction),
+}
+
+pub enum LocalAction {
+    GetPostsBy(Vec<String>),
+}
+
+impl From<LocalAction> for Msg {
+    fn from(local_action: LocalAction) -> Self {
+        LocalMsg::LocalAction(local_action).into()
+    }
 }
 
 impl FollowingFeed {
-    fn local_update(&mut self, msg: LocalMsg) -> ShouldRender {
-        match msg {
+    fn local_update(&mut self, local_msg: LocalMsg) -> ShouldRender {
+        match local_msg {
             LocalMsg::NewStates => {
                 let handles = self.getstate.get_dict("handles");
                 let my_handle = self.getstate.string("handle");
@@ -78,9 +97,28 @@ impl FollowingFeed {
                         post
                     })
                     .collect();
+
+                if self.local.interval_job.is_none() {
+                    let posts_by: Vec<_> = follows_plus_self.into_iter().collect();
+                    let send_msg = self
+                        .link
+                        .send_back(move |_| LocalAction::GetPostsBy(posts_by.clone()).into());
+                    let handle = self.local.interval.spawn(Duration::from_secs(2), send_msg);
+                    self.local.interval_job = Some(Box::new(handle));
+                }
             }
+
+            LocalMsg::LocalAction(local_action) => match local_action {
+                LocalAction::GetPostsBy(handles) => {
+                    self.get_posts_by(handles);
+                }
+            },
         }
         true
+    }
+
+    fn get_posts_by(&mut self, handles: Vec<String>) {
+        self.update(Action::GetPostsBy(handles[0].clone()).into());
     }
 }
 

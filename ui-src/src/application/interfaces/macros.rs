@@ -58,6 +58,7 @@ macro_rules! interface_component {
         #[allow(dead_code)]
         pub struct $name {
             context: Box<Bridge<ContextAgent>>,
+            link: ComponentLink<$name>,
             getstate: State,
             local: Local,
             counter: u32,
@@ -84,6 +85,7 @@ macro_rules! interface_component {
                 let context = ContextAgent::bridge(link.send_back(Msg::ContextMsg));
                 let mut component = Self {
                     context,
+                    link,
                     getstate: State::unset(),
                     local: Local::new(),
                     counter: props.counter,
