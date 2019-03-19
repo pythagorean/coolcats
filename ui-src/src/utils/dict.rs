@@ -15,6 +15,8 @@ pub enum DictValue {
 }
 
 pub type DictType = HashMap<DictKey, DictValue>;
+pub type DictItem = (DictKey, DictValue);
+pub type DictList = Vec<DictItem>;
 
 #[derive(Default, Serialize, Deserialize, PartialEq, Debug)]
 pub struct Dict(DictType);

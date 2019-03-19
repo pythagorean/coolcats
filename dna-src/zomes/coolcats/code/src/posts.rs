@@ -113,8 +113,8 @@ pub fn handle_get_post(address: String) -> JsonString {
     }
 }
 
-pub fn handle_get_posts_by(user_handle: String) -> JsonString {
-    match get_posts_by(&user_handle) {
+pub fn handle_get_posts_by(handles: Vec<String>) -> JsonString {
+    match get_posts_by(handles.as_slice()) {
         Ok(success) => json!({ "value": success }).into(),
         Err(hdk_err) => json!({ "error": hdk_err }).into(),
     }
@@ -190,11 +190,13 @@ fn get_post(addr: &Address) -> ZomeApiResult<GetPost> {
     Err(ZomeApiError::ValidationFailed("post_not_found".into()))
 }
 
-fn get_posts_by(user_handle: &str) -> ZomeApiResult<Vec<GetPost>> {
+fn get_posts_by(handles: &[String]) -> ZomeApiResult<Vec<GetPost>> {
     let mut posts: Vec<GetPost> = Vec::new();
-    let post_links = hdk::get_links(&Handle::address(user_handle)?, POST)?;
-    for addr in post_links.addresses() {
-        posts.push(get_post(&addr)?)
+    for user_handle in handles {
+        let post_links = hdk::get_links(&Handle::address(user_handle)?, POST)?;
+        for addr in post_links.addresses() {
+            posts.push(get_post(&addr)?)
+        }
     }
     Ok(posts)
 }

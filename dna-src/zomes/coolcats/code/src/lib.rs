@@ -134,7 +134,7 @@ define_zome! {
             handler: posts::handle_get_post
         }
         get_posts_by: {
-            inputs: |user_handle: String|,
+            inputs: |handles: Vec<String>|,
             outputs: |result: JsonString|,
             handler: posts::handle_get_posts_by
         }

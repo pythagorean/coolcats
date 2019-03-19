@@ -1,5 +1,4 @@
 use std::time::Duration;
-use std::collections::HashSet;
 use yew::{
     prelude::*,
     services::{IntervalService, Task},
@@ -55,51 +54,16 @@ impl FollowingFeed {
     fn local_update(&mut self, local_msg: LocalMsg) -> ShouldRender {
         match local_msg {
             LocalMsg::NewStates => {
-                let handles = self.getstate.get_dict("handles");
-                let my_handle = self.getstate.string("handle");
                 let follows = self.getstate.get_dict("follows");
-                let posts = self.getstate.get_dict("posts");
-
-                let mut follows_plus_self = HashSet::new();
-                for key in follows.raw().keys() {
-                    follows_plus_self.insert(key.to_string());
+                let my_handle = self.getstate.string("handle");
+                let mut posts_by: Vec<_> = follows.raw().keys().cloned().collect();
+                if !posts_by.contains(my_handle) {
+                    posts_by.push(my_handle.clone());
                 }
-                follows_plus_self.insert(my_handle.clone());
 
-                let mut stamps: Vec<String> = Vec::new();
-                for stamp in posts.raw().keys().filter(|stamp| {
-                    let post = posts.get_dict(stamp);
-                    let author = post.string("author");
-                    follows_plus_self.contains(author)
-                }) {
-                    stamps.push(stamp.to_string());
-                }
-                stamps.sort_unstable_by(|a, b| {
-                    let a: u128 = a.parse().unwrap();
-                    let b: u128 = b.parse().unwrap();
-                    b.cmp(&a)
-                });
-
-                self.local.post_list = stamps
-                    .iter()
-                    .map(|stamp| {
-                        let mut post = posts.get_dict(stamp).clone();
-                        if post.string("stamp").is_empty() {
-                            post.insert("stamp".into(), stamp.clone().into());
-                        }
-
-                        let author = post.string("author");
-                        let mut user_handle = handles.string(author);
-                        if user_handle.is_empty() {
-                            user_handle = author
-                        };
-                        post.insert("user_handle".into(), user_handle.clone().into());
-                        post
-                    })
-                    .collect();
+                self.get_feed(posts_by.as_slice());
 
                 if self.local.interval_job.is_none() {
-                    let posts_by: Vec<_> = follows_plus_self.into_iter().collect();
                     let send_msg = self
                         .link
                         .send_back(move |_| LocalAction::GetPostsBy(posts_by.clone()).into());
@@ -118,7 +82,48 @@ impl FollowingFeed {
     }
 
     fn get_posts_by(&mut self, handles: Vec<String>) {
-        self.update(Action::GetPostsBy(handles[0].clone()).into());
+        self.update(Action::GetPostsBy(handles).into());
+    }
+
+    fn get_following(&mut self, handle: String) {
+        self.update(Action::GetFollowing(handle).into());
+    }
+
+    fn get_feed(&mut self, posts_by: &[String]) {
+        let handles = self.getstate.get_dict("handles");
+        let posts = self.getstate.get_dict("posts");
+
+        let mut stamps: Vec<String> = Vec::new();
+        for stamp in posts.raw().keys().filter(|stamp| {
+            let post = posts.get_dict(stamp);
+            let author = post.string("author");
+            posts_by.contains(author)
+        }) {
+            stamps.push(stamp.to_string());
+        }
+        stamps.sort_unstable_by(|a, b| {
+            let a: u128 = a.parse().unwrap();
+            let b: u128 = b.parse().unwrap();
+            b.cmp(&a)
+        });
+
+        self.local.post_list = stamps
+            .iter()
+            .map(|stamp| {
+                let mut post = posts.get_dict(stamp).clone();
+                if post.string("stamp").is_empty() {
+                    post.insert("stamp".into(), stamp.clone().into());
+                }
+
+                let author = post.string("author");
+                let mut user_handle = handles.string(author);
+                if user_handle.is_empty() {
+                    user_handle = author
+                };
+                post.insert("user_handle".into(), user_handle.clone().into());
+                post
+            })
+            .collect();
     }
 }
 

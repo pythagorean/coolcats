@@ -275,7 +275,7 @@ runtests.includes('posts') && test('posts', (t) => {
     t.test('getting non-existent posts returns empty list', (t) => {
       t.plan(1)
       const result = display(call("get_posts_by", {
-        user_handle: "buffaloBill"
+        handles: ["buffaloBill"]
       }))
       t.deepEqual(result.value, [])
     })
@@ -311,7 +311,7 @@ runtests.includes('posts') && test('posts', (t) => {
     t.test('we can retrieve posts', (t) => {
       t.plan(1)
       const result = display(call("get_posts_by", {
-        user_handle: "buffaloBill"
+        handles: ["buffaloBill"]
       }))
       t.deepEqual(result.value, [{
         address: "QmWZZxnYwVuBBShQSqK7E8TTjix8bKMaA1nKkiyFhbfxHv",
@@ -645,7 +645,7 @@ runtests.includes('follows') && scenario2.runTape('follows', async (t, {
 
     underline("retrieve Alice's posts")
     var result = display(bob.call("coolcats", "get_posts_by", {
-      user_handle: "alice"
+      handles: ["alice"]
     }))
     t.deepEqual(result.value, [{
       address: "Qmf3ddxyxXFjHpCCQqGg187mytBLBWa2AZNofYkLPLP4Fg",

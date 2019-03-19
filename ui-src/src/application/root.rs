@@ -11,7 +11,7 @@ use yew::{
 use yew_router::{routes, Route, RouterAgent};
 
 use crate::{
-    utils::Dict,
+    utils::{Dict, DictItem},
     holoclient::ToHoloclient,
 };
 
@@ -67,8 +67,9 @@ pub enum Action {
     SetProfilePic(String),
     Follow(String),
     Unfollow(String),
+    GetFollowing(String),
     Post(String),
-    GetPostsBy(String),
+    GetPostsBy(Vec<String>),
     GetPostsWithHashtag(String),
 }
 
@@ -84,7 +85,7 @@ pub enum Redux {
     GetProfilePic,
     Follow,
     Unfollow,
-    GetFollows,
+    GetFollowing,
     Post,
     GetPostsBy,
     GetPostsWithHashtag,
@@ -216,7 +217,7 @@ impl Component for Root {
                 Action::UseHandle(handle) => {
                     self.coolcats(
                         "use_handle",
-                        &[("handle", &*handle)],
+                        &[("handle".into(), handle.into())],
                         Redux::UseHandle.as_static(),
                     );
                 }
@@ -225,7 +226,7 @@ impl Component for Root {
                     self.state.set_string("first_name".into(), first_name.clone());
                     self.coolcats(
                         "set_first_name",
-                        &[("name", &*first_name)],
+                        &[("name".into(), first_name.into())],
                         Redux::SetFirstName.as_static(),
                     );
                     self.save_profile();
@@ -236,7 +237,7 @@ impl Component for Root {
                     self.state.set_string("profile_pic".into(), profile_pic.clone());
                     self.coolcats(
                         "set_profile_pic",
-                        &[("dataurl", &*profile_pic)],
+                        &[("dataurl".into(), profile_pic.into())],
                         Redux::SetProfilePic.as_static(),
                     );
                     self.save_profile();
@@ -251,37 +252,44 @@ impl Component for Root {
                     self.state.mut_dict("posts").insert(stamp.clone(), post.into());
                     self.coolcats_meta(
                         "post",
-                        &[("message", &*message), ("stamp", &stamp)],
+                        &[
+                            ("message".into(), message.into()),
+                            ("stamp".into(), stamp.clone().into()),
+                        ],
                         Redux::Post.as_static(),
                         &stamp,
                     );
                 }
 
-                Action::GetPostsBy(user_handle) => self.coolcats(
+                Action::GetPostsBy(handles) => self.coolcats(
                     "get_posts_by",
-                    &[("user_handle", &*user_handle)],
+                    &[("handles".into(), handles.into())],
                     Redux::GetPostsBy.as_static(),
                 ),
 
                 Action::GetPostsWithHashtag(hashtag) => self.coolcats(
                     "get_posts_with_hashtag",
-                    &[("hashtag", &*hashtag)],
+                    &[("hashtag".into(), hashtag.into())],
                     Redux::GetPostsWithHashtag.as_static(),
                 ),
 
                 Action::Follow(user_handle) => self.coolcats_meta(
                     "follow",
-                    &[("user_handle", &*user_handle)],
+                    &[("user_handle".into(), user_handle.clone().into())],
                     Redux::Follow.as_static(),
                     &user_handle,
                 ),
 
                 Action::Unfollow(user_handle) => self.coolcats_meta(
                     "unfollow",
-                    &[("user_handle", &*user_handle)],
+                    &[("user_handle".into(), user_handle.clone().into())],
                     Redux::Unfollow.as_static(),
                     &user_handle,
                 ),
+
+                Action::GetFollowing(user_handle) => {
+                    self.get_following(&user_handle);
+                }
             },
         }
         false
@@ -412,7 +420,11 @@ impl Component for Root {
                         }
                     }
 
-                    Redux::GetFollows => {
+                    Redux::GetFollowing => {
+                        if meta != *self.state.string("handle") {
+                            js! { alert(@{format!("Redux::GetFollowing on handle {} not supported", meta)}) };
+                            return false;
+                        }
                         let follows = self.state.mut_dict("follows");
                         let mut i = 0;
                         while !value[i].is_null() {
@@ -489,14 +501,14 @@ impl Root {
         }
     }
 
-    fn coolcats_meta(&mut self, method: &str, params: &[(&str, &str)], redux: &str, meta: &str) {
+    fn coolcats_meta(&mut self, method: &str, params: &[DictItem], redux: &str, meta: &str) {
         let call = ToHoloclient::Call(
             (&[self.conductor.as_str(), "coolcats", method][..], params, redux, meta).into(),
         );
         self.update(call.into());;
     }
 
-    fn coolcats(&mut self, method: &str, params: &[(&str, &str)], redux: &str) {
+    fn coolcats(&mut self, method: &str, params: &[DictItem], redux: &str) {
         let call = ToHoloclient::Call(
             (&[self.conductor.as_str(), "coolcats", method][..], params, redux).into(),
         );
@@ -504,12 +516,16 @@ impl Root {
     }
 
     fn coolcats_np(&mut self, method: &str, redux: &str) {
-        let no_params = [("", "")];
+        let no_params = [("".into(), "".into())];
         self.coolcats(method, &no_params, redux);
     }
 
     fn get_my_handle(&mut self) {
-        self.coolcats("app_property", &[("key", "Agent_Handle")], Redux::AgentHandle.as_static());
+        self.coolcats(
+            "app_property",
+            &[("key".into(), "Agent_Handle".into())],
+            Redux::AgentHandle.as_static(),
+        );
     }
 
     fn get_handles(&mut self) {
@@ -525,10 +541,11 @@ impl Root {
     }
 
     fn get_following(&mut self, user_handle: &str) {
-        self.coolcats(
+        self.coolcats_meta(
             "get_following",
-            &[("user_handle", user_handle)],
-            Redux::GetFollows.as_static(),
+            &[("user_handle".into(), user_handle.into())],
+            Redux::GetFollowing.as_static(),
+            user_handle,
         );
     }
 }

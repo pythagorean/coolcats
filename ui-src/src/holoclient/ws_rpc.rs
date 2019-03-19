@@ -1,10 +1,10 @@
-use crate::utils::DictValue;
+use crate::utils::{DictValue, DictItem, DictList};
 
 #[derive(PartialEq, Clone)]
 pub enum Params {
     Unspecified,
     Positional(Vec<DictValue>),
-    Named(Vec<(String, DictValue)>),
+    Named(DictList),
 }
 
 pub struct WsRpc {
@@ -56,6 +56,11 @@ impl WsRpc {
                                 r#""{}""#, value
                             });
                         }
+                        DictValue::Strings(ref value) => {
+                            params.push(format! {
+                                r#"["{}"]"#, value.join(r#"",""#)
+                            });
+                        }
                         DictValue::Integer(value) => {
                             params.push(value.to_string());
                         }
@@ -88,6 +93,12 @@ impl WsRpc {
                             params.push(format! {
                                 r#""{}":"{}""#,
                                 key, value
+                            });
+                        }
+                        DictValue::Strings(ref value) => {
+                            params.push(format! {
+                                r#""{}":["{}"]"#,
+                                key, value.join(r#"",""#)
                             });
                         }
                         DictValue::Integer(value) => {
@@ -142,6 +153,8 @@ impl Call {
     }
 }
 
+// No params
+
 impl From<String> for Call {
     fn from(method: String) -> Self {
         Call {
@@ -150,6 +163,52 @@ impl From<String> for Call {
         }
     }
 }
+
+impl From<&str> for Call {
+    fn from(method: &str) -> Self {
+        method.to_string().into()
+    }
+}
+
+impl From<&[&str]> for Call {
+    fn from(method: &[&str]) -> Self {
+        method.join("/").into()
+    }
+}
+
+// Positional param
+
+impl From<(String, DictValue)> for Call {
+    fn from(args: (String, DictValue)) -> Self {
+        (args.0, vec![args.1]).into()
+    }
+}
+
+impl From<(&str, DictValue)> for Call {
+    fn from(args: (&str, DictValue)) -> Self {
+        (args.0.to_string(), args.1).into()
+    }
+}
+
+impl From<(&str, &DictValue)> for Call {
+    fn from(args: (&str, &DictValue)) -> Self {
+        (args.0, args.1.clone()).into()
+    }
+}
+
+impl From<(&[&str], DictValue)> for Call {
+    fn from(args: (&[&str], DictValue)) -> Self {
+        (args.0.join("/"), args.1).into()
+    }
+}
+
+impl From<(&[&str], &DictValue)> for Call {
+    fn from(args: (&[&str], &DictValue)) -> Self {
+        (args.0, args.1.clone()).into()
+    }
+}
+
+// Positional params
 
 impl From<(String, Vec<DictValue>)> for Call {
     fn from(args: (String, Vec<DictValue>)) -> Self {
@@ -160,8 +219,66 @@ impl From<(String, Vec<DictValue>)> for Call {
     }
 }
 
-impl From<(String, Vec<(String, DictValue)>)> for Call {
-    fn from(args: (String, Vec<(String, DictValue)>)) -> Self {
+impl From<(&str, Vec<DictValue>)> for Call {
+    fn from(args: (&str, Vec<DictValue>)) -> Self {
+        (args.0.to_string(), args.1).into()
+    }
+}
+
+impl From<(&str, &[DictValue])> for Call {
+    fn from(args: (&str, &[DictValue])) -> Self {
+        (args.0, args.1.to_vec()).into()
+    }
+}
+
+impl From<(&[&str], Vec<DictValue>)> for Call {
+    fn from(args: (&[&str], Vec<DictValue>)) -> Self {
+        (args.0.join("/"), args.1).into()
+    }
+}
+
+impl From<(&[&str], &[DictValue])> for Call {
+    fn from(args: (&[&str], &[DictValue])) -> Self {
+        (args.0, args.1.to_vec()).into()
+    }
+}
+
+// Named param
+
+impl From<(String, DictItem)> for Call {
+    fn from(args: (String, DictItem)) -> Self {
+        (args.0, vec![args.1]).into()
+    }
+}
+
+impl From<(&str, DictItem)> for Call {
+    fn from(args: (&str, DictItem)) -> Self {
+        (args.0.to_string(), args.1).into()
+    }
+}
+
+impl From<(&str, &DictItem)> for Call {
+    fn from(args: (&str, &DictItem)) -> Self {
+        (args.0, args.1.clone()).into()
+    }
+}
+
+impl From<(&[&str], DictItem)> for Call {
+    fn from(args: (&[&str], DictItem)) -> Self {
+        (args.0.join("/"), args.1).into()
+    }
+}
+
+impl From<(&[&str], &DictItem)> for Call {
+    fn from(args: (&[&str], &DictItem)) -> Self {
+        (args.0, args.1.clone()).into()
+    }
+}
+
+// Named params
+
+impl From<(String, DictList)> for Call {
+    fn from(args: (String, DictList)) -> Self {
         Call {
             method: args.0,
             params: Params::Named(args.1),
@@ -169,298 +286,26 @@ impl From<(String, Vec<(String, DictValue)>)> for Call {
     }
 }
 
-// No params
-impl From<&str> for Call {
-    fn from(method: &str) -> Self {
-        method.to_string().into()
-    }
-}
-
-// No params
-impl From<&[String]> for Call {
-    fn from(method: &[String]) -> Self {
-        method.join("/").into()
-    }
-}
-
-// No params
-impl From<&[&str]> for Call {
-    fn from(method: &[&str]) -> Self {
-        method.join("/").into()
-    }
-}
-
-// Positional param
-impl From<(String, DictValue)> for Call {
-    fn from(args: (String, DictValue)) -> Self {
-        (args.0, vec![args.1]).into()
-    }
-}
-
-// Named param
-impl From<(String, (String, DictValue))> for Call {
-    fn from(args: (String, (String, DictValue))) -> Self {
-        (args.0, vec![((args.1).0, (args.1).1)]).into()
-    }
-}
-
-// Positional string param
-impl From<(String, String)> for Call {
-    fn from(args: (String, String)) -> Self {
-        (args.0, DictValue::String(args.1)).into()
-    }
-}
-
-// Named string param
-impl From<(String, (String, String))> for Call {
-    fn from(args: (String, (String, String))) -> Self {
-        (args.0, ((args.1).0, DictValue::String((args.1).1))).into()
-    }
-}
-
-// Positional string param
-impl From<(&str, &str)> for Call {
-    fn from(args: (&str, &str)) -> Self {
-        (args.0.to_string(), args.1.to_string()).into()
-    }
-}
-
-// Named string param
-impl From<(&str, (&str, &str))> for Call {
-    fn from(args: (&str, (&str, &str))) -> Self {
-        (args.0.to_string(), ((args.1).0.to_string(), (args.1).1.to_string())).into()
-    }
-}
-
-// Positional string param
-impl From<(&[&str], &str)> for Call {
-    fn from(args: (&[&str], &str)) -> Self {
-        (args.0.join("/"), args.1.to_string()).into()
-    }
-}
-
-// Named string param
-impl From<(&[&str], (&str, &str))> for Call {
-    fn from(args: (&[&str], (&str, &str))) -> Self {
-        (args.0.join("/"), ((args.1).0.to_string(), (args.1).1.to_string())).into()
-    }
-}
-
-// Positional param
-impl From<(&str, DictValue)> for Call {
-    fn from(args: (&str, DictValue)) -> Self {
+impl From<(&str, DictList)> for Call {
+    fn from(args: (&str, DictList)) -> Self {
         (args.0.to_string(), args.1).into()
     }
 }
 
-// Named param
-impl From<(&str, (&str, DictValue))> for Call {
-    fn from(args: (&str, (&str, DictValue))) -> Self {
-        (args.0.to_string(), ((args.1).0.to_string(), (args.1).1)).into()
-    }
-}
-
-// Positional integer param
-impl From<(&str, i32)> for Call {
-    fn from(args: (&str, i32)) -> Self {
-        (args.0.to_string(), DictValue::Integer(args.1)).into()
-    }
-}
-
-// Named integer param
-impl From<(&str, (&str, i32))> for Call {
-    fn from(args: (&str, (&str, i32))) -> Self {
-        (args.0.to_string(), ((args.1).0.to_string(), DictValue::Integer((args.1).1))).into()
-    }
-}
-
-// Positional integer param
-impl From<(&[&str], i32)> for Call {
-    fn from(args: (&[&str], i32)) -> Self {
-        (args.0.join("/"), DictValue::Integer(args.1)).into()
-    }
-}
-
-// Named integer param
-impl From<(&[&str], (&str, i32))> for Call {
-    fn from(args: (&[&str], (&str, i32))) -> Self {
-        (args.0.join("/"), ((args.1).0.to_string(), DictValue::Integer((args.1).1))).into()
-    }
-}
-
-// Positional bool param
-impl From<(&str, bool)> for Call {
-    fn from(args: (&str, bool)) -> Self {
-        (args.0.to_string(), DictValue::Bool(args.1)).into()
-    }
-}
-
-// Named bool param
-impl From<(&str, (&str, bool))> for Call {
-    fn from(args: (&str, (&str, bool))) -> Self {
-        (args.0.to_string(), ((args.1).0.to_string(), DictValue::Bool((args.1).1))).into()
-    }
-}
-
-// Positional bool param
-impl From<(&[&str], bool)> for Call {
-    fn from(args: (&[&str], bool)) -> Self {
-        (args.0.join("/"), DictValue::Bool(args.1)).into()
-    }
-}
-
-// Named bool param
-impl From<(&[&str], (&str, bool))> for Call {
-    fn from(args: (&[&str], (&str, bool))) -> Self {
-        (args.0.join("/"), ((args.1).0.to_string(), DictValue::Bool((args.1).1))).into()
-    }
-}
-
-// Positional string params
-impl From<(String, &[String])> for Call {
-    fn from(args: (String, &[String])) -> Self {
-        let method = args.0;
-        let params: Vec<_> =
-            args.1.iter().map(|value| DictValue::String(value.to_string())).collect();
-        (method, params).into()
-    }
-}
-
-// Positional integer params
-impl From<(String, &[i32])> for Call {
-    fn from(args: (String, &[i32])) -> Self {
-        let method = args.0;
-        let params: Vec<_> = args.1.iter().map(|value| DictValue::Integer(*value)).collect();
-        (method, params).into()
-    }
-}
-
-// Named string params
-impl From<(String, &[(String, String)])> for Call {
-    fn from(args: (String, &[(String, String)])) -> Self {
-        let method = args.0;
-        let params: Vec<_> = args
-            .1
-            .iter()
-            .map(|(key, value)| (key.clone(), DictValue::String(value.to_string())))
-            .collect();
-        (method, params).into()
-    }
-}
-
-// Positional string params
-impl From<(String, &[&str])> for Call {
-    fn from(args: (String, &[&str])) -> Self {
-        let method = args.0;
-        let params: Vec<_> =
-            args.1.iter().map(|value| DictValue::String(value.to_string())).collect();
-        (method, params).into()
-    }
-}
-
-// Named string params
-impl From<(String, &[(&str, &str)])> for Call {
-    fn from(args: (String, &[(&str, &str)])) -> Self {
-        let method = args.0;
-        let params: Vec<_> = args
-            .1
-            .iter()
-            .map(|(key, value)| (key.to_string(), DictValue::String(value.to_string())))
-            .collect();
-        (method, params).into()
-    }
-}
-
-// Positional params
-impl From<(String, &[DictValue])> for Call {
-    fn from(args: (String, &[DictValue])) -> Self {
+impl From<(&str, &[DictItem])> for Call {
+    fn from(args: (&str, &[DictItem])) -> Self {
         (args.0, args.1.to_vec()).into()
     }
 }
 
-// Named params
-impl From<(String, &[(&str, DictValue)])> for Call {
-    fn from(args: (String, &[(&str, DictValue)])) -> Self {
-        let method = args.0;
-        let params: Vec<_> =
-            args.1.iter().map(|(key, value)| (key.to_string(), value.clone())).collect();
-        (method, params).into()
-    }
-}
-
-// Positional params
-impl From<(&str, &[DictValue])> for Call {
-    fn from(args: (&str, &[DictValue])) -> Self {
-        (args.0.to_string(), args.1).into()
-    }
-}
-
-// Named params
-impl From<(&str, &[(String, DictValue)])> for Call {
-    fn from(args: (&str, &[(String, DictValue)])) -> Self {
-        (args.0.to_string(), args.1.to_vec()).into()
-    }
-}
-
-// Named params
-impl From<(&str, &[(&str, DictValue)])> for Call {
-    fn from(args: (&str, &[(&str, DictValue)])) -> Self {
-        (args.0.to_string(), args.1).into()
-    }
-}
-
-// Positional string params
-impl From<(&str, &[&str])> for Call {
-    fn from(args: (&str, &[&str])) -> Self {
-        (args.0.to_string(), args.1).into()
-    }
-}
-
-// Positional integer params
-impl From<(&str, &[i32])> for Call {
-    fn from(args: (&str, &[i32])) -> Self {
-        (args.0.to_string(), args.1).into()
-    }
-}
-
-// Named string params
-impl From<(&str, &[(&str, &str)])> for Call {
-    fn from(args: (&str, &[(&str, &str)])) -> Self {
-        (args.0.to_string(), args.1).into()
-    }
-}
-
-// Positional string params
-impl From<(&[&str], &[&str])> for Call {
-    fn from(args: (&[&str], &[&str])) -> Self {
+impl From<(&[&str], DictList)> for Call {
+    fn from(args: (&[&str], DictList)) -> Self {
         (args.0.join("/"), args.1).into()
     }
 }
 
-// Positional integer params
-impl From<(&[&str], &[i32])> for Call {
-    fn from(args: (&[&str], &[i32])) -> Self {
-        (args.0.join("/"), args.1).into()
-    }
-}
-
-// Named string params
-impl From<(&[&str], &[(&str, &str)])> for Call {
-    fn from(args: (&[&str], &[(&str, &str)])) -> Self {
-        (args.0.join("/"), args.1).into()
-    }
-}
-
-// Positional params
-impl From<(&[&str], &[DictValue])> for Call {
-    fn from(args: (&[&str], &[DictValue])) -> Self {
-        (args.0.join("/"), args.1).into()
-    }
-}
-
-// Named params
-impl From<(&[&str], &[(&str, DictValue)])> for Call {
-    fn from(args: (&[&str], &[(&str, DictValue)])) -> Self {
-        (args.0.join("/"), args.1).into()
+impl From<(&[&str], &[DictItem])> for Call {
+    fn from(args: (&[&str], &[DictItem])) -> Self {
+        (args.0, args.1.to_vec()).into()
     }
 }

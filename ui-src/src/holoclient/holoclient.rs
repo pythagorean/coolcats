@@ -2,7 +2,10 @@ use yew::prelude::*;
 
 use serde::Deserialize;
 
-use crate::application::ToApplication;
+use crate::{
+    application::ToApplication,
+    utils::DictItem,
+};
 
 use super::{
     websocket::{
@@ -71,8 +74,8 @@ impl From<(&str, &str)> for Params {
     }
 }
 
-impl From<(&[&str], &[(&str, &str)], &str)> for Params {
-    fn from(args: (&[&str], &[(&str, &str)], &str)) -> Self {
+impl From<(&[&str], &[DictItem], &str)> for Params {
+    fn from(args: (&[&str], &[DictItem], &str)) -> Self {
         let rpc: ws_rpc::Call = (args.0, args.1).into();
         let redux = args.2.into();
         Params {
@@ -83,8 +86,8 @@ impl From<(&[&str], &[(&str, &str)], &str)> for Params {
     }
 }
 
-impl From<(&[&str], &[(&str, &str)], &str, &str)> for Params {
-    fn from(args: (&[&str], &[(&str, &str)], &str, &str)) -> Self {
+impl From<(&[&str], &[DictItem], &str, &str)> for Params {
+    fn from(args: (&[&str], &[DictItem], &str, &str)) -> Self {
         let rpc: ws_rpc::Call = (args.0, args.1).into();
         let redux = args.2.into();
         let index = args.3.into();
