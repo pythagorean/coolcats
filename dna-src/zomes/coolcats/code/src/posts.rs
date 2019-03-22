@@ -179,7 +179,7 @@ fn get_post(addr: &Address) -> ZomeApiResult<GetPost> {
                     &result
                         .headers
                         .into_iter()
-                        .map(|header| header.provenances().first().unwrap().clone().0)
+                        .map(|header| header.provenances().first().unwrap().clone().source())
                         .next()
                         .unwrap(),
                 )?;

@@ -252,7 +252,7 @@ pub fn get_agent(handle: &str) -> ZomeApiResult<Address> {
         let agent = result
             .headers
             .into_iter()
-            .map(|header| header.provenances().first().unwrap().clone().0)
+            .map(|header| header.provenances().first().unwrap().clone().source())
             .next()
             .unwrap();
         return Ok(agent);
