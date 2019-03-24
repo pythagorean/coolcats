@@ -12,8 +12,8 @@ use super::{
         WebSocketService,
         WebSocketStatus,
     },
-    ws_rpc::{
-        self,
+    call_rpc::{
+        Call,
         WsRpc,
     },
 };
@@ -57,14 +57,14 @@ impl From<WsAction> for Msg {
 
 #[derive(PartialEq, Clone)]
 pub struct Params {
-    rpc: ws_rpc::Call,
+    rpc: Call,
     redux: String,
     index: String,
 }
 
 impl From<(&str, &str)> for Params {
     fn from(args: (&str, &str)) -> Self {
-        let rpc: ws_rpc::Call = args.0.into();
+        let rpc: Call = args.0.into();
         let redux = args.1.into();
         Params {
             rpc,
@@ -76,7 +76,7 @@ impl From<(&str, &str)> for Params {
 
 impl From<(&[&str], &[DictItem], &str)> for Params {
     fn from(args: (&[&str], &[DictItem], &str)) -> Self {
-        let rpc: ws_rpc::Call = (args.0, args.1).into();
+        let rpc: Call = (args.0, args.1).into();
         let redux = args.2.into();
         Params {
             rpc,
@@ -88,7 +88,7 @@ impl From<(&[&str], &[DictItem], &str)> for Params {
 
 impl From<(&[&str], &[DictItem], &str, &str)> for Params {
     fn from(args: (&[&str], &[DictItem], &str, &str)) -> Self {
-        let rpc: ws_rpc::Call = (args.0, args.1).into();
+        let rpc: Call = (args.0, args.1).into();
         let redux = args.2.into();
         let index = args.3.into();
         Params {
@@ -108,7 +108,7 @@ impl Default for Params {
 impl Params {
     pub fn new() -> Self {
         Params {
-            rpc: ws_rpc::Call::new(),
+            rpc: Call::new(),
             redux: String::new(),
             index: String::new(),
         }
