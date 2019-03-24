@@ -48,7 +48,7 @@ dna-lint:
 	(cd dna-src/zomes/coolcats/code; cargo +$(NIGHTLY) clippy)
 
 dna-test:
-	(cd dna-src/test; yarn)
+	(cd dna-src/test; yarn -s)
 	(cd dna-src; hc test)
 
 dna-start: dna
@@ -77,7 +77,7 @@ dna-reset:
 
 dna-update:
 	(cd dna-src/zomes/coolcats/code; cargo +$(NIGHTLY) update)
-	-(cd dna-src/test; yarn upgrade --latest)
+	-(cd dna-src/test; yarn -s upgrade --latest)
 
 dna-clean:
 	(cd dna-src/zomes/coolcats/code; cargo +$(NIGHTLY) clean && rm -f Cargo.lock)
@@ -85,7 +85,7 @@ dna-clean:
 	find . -name *.dna.json -exec rm {} +
 
 ui:
-	(cd ui-src; yarn; yarn build)
+	(cd ui-src; yarn -s; yarn build)
 
 ui-build: ui
 
@@ -97,10 +97,10 @@ ui-lint:
 	(cd ui-src; cargo +stable clippy)
 
 ui-start:
-	(cd ui-src; yarn; yarn start)
+	(cd ui-src; yarn -s; yarn start)
 
 ui-deploy:
-	(cd ui-src; yarn; yarn deploy)
+	(cd ui-src; yarn -s; yarn deploy)
 
 ui-startnet: ui-deploy
 	http-server ui-src/target/deploy -p8000 -s -c-1 &
@@ -110,7 +110,7 @@ ui-startnet: ui-deploy
 
 ui-update:
 	(cd ui-src; cargo +stable update)
-	-(cd ui-src; yarn upgrade --latest)
+	-(cd ui-src; yarn -s upgrade --latest)
 
 ui-clean:
 	(cd ui-src; cargo +stable clean && rm -f Cargo.lock)

@@ -120,8 +120,8 @@ impl Params {
         self.index.clear();
     }
 
-    pub fn has_method(&self) -> bool {
-        self.rpc.has_method()
+    pub fn has_function(&self) -> bool {
+        self.rpc.has_function()
     }
 
     pub fn has_redux(&self) -> bool {
@@ -215,7 +215,7 @@ impl Component for Holoclient {
 
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
         let call = props.params;
-        if call.has_method() {
+        if call.has_function() {
             let rpc: WsRpc = if call.has_redux() {
                 let rpc_id = format!("{}+{}", call.redux, call.index);
                 (call.rpc, rpc_id).into()

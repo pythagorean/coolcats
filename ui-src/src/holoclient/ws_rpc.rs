@@ -7,23 +7,23 @@ pub enum Params {
     Named(DictList),
 }
 
-pub struct WsRpc {
-    method: String,
-    params: Params,
-    id: String,
-}
-
 #[derive(PartialEq, Clone)]
 pub struct Call {
-    method: String,
+    instance_id: String,
+    zome: String,
+    function: String,
     params: Params,
+}
+
+pub struct WsRpc {
+    call: Call,
+    id: String,
 }
 
 impl From<(Call, u32)> for WsRpc {
     fn from(call_id: (Call, u32)) -> Self {
         WsRpc {
-            method: call_id.0.method,
-            params: call_id.0.params,
+            call: call_id.0,
             id: call_id.1.to_string(),
         }
     }
@@ -32,8 +32,7 @@ impl From<(Call, u32)> for WsRpc {
 impl From<(Call, String)> for WsRpc {
     fn from(call_id: (Call, String)) -> Self {
         WsRpc {
-            method: call_id.0.method,
-            params: call_id.0.params,
+            call: call_id.0,
             id: call_id.1,
         }
     }
@@ -41,11 +40,7 @@ impl From<(Call, String)> for WsRpc {
 
 impl WsRpc {
     pub fn json(&self) -> String {
-        let method = format! {
-            r#""method":"{}""#,
-            self.method
-        };
-        let params = match &self.params {
+        let params = match &self.call.params {
             Params::Unspecified => r#""params":null"#.to_string(),
             Params::Positional(positional_params) => {
                 let mut params = Vec::new();
@@ -110,7 +105,12 @@ impl WsRpc {
                         DictValue::Bool(value) => {
                             params.push(format! {
                                 r#""{}":{}"#,
-                                key, if value { "true" } else { "false" }
+                                key,
+                                if value {
+                                    "true"
+                                } else {
+                                    "false"
+                                }
                             });
                         }
                         _ => {
@@ -128,9 +128,19 @@ impl WsRpc {
             r#""id":"{}""#,
             self.id
         };
+        if self.call.instance_id.is_empty() && !self.call.function.is_empty() {
+            return format! {
+                r#"{{"jsonrpc":"2.0",{},"method":"{}",{}}}"#,
+                id, self.call.function, params
+            };
+        }
+        let call = format! {
+            r#"{{"instance_id":"{}","zome":"{}","function":"{}",{}}}"#,
+            self.call.instance_id, self.call.zome, self.call.function, params
+        };
         format! {
-            r#"{{"jsonrpc":"2.0",{},{},{}}}"#,
-            method, params, id
+            r#"{{"jsonrpc":"2.0",{},"method":"call","params":{}}}"#,
+            id, call
         }
     }
 }
@@ -138,67 +148,64 @@ impl WsRpc {
 impl Call {
     pub fn new() -> Self {
         Call {
-            method: String::new(),
+            instance_id: String::new(),
+            zome: String::new(),
+            function: String::new(),
             params: Params::Unspecified,
         }
     }
 
     pub fn clear(&mut self) {
-        self.method.clear();
+        self.instance_id.clear();
+        self.zome.clear();
+        self.function.clear();
         self.params = Params::Unspecified;
     }
 
-    pub fn has_method(&self) -> bool {
-        !self.method.is_empty()
+    pub fn has_function(&self) -> bool {
+        !self.function.is_empty()
     }
 }
 
-// No params
+impl Default for Call {
+    fn default() -> Self {
+        Call::new()
+    }
+}
 
 impl From<String> for Call {
-    fn from(method: String) -> Self {
+    fn from(function: String) -> Self {
         Call {
-            method,
-            params: Params::Unspecified,
+            function,
+            ..Default::default()
         }
     }
 }
 
 impl From<&str> for Call {
-    fn from(method: &str) -> Self {
-        method.to_string().into()
+    fn from(function: &str) -> Self {
+        function.to_string().into()
     }
 }
 
+// No params
+
 impl From<&[&str]> for Call {
-    fn from(method: &[&str]) -> Self {
-        method.join("/").into()
+    fn from(args: &[&str]) -> Self {
+        Call {
+            instance_id: args[0].into(),
+            zome: args[1].into(),
+            function: args[2].into(),
+            params: Params::Unspecified,
+        }
     }
 }
 
 // Positional param
 
-impl From<(String, DictValue)> for Call {
-    fn from(args: (String, DictValue)) -> Self {
-        (args.0, vec![args.1]).into()
-    }
-}
-
-impl From<(&str, DictValue)> for Call {
-    fn from(args: (&str, DictValue)) -> Self {
-        (args.0.to_string(), args.1).into()
-    }
-}
-
-impl From<(&str, &DictValue)> for Call {
-    fn from(args: (&str, &DictValue)) -> Self {
-        (args.0, args.1.clone()).into()
-    }
-}
-
 impl From<(&[&str], DictValue)> for Call {
     fn from(args: (&[&str], DictValue)) -> Self {
-        (args.0.join("/"), args.1).into()
+        (args.0, vec![args.1]).into()
     }
 }
 
@@ -210,30 +217,18 @@ impl From<(&[&str], &DictValue)> for Call {
 
 // Positional params
 
-impl From<(String, Vec<DictValue>)> for Call {
-    fn from(args: (String, Vec<DictValue>)) -> Self {
-        Call {
-            method: args.0,
-            params: Params::Positional(args.1),
-        }
-    }
-}
-
-impl From<(&str, Vec<DictValue>)> for Call {
-    fn from(args: (&str, Vec<DictValue>)) -> Self {
-        (args.0.to_string(), args.1).into()
-    }
-}
-
-impl From<(&str, &[DictValue])> for Call {
-    fn from(args: (&str, &[DictValue])) -> Self {
-        (args.0, args.1.to_vec()).into()
-    }
-}
-
 impl From<(&[&str], Vec<DictValue>)> for Call {
     fn from(args: (&[&str], Vec<DictValue>)) -> Self {
-        (args.0.join("/"), args.1).into()
+        Call {
+            instance_id: args.0[0].into(),
+            zome: args.0[1].into(),
+            function: args.0[2].into(),
+            params: if args.1.is_empty() {
+                Params::Unspecified
+            } else {
+                Params::Positional(args.1)
+            },
+        }
     }
 }
 
@@ -245,27 +240,9 @@ impl From<(&[&str], &[DictValue])> for Call {
 
 // Named param
 
-impl From<(String, DictItem)> for Call {
-    fn from(args: (String, DictItem)) -> Self {
-        (args.0, vec![args.1]).into()
-    }
-}
-
-impl From<(&str, DictItem)> for Call {
-    fn from(args: (&str, DictItem)) -> Self {
-        (args.0.to_string(), args.1).into()
-    }
-}
-
-impl From<(&str, &DictItem)> for Call {
-    fn from(args: (&str, &DictItem)) -> Self {
-        (args.0, args.1.clone()).into()
-    }
-}
-
 impl From<(&[&str], DictItem)> for Call {
     fn from(args: (&[&str], DictItem)) -> Self {
-        (args.0.join("/"), args.1).into()
+        (args.0, vec![args.1]).into()
     }
 }
 
@@ -277,30 +254,18 @@ impl From<(&[&str], &DictItem)> for Call {
 
 // Named params
 
-impl From<(String, DictList)> for Call {
-    fn from(args: (String, DictList)) -> Self {
-        Call {
-            method: args.0,
-            params: Params::Named(args.1),
-        }
-    }
-}
-
-impl From<(&str, DictList)> for Call {
-    fn from(args: (&str, DictList)) -> Self {
-        (args.0.to_string(), args.1).into()
-    }
-}
-
-impl From<(&str, &[DictItem])> for Call {
-    fn from(args: (&str, &[DictItem])) -> Self {
-        (args.0, args.1.to_vec()).into()
-    }
-}
-
 impl From<(&[&str], DictList)> for Call {
     fn from(args: (&[&str], DictList)) -> Self {
-        (args.0.join("/"), args.1).into()
+        Call {
+            instance_id: args.0[0].into(),
+            zome: args.0[1].into(),
+            function: args.0[2].into(),
+            params: if args.1.is_empty() {
+                Params::Unspecified
+            } else {
+                Params::Named(args.1)
+            },
+        }
     }
 }
 

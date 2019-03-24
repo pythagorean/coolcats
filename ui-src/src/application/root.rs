@@ -515,11 +515,6 @@ impl Root {
         self.update(call.into());;
     }
 
-    fn coolcats_np(&mut self, method: &str, redux: &str) {
-        let no_params = [("".into(), "".into())];
-        self.coolcats(method, &no_params, redux);
-    }
-
     fn get_my_handle(&mut self) {
         self.coolcats(
             "app_property",
@@ -529,15 +524,15 @@ impl Root {
     }
 
     fn get_handles(&mut self) {
-        self.coolcats_np("get_handles", Redux::GetHandles.as_static());
+        self.coolcats("get_handles", &[], Redux::GetHandles.as_static());
     }
 
     fn get_first_name(&mut self) {
-        self.coolcats_np("get_first_name", Redux::GetFirstName.as_static());
+        self.coolcats("get_first_name", &[], Redux::GetFirstName.as_static());
     }
 
     fn get_profile_pic(&mut self) {
-        self.coolcats_np("get_profile_pic", Redux::GetProfilePic.as_static());
+        self.coolcats("get_profile_pic", &[], Redux::GetProfilePic.as_static());
     }
 
     fn get_following(&mut self, user_handle: &str) {
