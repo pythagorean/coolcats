@@ -11,6 +11,7 @@ use crate::application::{
         find_meow::FindMeow,
         following_feed::FollowingFeed,
         hashtag_feed::HashtagFeed,
+        user_feed::UserFeed,
     },
 };
 
@@ -136,11 +137,9 @@ impl Renderable<App> for App {
                                 <div>
                                     {match route {
                                         "/" => html! {<FollowingFeed: counter = self.counter,/>},
+                                        "/u" => html! {<UserFeed: handle = route_param,/>},
                                         _ => html! {<></>},
                                     }}
-                                    /*
-                                    <Route path="/u/:handle" component={UserFeedContainer} />
-                                    */
                                 </div>
                             </div>
                         </div>

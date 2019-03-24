@@ -10,3 +10,4 @@ pub mod new_meow;
 pub mod find_meow;
 pub mod following_feed;
 pub mod hashtag_feed;
+pub mod user_feed;
