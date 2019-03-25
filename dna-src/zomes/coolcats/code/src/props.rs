@@ -27,7 +27,7 @@ use serde::{
 
 use crate::handles;
 
-#[derive(Serialize, Deserialize, Debug, DefaultJson)]
+#[derive(Clone, Serialize, Deserialize, Debug, DefaultJson)]
 pub struct PropValue(String);
 
 impl PropValue {
@@ -47,13 +47,12 @@ macro_rules! prop_definition {
                 name: $name,
                 description: "a user's first name",
                 sharing: Sharing::Public,
-                native_type: PropValue,
 
                 validation_package: || {
                     hdk::ValidationPackageDefinition::Entry
                 },
 
-                validation: |_name: PropValue, _ctx: hdk::ValidationData| {
+                validation: |_validation_data: hdk::EntryValidationData<PropValue>| {
                     Ok(())
                 },
 
@@ -70,7 +69,7 @@ macro_rules! prop_definition {
                 validation_package: || {
                     hdk::ValidationPackageDefinition::Entry
                 },
-                validation: |_source: Address, _target: Address, _ctx: hdk::ValidationData| {
+                validation: | _validation_data: hdk::LinkValidationData | {
                     Ok(())
                 }
             )

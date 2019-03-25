@@ -1,0 +1,32 @@
+[network]
+n3h_path = "_N3H_"
+n3h_persistence_path = "/tmp"
+bootstrap_nodes = []
+
+[[agents]]
+id = "test_agent1"
+name = "HoloTester1"
+public_address = "HcScJPIgEzf3r53sv4oiHtMM7Vze3tdtxCJYT78sNVG85d6gXbqdw4oDmt4egca"
+key_file = "conductor/holo_tester.key"
+
+[[dnas]]
+id = "coolcats"
+file = "dna-src/dist/dna-src.dna.json"
+
+[[instances]]
+id = "coolcats-instance1"
+agent = "test_agent1"
+dna = "coolcats"
+[instances.storage]
+type = "memory"
+
+[[interfaces]]
+id = "websocket-interface1"
+[[interfaces.instances]]
+id = "coolcats-instance1"
+[interfaces.driver]
+type = "websocket"
+port = 8888
+
+[logger]
+type = "simple"

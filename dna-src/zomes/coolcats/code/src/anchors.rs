@@ -28,7 +28,7 @@ use crate::utils::hdk_address_exists;
 const ANCHOR_TYPES: &str = "anchor_types";
 
 pub const ANCHOR: &str = "anchor";
-#[derive(Serialize, Deserialize, Debug, DefaultJson)]
+#[derive(Clone, Serialize, Deserialize, Debug, DefaultJson)]
 pub struct Anchor {
     anchor_type: String,
     anchor_text: String,
@@ -43,12 +43,12 @@ impl Anchor {
             name: ANCHOR,
             description: "An anchor type",
             sharing: Sharing::Public,
-            native_type: Anchor,
+
             validation_package: || {
                 hdk::ValidationPackageDefinition::Entry
             },
 
-            validation: |_anchor: Anchor, _ctx: hdk::ValidationData| {
+            validation: |_validation_data: hdk::EntryValidationData<Anchor>| {
                 Ok(())
             }
         )
@@ -104,12 +104,12 @@ impl AnchorLink {
             name: ANCHOR_LINK,
             description: "An anchor link type",
             sharing: Sharing::Public,
-            native_type: Address,
+
             validation_package: || {
                 hdk::ValidationPackageDefinition::Entry
             },
 
-            validation: |_anchor_link: Address, _ctx: hdk::ValidationData| {
+            validation: |_validation_data: hdk::EntryValidationData<Address>| {
                 Ok(())
             },
 
@@ -126,7 +126,7 @@ impl AnchorLink {
             validation_package: || {
                 hdk::ValidationPackageDefinition::Entry
             },
-            validation: |_source: Address, _target: Address, _ctx: hdk::ValidationData| {
+            validation: | _validation_data: hdk::LinkValidationData | {
                 Ok(())
             }
         )

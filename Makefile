@@ -1,13 +1,13 @@
 NIGHTLY = nightly-2019-01-24
-VERSION = --tag v0.0.7-alpha
+#VERSION = --tag v0.0.7-alpha
+VERSION = --branch develop
 N3H = n3h-0.0.7-alpha1
 
 all: dna ui
 
 net-start: dna-startnet ui-startnet
 
-net-stop:
-	killall holochain
+net-stop: dna-stopnet
 
 fmt: dna-fmt ui-fmt
 
@@ -57,20 +57,18 @@ dna-start: dna
 dna-startnet: dna
 	@if [ ! -d tmp-storage ]; then mkdir tmp-storage; fi
 	@sed -e "s;_N3H_;`pwd`/../${N3H};" \
-	     -e "s;\"_BOOTSTRAP_\";;" \
-       -e "s;_AGENT_;1;g" \
-       -e "s;_PORT_;8888;" \
-	  < conductor-config.toml > tmp-storage/conductor-config.toml
+	  < conductor/conductor-config.tmpl > tmp-storage/conductor-config.toml
 	holochain -c tmp-storage/conductor-config.toml > tmp-storage/dna-testnet.log 2>&1 &
 	@sleep 5
 	@cat tmp-storage/dna-testnet.log | grep READY! | sed '/.*\[\"\(.*\)\",.*/ s//\1/' > tmp-storage/dna-testnet.address
 	@export BOOTSTRAP=`cat tmp-storage/dna-testnet.address`; \
 	  sed -e "s;_N3H_;`pwd`/../${N3H};" \
 		    -e "s;_BOOTSTRAP_;$${BOOTSTRAP};" \
-				-e "s;_AGENT_;2;g" \
-				-e "s;_PORT_;8889;" \
-	  < conductor-config.toml > tmp-storage/conductor-config2.toml
-	holochain -c tmp-storage/conductor-config2.toml > tmp-storage/dna-testnet2.log 2>&1 &
+	  < conductor/conductor-config2.tmpl > tmp-storage/conductor-config2.toml
+	#holochain -c tmp-storage/conductor-config2.toml > tmp-storage/dna-testnet2.log 2>&1 &
+
+dna-stopnet:
+	killall holochain
 
 dna-reset:
 	rm -rf tmp-storage

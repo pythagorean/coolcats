@@ -11,11 +11,12 @@ use hdk::{
         ZomeApiError,
     },
     holochain_core_types::{
-        cas::content::Address,
-        entry::Entry,
-        dna::entry_types::Sharing,
         error::HolochainError,
         json::JsonString,
+        validation::{EntryValidationData},
+        dna::entry_types::Sharing,
+        cas::content::Address,
+        entry::Entry,
     },
     holochain_wasm_utils::api_serialization::get_entry::{
         GetEntryOptions,
@@ -35,7 +36,7 @@ use crate::{
 };
 
 pub const POST: &str = "post";
-#[derive(Serialize, Deserialize, Debug, DefaultJson)]
+#[derive(Clone, Serialize, Deserialize, Debug, DefaultJson)]
 pub struct Post {
     message: String,
     stamp: String,
@@ -49,18 +50,28 @@ impl Post {
             name: POST,
             description: "A posted meow",
             sharing: Sharing::Public,
-            native_type: Post,
+
             validation_package: || {
                 hdk::ValidationPackageDefinition::Entry
             },
 
-            validation: |post: Post, _ctx: hdk::ValidationData| {
-                if post.message.is_empty() {
-                    return Err(String::from("Empty message"));
-                }
-                if post.message.len() > 255 {
-                    return Err(String::from("Message too long"))
-                }
+            validation: |validation_data: hdk::EntryValidationData<Post>| {
+                match validation_data {
+                    EntryValidationData::Create{entry:post, ..} => {
+                        if post.message.is_empty() {
+                            return Err(String::from("Empty message"));
+                        }
+                        if post.message.len() > 255 {
+                            return Err(String::from("Message too long"));
+                        }
+                    }
+                    EntryValidationData::Modify{new_entry:new_post, old_entry:old_post, ..} => {
+                        if new_post.message == old_post.message {
+                            return Err(String::from("Message unchanged"));
+                        }
+                    }
+                    EntryValidationData::Delete{old_entry:_old_post, ..} => (),
+                };
                 Ok(())
             },
 
@@ -77,7 +88,7 @@ impl Post {
             validation_package: || {
                 hdk::ValidationPackageDefinition::Entry
             },
-            validation: |_source: Address, _target: Address, _ctx: hdk::ValidationData| {
+            validation: | _validation_data: hdk::LinkValidationData | {
                 Ok(())
             }
         )

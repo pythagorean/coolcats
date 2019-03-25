@@ -41,13 +41,12 @@ impl Handle {
             name: HANDLE,
             description: "A user handle for posting meows",
             sharing: Sharing::Public,
-            native_type: Address,
 
             validation_package: || {
                 hdk::ValidationPackageDefinition::Entry
             },
 
-            validation: |_handle_anchor: Address, _ctx: hdk::ValidationData| {
+            validation: |_validation_data: hdk::EntryValidationData<Address>| {
                 Ok(())
             },
 
@@ -67,7 +66,7 @@ impl Handle {
             validation_package: || {
                 hdk::ValidationPackageDefinition::Entry
             },
-            validation: |_source: Address, _target: Address, _ctx: hdk::ValidationData| {
+            validation: | _validation_data: hdk::LinkValidationData | {
                 Ok(())
             }
         )
@@ -80,7 +79,7 @@ impl Handle {
             validation_package: || {
                 hdk::ValidationPackageDefinition::Entry
             },
-            validation: |_source: Address, _target: Address, _ctx: hdk::ValidationData| {
+            validation: | _validation_data: hdk::LinkValidationData | {
                 Ok(())
             }
         )
@@ -93,7 +92,7 @@ impl Handle {
             validation_package: || {
                 hdk::ValidationPackageDefinition::Entry
             },
-            validation: |_source: Address, _target: Address, _ctx: hdk::ValidationData| {
+            validation: | _validation_data: hdk::LinkValidationData | {
                 Ok(())
             }
         )
@@ -106,7 +105,7 @@ impl Handle {
             validation_package: || {
                 hdk::ValidationPackageDefinition::Entry
             },
-            validation: |_source: Address, _target: Address, _ctx: hdk::ValidationData| {
+            validation: | _validation_data: hdk::LinkValidationData | {
                 Ok(())
             }
         )

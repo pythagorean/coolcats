@@ -24,7 +24,7 @@ use serde::{
 use crate::utils::hdk_address_exists;
 
 pub const FAVOURITE: &str = "favourite";
-#[derive(Serialize, Deserialize, Debug, DefaultJson)]
+#[derive(Clone, Serialize, Deserialize, Debug, DefaultJson)]
 pub struct Favourite(Address);
 
 impl Favourite {
@@ -33,13 +33,12 @@ impl Favourite {
             name: FAVOURITE,
             description: "A favourited address",
             sharing: Sharing::Public,
-            native_type: Favourite,
 
             validation_package: || {
                 hdk::ValidationPackageDefinition::Entry
             },
 
-            validation: |_favourite: Address, _ctx: hdk::ValidationData| {
+            validation: |_validation_data: hdk::EntryValidationData<Favourite>| {
                 Ok(())
             },
 
@@ -56,7 +55,7 @@ impl Favourite {
             validation_package: || {
                 hdk::ValidationPackageDefinition::Entry
             },
-            validation: |_source: Address, _target: Address, _ctx: hdk::ValidationData| {
+            validation: | _validation_data: hdk::LinkValidationData | {
                 Ok(())
             }
         )
