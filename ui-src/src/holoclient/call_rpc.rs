@@ -41,7 +41,7 @@ impl From<(Call, String)> for WsRpc {
 impl WsRpc {
     pub fn json(&self) -> String {
         let params = match &self.call.params {
-            Params::Unspecified => r#""params":null"#.to_string(),
+            Params::Unspecified => r#""params":{}"#.to_string(),
             Params::Positional(positional_params) => {
                 let mut params = Vec::new();
                 for param in positional_params {

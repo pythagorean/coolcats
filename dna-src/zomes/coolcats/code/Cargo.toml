@@ -5,9 +5,9 @@ authors = ["Michael Goldman <mike.goldman@allstreets.org>"]
 edition = "2018"
 
 [dependencies]
-#hdk = "0.0.7-alpha"
-#holochain_wasm_utils = "0.0.7-alpha"
-#holochain_core_types_derive = "0.0.7-alpha"
+#hdk = "0.0.8-alpha"
+#holochain_wasm_utils = "0.0.8-alpha"
+#holochain_core_types_derive = "0.0.8-alpha"
 serde = {version = "1.0.89", features = ["derive"]}
 serde_json = "1.0.39"
 
