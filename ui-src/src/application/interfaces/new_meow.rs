@@ -32,8 +32,8 @@ pub enum LocalMsg {
 }
 
 impl NewMeow {
-    fn local_update(&mut self, msg: LocalMsg) -> ShouldRender {
-        match msg {
+    fn local_update(&mut self, local_msg: LocalMsg) -> ShouldRender {
+        match local_msg {
             LocalMsg::NewStates => (),
 
             LocalMsg::UpdateMeowText(input) => {

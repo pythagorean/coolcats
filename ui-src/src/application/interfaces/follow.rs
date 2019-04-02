@@ -38,8 +38,8 @@ pub enum LocalMsg {
 }
 
 impl Follow {
-    fn local_update(&mut self, msg: LocalMsg) -> ShouldRender {
-        match msg {
+    fn local_update(&mut self, local_msg: LocalMsg) -> ShouldRender {
+        match local_msg {
             LocalMsg::NewStates => {
                 let handles = self.getstate.get_dict("handles");
                 let my_handle = self.getstate.string("handle");

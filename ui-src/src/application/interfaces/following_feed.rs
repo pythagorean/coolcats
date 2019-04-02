@@ -14,12 +14,14 @@ use crate::{
     },
 };
 
-interface_getstates!("handles", "handle", "follows", "posts");
+interface_getstates!("connected", "handles", "handle", "follows", "posts");
 
 interface_component!(FollowingFeed);
 
 // This will be mapped to FollowingFeed.local:
 pub struct Local {
+    my_handle: String,
+    posts_by_len: usize,
     post_list: Vec<Dict>,
     interval: IntervalService,
     interval_job: Option<Box<Task>>,
@@ -28,6 +30,8 @@ pub struct Local {
 impl Local {
     fn new() -> Self {
         Self {
+            my_handle: "".into(),
+            posts_by_len: 0,
             post_list: Vec::new(),
             interval: IntervalService::new(),
             interval_job: None,
@@ -54,16 +58,26 @@ impl FollowingFeed {
     fn local_update(&mut self, local_msg: LocalMsg) -> ShouldRender {
         match local_msg {
             LocalMsg::NewStates => {
+                let connected = self.getstate.bool("connected").unwrap();
+                let my_handle = self.getstate.string("handle").clone();
+                if connected && self.local.my_handle != my_handle {
+                    self.local.my_handle = my_handle.clone();
+                    self.get_following();
+                }
+
                 let follows = self.getstate.get_dict("follows");
-                let my_handle = self.getstate.string("handle");
                 let mut posts_by: Vec<_> = follows.raw().keys().cloned().collect();
-                if !posts_by.contains(my_handle) {
-                    posts_by.push(my_handle.clone());
+                if !posts_by.contains(&my_handle) {
+                    posts_by.push(my_handle);
                 }
 
                 self.get_feed(posts_by.as_slice());
 
-                if self.local.interval_job.is_none() {
+                if self.local.posts_by_len != posts_by.len() {
+                    self.local.posts_by_len = posts_by.len();
+                    if let Some(mut task) = self.local.interval_job.take() {
+                        task.cancel()
+                    }
                     let send_msg = self
                         .link
                         .send_back(move |_| LocalAction::GetPostsBy(posts_by.clone()).into());
@@ -85,8 +99,8 @@ impl FollowingFeed {
         self.update(Action::GetPostsBy(handles).into());
     }
 
-    fn get_following(&mut self, handle: String) {
-        self.update(Action::GetFollowing(handle).into());
+    fn get_following(&mut self) {
+        self.update(Action::GetFollowing(self.local.my_handle.clone()).into());
     }
 
     fn get_feed(&mut self, posts_by: &[String]) {

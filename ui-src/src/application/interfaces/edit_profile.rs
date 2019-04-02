@@ -40,8 +40,8 @@ pub enum LocalMsg {
 }
 
 impl EditProfile {
-    fn local_update(&mut self, msg: LocalMsg) -> ShouldRender {
-        match msg {
+    fn local_update(&mut self, local_msg: LocalMsg) -> ShouldRender {
+        match local_msg {
             LocalMsg::NewStates => {
                 self.local.new_name_text = self.getstate.string("first_name").clone();
                 return true;

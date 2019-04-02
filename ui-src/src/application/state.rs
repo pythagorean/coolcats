@@ -16,6 +16,8 @@ impl Clone for State {
 impl Default for State {
     fn default() -> Self {
         let mut state = Dict::new();
+        // whether we are connected to the coolcats backend
+        state.insert("connected".into(), false.into());
         // any app properties received from coolcats backend
         state.insert("app_properties".into(), Dict::new().into());
         // posts with 'stamp' as their key

@@ -58,19 +58,22 @@ dna-startnet: dna
 	@if [ ! -d tmp-storage ]; then mkdir tmp-storage; fi
 	@sed -e "s;_N3H_;`pwd`/../${N3H};" \
 	  < conductor/conductor-config.tmpl > tmp-storage/conductor-config.toml
-	holochain -c tmp-storage/conductor-config.toml > tmp-storage/dna-testnet.log 2>&1 &
-	@sleep 10
+	holochain -c tmp-storage/conductor-config.toml 2>&1 | tee tmp-storage/dna-testnet.log
+
+dna-startnet2:
 	@cat tmp-storage/dna-testnet.log | grep p2p: | cut -d'"' -f 2 > tmp-storage/dna-testnet.address
 	@export BOOTSTRAP=`cat tmp-storage/dna-testnet.address`; \
 	  sed -e "s;_N3H_;`pwd`/../${N3H};" \
 		    -e "s;_BOOTSTRAP_;$${BOOTSTRAP};" \
 	  < conductor/conductor-config2.tmpl > tmp-storage/conductor-config2.toml
-	@echo holochain -c tmp-storage/conductor-config2.toml
+	holochain -c tmp-storage/conductor-config2.toml 2>&1 | tee tmp-storage/dna-testnet2.log
+
+dna-startnet3:
 	@export BOOTSTRAP=`cat tmp-storage/dna-testnet.address`; \
 	  sed -e "s;_N3H_;`pwd`/../${N3H};" \
 		    -e "s;_BOOTSTRAP_;$${BOOTSTRAP};" \
 	  < conductor/conductor-config3.tmpl > tmp-storage/conductor-config3.toml
-	@echo holochain -c tmp-storage/conductor-config3.toml
+	holochain -c tmp-storage/conductor-config3.toml 2>&1 | tee tmp-storage/dna-testnet3.log
 
 dna-stopnet:
 	killall holochain
