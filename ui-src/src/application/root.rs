@@ -199,7 +199,7 @@ impl Component for Root {
                 }
 
                 Action::GetReady => {
-                    self.state.set_bool("connected".into(), true.into());
+                    self.state.set_bool("connected".into(), true);
                     self.get_my_handle();
                     self.get_handles();
                     self.get_profile_pic();

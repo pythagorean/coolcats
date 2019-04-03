@@ -35,6 +35,9 @@ macro_rules! interface_view_only {
 
 macro_rules! interface_component {
     ($name:ident) => {
+        interface_component!($name, counter, u32, 0);
+    };
+    ($name:ident, $prop:ident, $prop_type:ty, $prop_dflt:expr) => {
         #[allow(dead_code)]
         pub enum Msg {
             Action(Action),
@@ -61,18 +64,18 @@ macro_rules! interface_component {
             link: ComponentLink<$name>,
             getstate: State,
             local: Local,
-            counter: u32,
+            $prop: $prop_type,
         }
 
         #[derive(PartialEq, Clone)]
         pub struct Props {
-            pub counter: u32,
+            pub $prop: $prop_type,
         }
 
         impl Default for Props {
             fn default() -> Self {
                 Props {
-                    counter: 0,
+                    $prop: $prop_dflt,
                 }
             }
         }
@@ -88,7 +91,7 @@ macro_rules! interface_component {
                     link,
                     getstate: State::unset(),
                     local: Local::new(),
-                    counter: props.counter,
+                    $prop: props.$prop,
                 };
                 component.update(Msg::GetStates);
                 component
@@ -124,7 +127,7 @@ macro_rules! interface_component {
             }
 
             fn change(&mut self, props: Self::Properties) -> ShouldRender {
-                self.counter = props.counter;
+                self.$prop = props.$prop;
                 self.update(Msg::GetStates);
                 true
             }

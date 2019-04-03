@@ -73,11 +73,12 @@ impl FollowingFeed {
 
                 self.get_feed(posts_by.as_slice());
 
-                if self.local.posts_by_len != posts_by.len() {
+                if connected && self.local.posts_by_len != posts_by.len() {
                     self.local.posts_by_len = posts_by.len();
                     if let Some(mut task) = self.local.interval_job.take() {
                         task.cancel()
                     }
+                    self.get_posts_by(posts_by.clone());
                     let send_msg = self
                         .link
                         .send_back(move |_| LocalAction::GetPostsBy(posts_by.clone()).into());

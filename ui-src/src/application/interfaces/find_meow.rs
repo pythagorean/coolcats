@@ -1,77 +1,15 @@
 use yew::prelude::*;
 
 use crate::application::{
+    Action,
     context::{ self, ContextAgent },
     state::State,
     interfaces::meow::Meow,
 };
 
 interface_getstates!("handles", "posts");
-
-pub struct FindMeow {
-    context: Box<Bridge<ContextAgent>>,
-    getstate: State,
-    address: String,
-}
-
-pub enum Msg {
-    ContextMsg(context::Response),
-    GetStates,
-}
-
-#[derive(PartialEq, Clone)]
-pub struct Props {
-    pub address: String,
-}
-
-impl Default for Props {
-    fn default() -> Self {
-        Props {
-            address: String::new(),
-        }
-    }
-}
-
-impl Component for FindMeow {
-    type Message = Msg;
-    type Properties = Props;
-
-    fn create(props: Self::Properties, mut link: ComponentLink<Self>) -> Self {
-        let context = ContextAgent::bridge(link.send_back(Msg::ContextMsg));
-        let mut component = Self {
-            context,
-            getstate: State::unset(),
-            address: props.address,
-        };
-        component.update(Msg::GetStates);
-        component
-    }
-
-    fn update(&mut self, msg: Self::Message) -> ShouldRender {
-        match msg {
-            Msg::GetStates => {
-                self.context.send(context::Request::GetStates(getstates()));
-            }
-
-            Msg::ContextMsg(response) => match response {
-                context::Response::GetStates(getstate) => {
-                    if self.getstate != getstate {
-                        self.getstate = getstate;
-                        return true;
-                    }
-                }
-
-                context::Response::Request(_, _) => (),
-            },
-        };
-        false
-    }
-
-    fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        self.address = props.address;
-        true
-    }
-}
+interface_component!(FindMeow, address, String, String::new());
+interface_view_only!(FindMeow);
 
 impl Renderable<FindMeow> for FindMeow {
     fn view(&self) -> Html<Self> {

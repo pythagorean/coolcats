@@ -1,7 +1,10 @@
 use yew::prelude::*;
 use stdweb::web::Date;
 
-use crate::utils::Dict;
+use crate::{
+    utils::Dict,
+    application::interfaces::faves::Faves,
+};
 
 pub struct Meow {
     pub post: Dict,
@@ -76,21 +79,16 @@ impl Meow {
 
 impl Renderable<Meow> for Meow {
     fn view(&self) -> Html<Self> {
-        let stamp = &self.post.string("stamp");
-        let message = &self.post.string("message");
-        let author = &self.post.string("author");
-        let address = &self.post.string("address");
-        let user_handle = &self.post.string("user_handle");
+        let stamp = self.post.string("stamp");
+        let message = self.post.string("message");
+        let author = self.post.string("author");
+        let address = self.post.string("address");
+        let user_handle = self.post.string("user_handle");
         html! {<>
             <div class="meow", id={stamp},>
-                <a class="meow-edit", href="#",>
+                <a class="meow-edit", onclick="openEditPost('+id+')",>
                     {"edit"}
                 </a>
-                /*
-                <a className="meow-edit" onClick={() => "openEditPost('+id+')"}>
-                  edit
-                </a>
-                */
                 <a class="user", href={format!("/#/u/{}", author)},>
                     {"@"}{user_handle}
                 </a>
@@ -99,9 +97,7 @@ impl Renderable<Meow> for Meow {
                     { Date::from_time(stamp.parse().unwrap()).to_string() }
                 </a>
                 <div class="message",>{self.linkify(message)}</div>
-                /*
-                <FavesContainer hash={hash} />
-                */
+                <Faves: address = address,/>
             </div>
         </>}
     }
