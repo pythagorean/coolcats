@@ -9,4 +9,3 @@ package-lock.json
 yarn.lock
 bundle.json
 tmp-storage
-nodejs_conductor

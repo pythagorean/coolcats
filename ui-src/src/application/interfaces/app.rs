@@ -18,9 +18,8 @@ use crate::application::{
 const DEFAULT_PROFILE_PIC: &str = "cat-eating-bird-circle.png";
 
 interface_getstates!("app_properties", "first_name", "handle", "profile_pic");
-
-interface_view_only!(App);
 interface_component!(App);
+interface_view_only!(App);
 
 impl Renderable<App> for App {
     fn view(&self) -> Html<Self> {

@@ -1,7 +1,6 @@
 NIGHTLY = nightly-2019-01-24
-#VERSION = --tag v0.0.8-alpha
-VERSION = --branch develop
-N3H = n3h-0.0.7-alpha1
+VERSION = --tag v0.0.9-alpha
+N3H = n3h-0.0.9-alpha2
 
 all: dna ui
 

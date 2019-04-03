@@ -73,7 +73,7 @@ impl HashtagFeed {
                 LocalAction::GetPosts => {
                     self.get_posts();
                 }
-            }
+            },
         }
         false
     }

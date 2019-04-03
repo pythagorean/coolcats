@@ -73,7 +73,7 @@ impl UserFeed {
                 LocalAction::GetPosts => {
                     self.get_posts();
                 }
-            }
+            },
         }
         false
     }

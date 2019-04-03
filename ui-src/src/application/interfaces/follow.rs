@@ -10,7 +10,6 @@ use crate::{
 };
 
 interface_getstates!("handles", "handle", "follows");
-
 interface_component!(Follow);
 
 // This will be mapped to Follow.local:

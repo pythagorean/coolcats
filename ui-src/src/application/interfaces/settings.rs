@@ -9,7 +9,6 @@ use crate::application::{
 const MAX_HANDLE_LENGTH: usize = 20;
 
 interface_getstates!("handle_taken", "first_name");
-
 interface_component!(Settings);
 
 // This will be mapped to Settings.local:
