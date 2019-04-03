@@ -15,7 +15,6 @@ use crate::{
 };
 
 interface_getstates!("connected", "handles", "handle", "follows", "posts");
-
 interface_component!(FollowingFeed);
 
 // This will be mapped to FollowingFeed.local:

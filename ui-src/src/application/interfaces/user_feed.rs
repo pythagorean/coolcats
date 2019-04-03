@@ -15,21 +15,27 @@ use crate::{
 };
 
 interface_getstates!("handles", "posts");
+interface_component!(UserFeed, handle, String, String::new());
 
-pub struct UserFeed {
-    context: Box<Bridge<ContextAgent>>,
-    getstate: State,
-    handle: String,
+// This will be mapped to UserFeed.local:
+pub struct Local {
     post_list: Vec<Dict>,
-    link: ComponentLink<UserFeed>,
     interval: IntervalService,
     interval_job: Option<Box<Task>>,
 }
 
-pub enum Msg {
-    Action(Action),
-    ContextMsg(context::Response),
-    GetStates,
+impl Local {
+    fn new() -> Self {
+        Self {
+            post_list: Vec::new(),
+            interval: IntervalService::new(),
+            interval_job: None,
+        }
+    }
+}
+
+pub enum LocalMsg {
+    NewStates,
     LocalAction(LocalAction),
 }
 
@@ -38,101 +44,40 @@ pub enum LocalAction {
     GetPosts,
 }
 
-impl From<Action> for Msg {
-    fn from(action: Action) -> Self {
-        Msg::Action(action)
-    }
-}
-
 impl From<LocalAction> for Msg {
     fn from(local_action: LocalAction) -> Self {
-        Msg::LocalAction(local_action)
+        LocalMsg::LocalAction(local_action).into()
     }
 }
 
-#[derive(PartialEq, Clone)]
-pub struct Props {
-    pub handle: String,
-}
-
-impl Default for Props {
-    fn default() -> Self {
-        Props {
-            handle: String::new(),
-        }
-    }
-}
-
-impl Component for UserFeed {
-    type Message = Msg;
-    type Properties = Props;
-
-    fn create(props: Self::Properties, mut link: ComponentLink<Self>) -> Self {
-        let context = ContextAgent::bridge(link.send_back(Msg::ContextMsg));
-        let mut component = Self {
-            context,
-            getstate: State::unset(),
-            handle: props.handle,
-            post_list: Vec::new(),
-            link,
-            interval: IntervalService::new(),
-            interval_job: None,
-        };
-        component.update(Msg::GetStates);
-        component
-    }
-
-    fn update(&mut self, msg: Self::Message) -> ShouldRender {
-        match msg {
-            Msg::GetStates => {
-                self.context.send(context::Request::GetStates(getstates()));
-            }
-
-            Msg::Action(action) => {
-                self.context.send(context::Request::Action(action));
-            }
-
-            Msg::ContextMsg(response) => match response {
-                context::Response::GetStates(getstate) => {
-                    if self.getstate.is_empty() && !getstate.is_empty() {
-                        self.getstate = getstate;
-                        self.update(LocalAction::GetReady.into());
-                        return true;
-                    }
-                    self.getstate = getstate;
-                    return self.get_feed();
+impl UserFeed {
+    fn local_update(&mut self, local_msg: LocalMsg) -> ShouldRender {
+        match local_msg {
+            LocalMsg::NewStates => {
+                if self.local.interval_job.is_none() {
+                    self.update(LocalAction::GetReady.into());
+                    return true;
                 }
+                return self.get_feed();
+            }
 
-                context::Response::Request(_, _) => (),
-            },
-
-            Msg::LocalAction(local_action) => match local_action {
+            LocalMsg::LocalAction(local_action) => match local_action {
                 LocalAction::GetReady => {
                     self.get_feed();
                     self.get_posts();
-                    if self.interval_job.is_none() {
-                        let send_msg = self.link.send_back(|_| LocalAction::GetPosts.into());
-                        let handle = self.interval.spawn(Duration::from_secs(1), send_msg);
-                        self.interval_job = Some(Box::new(handle));
-                    }
+                    let send_msg = self.link.send_back(|_| LocalAction::GetPosts.into());
+                    let handle = self.local.interval.spawn(Duration::from_secs(1), send_msg);
+                    self.local.interval_job = Some(Box::new(handle));
                 }
 
                 LocalAction::GetPosts => {
                     self.get_posts();
                 }
-            },
-        };
+            }
+        }
         false
     }
 
-    fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        self.handle = props.handle;
-        self.update(Msg::GetStates);
-        true
-    }
-}
-
-impl UserFeed {
     fn get_posts(&mut self) {
         self.update(Action::GetPostsBy(vec![self.handle.clone()]).into());
     }
@@ -174,8 +119,8 @@ impl UserFeed {
             })
             .collect();
 
-        if self.post_list != post_list {
-            self.post_list = post_list;
+        if self.local.post_list != post_list {
+            self.local.post_list = post_list;
             return true;
         }
         false
@@ -185,7 +130,7 @@ impl UserFeed {
 impl Renderable<UserFeed> for UserFeed {
     fn view(&self) -> Html<Self> {
         let handle = &self.handle;
-        let post_list = &self.post_list;
+        let post_list = &self.local.post_list;
 
         html! {<>
             <div id="meows",>
