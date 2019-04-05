@@ -18,7 +18,7 @@ macro_rules! interface_view_only {
         pub struct Local;
         impl Local {
             fn new() -> Self {
-                Local
+                Self
             }
         }
         pub enum LocalMsg {
@@ -26,7 +26,7 @@ macro_rules! interface_view_only {
         }
 
         impl $name {
-            fn local_update(&self, _msg: LocalMsg) -> ShouldRender {
+            fn local_update(&self, _local_msg: LocalMsg) -> ShouldRender {
                 false
             }
         }

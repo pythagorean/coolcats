@@ -71,6 +71,8 @@ pub enum Action {
     Post(String),
     GetPostsBy(Vec<String>),
     GetPostsWithHashtag(String),
+    AddFavourite(String),
+    RemoveFavourite(String),
 }
 
 #[derive(EnumString, AsStaticStr)]
@@ -89,6 +91,9 @@ pub enum Redux {
     Post,
     GetPostsBy,
     GetPostsWithHashtag,
+    AddFavourite,
+    RemoveFavourite,
+    GetFavourites,
 }
 
 pub enum Msg {
@@ -204,6 +209,7 @@ impl Component for Root {
                     self.get_handles();
                     self.get_profile_pic();
                     self.get_first_name();
+                    self.get_favourites();
                     if self.interval_job.is_none() {
                         let send_msg = self.link.send_back(|_| Action::GetHandles.into());
                         let handle = self.interval.spawn(Duration::from_secs(2), send_msg);
@@ -291,6 +297,18 @@ impl Component for Root {
                 Action::GetFollowing(user_handle) => {
                     self.get_following(&user_handle);
                 }
+
+                Action::AddFavourite(address) => self.coolcats(
+                    "add_favourite",
+                    &[("address".into(), address.into())],
+                    Redux::AddFavourite.as_static(),
+                ),
+
+                Action::RemoveFavourite(address) => self.coolcats(
+                    "remove_favourite",
+                    &[("address".into(), address.into())],
+                    Redux::RemoveFavourite.as_static(),
+                ),
             },
         }
         false
@@ -475,6 +493,20 @@ impl Component for Root {
                         }
                         return updated;
                     }
+
+                    Redux::AddFavourite | Redux::RemoveFavourite | Redux::GetFavourites => {
+                        let mut favourites: Vec<String> = Vec::new();
+                        let mut i = 0;
+                        while !value[i].is_null() {
+                            let fave_address = value[i].to_string();
+                            favourites.push(fave_address);
+                            i += 1;
+                        }
+                        if favourites.len() != self.state.strings("favourites").len() {
+                            self.state.set_strings("favourites".into(), favourites);
+                            return true;
+                        }
+                    }
                 }
             }
 
@@ -543,6 +575,10 @@ impl Root {
             Redux::GetFollowing.as_static(),
             user_handle,
         );
+    }
+
+    fn get_favourites(&mut self) {
+        self.coolcats("get_favourites", &[], Redux::GetFavourites.as_static());
     }
 }
 

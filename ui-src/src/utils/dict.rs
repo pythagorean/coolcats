@@ -140,20 +140,23 @@ impl Dict {
         self.insert(key, DictValue::String(value));
     }
 
-    //pub fn strings(&self, key: &str) -> Vec<String> {
-    //    match self.get(key) {
-    //        DictValue::Strings(value) => value,
-    //        DictValue::Undefined => Vec::new(),
-    //        _ => panic! {
-    //            "Dict::strings called on non-strings key"
-    //        }
-    //    }
-    //}
+    pub fn strings(&self, key: &str) -> &Vec<String> {
+        lazy_static! {
+            static ref EMPTY: Vec<String> = Vec::new();
+        }
+        match self.get(key) {
+            None => &EMPTY,
+            Some(DictValue::Strings(value)) => value,
+            _ => panic! {
+                "Dict::strings called on non-strings key"
+            },
+        }
+    }
 
-    //pub fn set_strings(&mut self, key: DictKey, value: Vec<String>) {
-    //    self.strings(&key); // force panic if key exists and is not strings
-    //    self.insert(key, DictValue::strings(value));
-    //}
+    pub fn set_strings(&mut self, key: DictKey, value: Vec<String>) {
+        self.strings(&key); // force panic if key exists and is not strings
+        self.insert(key, DictValue::Strings(value));
+    }
 
     //pub fn integer(&self, key: &str) -> Option<i32> {
     //    match self.get(key) {

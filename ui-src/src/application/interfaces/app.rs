@@ -96,8 +96,22 @@ impl Renderable<App> for App {
                                     <div id="content",>
                                         {match route {
                                             "/" => html! {<NewMeow: counter = self.counter,/>},
-                                            "/meow" => html! {<FindMeow: address = route_param,/>},
-                                            "/tag" => html! {<HashtagFeed: hashtag = route_param,/>},
+                                            "/meow" => html! {
+                                                <FindMeow:
+                                                    params = (
+                                                        self.counter,
+                                                        route_param.to_string()
+                                                    ),
+                                                />
+                                            },
+                                            "/tag" => html! {
+                                                <HashtagFeed:
+                                                    params = (
+                                                        self.counter,
+                                                        route_param.to_string()
+                                                    ),
+                                                />
+                                            },
                                             _ => html! {<></>},
                                         }}
                                     </div>
@@ -136,7 +150,11 @@ impl Renderable<App> for App {
                                 <div>
                                     {match route {
                                         "/" => html! {<FollowingFeed: counter = self.counter,/>},
-                                        "/u" => html! {<UserFeed: handle = route_param,/>},
+                                        "/u" => html! {
+                                            <UserFeed:
+                                                params = (self.counter, route_param.to_string()),
+                                            />
+                                        },
                                         _ => html! {<></>},
                                     }}
                                 </div>

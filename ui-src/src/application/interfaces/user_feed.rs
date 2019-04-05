@@ -15,7 +15,7 @@ use crate::{
 };
 
 interface_getstates!("handles", "posts");
-interface_component!(UserFeed, handle, String, String::new());
+interface_component!(UserFeed, params, (u32, String), (0, String::new()));
 
 // This will be mapped to UserFeed.local:
 pub struct Local {
@@ -79,13 +79,14 @@ impl UserFeed {
     }
 
     fn get_posts(&mut self) {
-        self.update(Action::GetPostsBy(vec![self.handle.clone()]).into());
+        let (_, handle) = &self.params;
+        self.update(Action::GetPostsBy([handle.clone()].to_vec()).into());
     }
 
     fn get_feed(&mut self) -> bool {
         let posts = self.getstate.get_dict("posts");
         let handles = self.getstate.get_dict("handles");
-        let handle = &self.handle;
+        let (_, handle) = &self.params;
 
         let mut stamps: Vec<String> = Vec::new();
         for stamp in posts.raw().keys().filter(|stamp| {
@@ -129,7 +130,7 @@ impl UserFeed {
 
 impl Renderable<UserFeed> for UserFeed {
     fn view(&self) -> Html<Self> {
-        let handle = &self.handle;
+        let (counter, handle) = &self.params;
         let post_list = &self.local.post_list;
 
         html! {<>
@@ -138,7 +139,7 @@ impl Renderable<UserFeed> for UserFeed {
                     {handle}
                 </h2>
                 { for post_list.iter().map(|post| {
-                    html! { <Meow: post = post,/> }
+                    html! { <Meow: counter = counter, post = post,/> }
                 })}
             </div>
         </>}

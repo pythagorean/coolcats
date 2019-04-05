@@ -7,19 +7,22 @@ use crate::{
 };
 
 pub struct Meow {
-    pub post: Dict,
+    counter: u32,
+    post: Dict,
 }
 
 pub enum Msg {}
 
 #[derive(PartialEq, Clone)]
 pub struct Props {
+    pub counter: u32,
     pub post: Dict,
 }
 
 impl Default for Props {
     fn default() -> Self {
         Props {
+            counter: 0,
             post: Dict::new(),
         }
     }
@@ -31,6 +34,7 @@ impl Component for Meow {
 
     fn create(props: Self::Properties, _: ComponentLink<Self>) -> Self {
         Meow {
+            counter: props.counter,
             post: props.post,
         }
     }
@@ -40,6 +44,7 @@ impl Component for Meow {
     }
 
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
+        self.counter = props.counter;
         self.post = props.post;
         true
     }
@@ -97,7 +102,7 @@ impl Renderable<Meow> for Meow {
                     { Date::from_time(stamp.parse().unwrap()).to_string() }
                 </a>
                 <div class="message",>{self.linkify(message)}</div>
-                <Faves: address = address,/>
+                <Faves: params = (self.counter, address.clone()),/>
             </div>
         </>}
     }

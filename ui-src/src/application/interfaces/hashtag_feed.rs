@@ -15,7 +15,7 @@ use crate::{
 };
 
 interface_getstates!("handles", "posts");
-interface_component!(HashtagFeed, hashtag, String, String::new());
+interface_component!(HashtagFeed, params, (u32, String), (0, String::new()));
 
 // This will be mapped to HashtagFeed.local:
 pub struct Local {
@@ -79,13 +79,15 @@ impl HashtagFeed {
     }
 
     fn get_posts(&mut self) {
-        self.update(Action::GetPostsWithHashtag(self.hashtag.clone()).into());
+        let (_, hashtag) = &self.params;
+        self.update(Action::GetPostsWithHashtag(hashtag.clone()).into());
     }
 
     fn get_feed(&mut self) -> bool {
         let posts = self.getstate.get_dict("posts");
         let handles = self.getstate.get_dict("handles");
-        let hashedtag = "#".to_owned() + &self.hashtag;
+        let (_, hashtag) = &self.params;
+        let hashedtag = "#".to_owned() + hashtag;
 
         let mut stamps: Vec<String> = Vec::new();
         for stamp in posts.raw().keys().filter(|stamp| {
@@ -129,7 +131,7 @@ impl HashtagFeed {
 
 impl Renderable<HashtagFeed> for HashtagFeed {
     fn view(&self) -> Html<Self> {
-        let hashtag = &self.hashtag;
+        let (counter, hashtag) = &self.params;
         let post_list = &self.local.post_list;
 
         html! {<>
@@ -138,7 +140,7 @@ impl Renderable<HashtagFeed> for HashtagFeed {
                     {"#"}{hashtag}
                 </h2>
                 { for post_list.iter().map(|post| {
-                    html! { <Meow: post = post,/> }
+                    html! { <Meow: counter = counter, post = post,/> }
                 })}
             </div>
         </>}

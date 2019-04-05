@@ -8,7 +8,7 @@ use crate::application::{
 };
 
 interface_getstates!("handles", "posts");
-interface_component!(FindMeow, address, String, String::new());
+interface_component!(FindMeow, params, (u32, String), (0, String::new()));
 interface_view_only!(FindMeow);
 
 impl Renderable<FindMeow> for FindMeow {
@@ -18,7 +18,7 @@ impl Renderable<FindMeow> for FindMeow {
         };
         let handles = self.getstate.get_dict("handles");
         let posts = self.getstate.get_dict("posts");
-        let address = &self.address;
+        let (counter, address) = &self.params;
 
         if let Some(stamp) = posts.raw().keys().find(|stamp| {
             let post = posts.get_dict(stamp);
@@ -34,7 +34,7 @@ impl Renderable<FindMeow> for FindMeow {
                 user_handle = author
             };
             post.insert("user_handle".into(), user_handle.clone().into());
-            return html! { <Meow: post = post,/> };
+            return html! { <Meow: counter = counter, post = post,/> };
         }
         html! { <></> }
     }
