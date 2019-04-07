@@ -4,9 +4,9 @@ N3H = n3h-0.0.9-alpha2
 
 all: dna ui
 
-net-start: dna-startnet ui-startnet
+startnet: dna-startnet ui-startnet
 
-net-stop: dna-stopnet
+stopnet: dna-stopnet
 
 fmt: dna-fmt ui-fmt
 
@@ -57,22 +57,20 @@ dna-startnet: dna
 	@if [ ! -d tmp-storage ]; then mkdir tmp-storage; fi
 	@sed -e "s;_N3H_;`pwd`/../${N3H};" \
 	  < conductor/conductor-config.tmpl > tmp-storage/conductor-config.toml
-	holochain -c tmp-storage/conductor-config.toml 2>&1 | tee tmp-storage/dna-testnet.log
-
-dna-startnet2:
+	holochain -c tmp-storage/conductor-config.toml > tmp-storage/dna-testnet.log 2>&1 &
+	@sleep 30
 	@cat tmp-storage/dna-testnet.log | grep p2p: | cut -d'"' -f 2 > tmp-storage/dna-testnet.address
 	@export BOOTSTRAP=`cat tmp-storage/dna-testnet.address`; \
 	  sed -e "s;_N3H_;`pwd`/../${N3H};" \
 		    -e "s;_BOOTSTRAP_;$${BOOTSTRAP};" \
 	  < conductor/conductor-config2.tmpl > tmp-storage/conductor-config2.toml
-	holochain -c tmp-storage/conductor-config2.toml 2>&1 | tee tmp-storage/dna-testnet2.log
-
-dna-startnet3:
+	holochain -c tmp-storage/conductor-config2.toml > tmp-storage/dna-testnet2.log 2>&1 &
 	@export BOOTSTRAP=`cat tmp-storage/dna-testnet.address`; \
 	  sed -e "s;_N3H_;`pwd`/../${N3H};" \
 		    -e "s;_BOOTSTRAP_;$${BOOTSTRAP};" \
 	  < conductor/conductor-config3.tmpl > tmp-storage/conductor-config3.toml
-	holochain -c tmp-storage/conductor-config3.toml 2>&1 | tee tmp-storage/dna-testnet3.log
+	# performance issues currently if 3 holochains started
+	#holochain -c tmp-storage/conductor-config3.toml > tmp-storage/dna-testnet3.log 2>&1 &
 
 dna-stopnet:
 	killall holochain
@@ -109,9 +107,9 @@ ui-deploy:
 	(cd ui-src; yarn -s; yarn deploy)
 
 ui-startnet: ui-deploy
-	http-server ui-src/target/deploy -p8000 -s -c-1 &
-	http-server ui-src/target/deploy -p8001 -s -c-1 &
-	http-server ui-src/target/deploy -p8002 -s -c-1 &
+	http-server ui-src/target/deploy -p8000 -s -g -c-1 &
+	http-server ui-src/target/deploy -p8001 -s -g -c-1 &
+	http-server ui-src/target/deploy -p8002 -s -g -c-1 &
 	fswatch -o ui-src/src | xargs -n 1 -I{} make ui-lint ui-deploy
 
 ui-update:
