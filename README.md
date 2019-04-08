@@ -20,7 +20,7 @@ You can then start a multiuser server test, by unpacking *n3h* in a
 parallel directory and/or editing the Makefile to specify the location where it is installed, and running:
 
     make startnet
-    
+
 You should have test instances you can access on http://localhost:8000 and http://localhost:8001, additional instances
 can be easily added in the Makefile but performance may drag at this time.
 
@@ -30,6 +30,10 @@ When you want to stop, just ^C and then to cleanup any unstopped proecesses, run
 
 Not for any sort of production use whatsoever at this time, no warrantee express or implied.
 
-This code is Copyright (C) 2019 by Michael Goldman to the extent it is a novel implementation, and rights are assigned
-to The MetaCurrency Project (Eric Harris-Braun, Arthur Brock, et. al.) to the extent that it is derivative. Currently
-this is GPLv3 licensed to all, other licenses are being considered by the project which they may re-license this code under.
+## License
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
+
+This code is Copyright (C) 2019 by Michael Goldman to the extent it is a novel implementation, and rights are
+assigned to The MetaCurrency Project (Eric Harris-Braun, Arthur Brock, et. al.) to the extent that it is derivative.
+Currently this is GPLv3 licensed to all, other licenses are being considered by the project which they may
+re-license or fork this code under. The author reserves the right to fork under other licenses as well.
