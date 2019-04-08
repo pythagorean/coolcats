@@ -30,4 +30,6 @@ When you want to stop, just ^C and then to cleanup any unstopped proecesses, run
 
 Not for any sort of production use whatsoever at this time, no warrantee express or implied.
 
-
+This code is Copyright (C) 2019 by Michael Goldman to the extent it is a novel implementation, and rights are assigned
+to The MetaCurrency Project (Eric Harris-Braun, Arthur Brock, et. al.) to the extent that it is derivative. Currently
+this is GPLv3 licensed to all, other licenses are being considered by the project which they may re-license this code under.
