@@ -22,7 +22,7 @@ use hdk::holochain_core_types::{
 
 use serde::{Serialize, Deserialize};
 
-use anchors::{Anchor, AnchorLink};
+use anchors::Anchor;
 use handles::Handle;
 use props::{FirstName, ProfilePic};
 use posts::Post;
@@ -30,9 +30,8 @@ use favourites::Favourite;
 
 define_zome! {
     entries: [
-       Anchor::definition(), AnchorLink::definition(), Handle::definition(),
-       FirstName::definition(), ProfilePic::definition(), Post::definition(),
-       Favourite::definition()
+       Anchor::definition(), Handle::definition(), FirstName::definition(),
+       ProfilePic::definition(), Post::definition(), Favourite::definition()
     ]
 
     genesis: || { Ok(()) }

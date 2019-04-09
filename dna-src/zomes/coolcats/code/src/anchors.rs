@@ -35,7 +35,6 @@ pub struct Anchor {
 }
 
 const ANCHOR_LINK: &str = "anchor_link";
-pub struct AnchorLink;
 
 impl Anchor {
     pub fn definition() -> ValidatingEntryType {
@@ -49,6 +48,23 @@ impl Anchor {
             },
 
             validation: |_validation_data: hdk::EntryValidationData<Anchor>| {
+                Ok(())
+            },
+
+            links: [
+                Self::anchor_link()
+            ]
+        )
+    }
+
+    fn anchor_link() -> ValidatingLinkDefinition {
+        from!(
+            ANCHOR,
+            tag: ANCHOR_LINK,
+            validation_package: || {
+                hdk::ValidationPackageDefinition::Entry
+            },
+            validation: | _validation_data: hdk::LinkValidationData | {
                 Ok(())
             }
         )
@@ -98,45 +114,6 @@ impl Anchor {
     }
 }
 
-impl AnchorLink {
-    pub fn definition() -> ValidatingEntryType {
-        entry!(
-            name: ANCHOR_LINK,
-            description: "An anchor link type",
-            sharing: Sharing::Public,
-
-            validation_package: || {
-                hdk::ValidationPackageDefinition::Entry
-            },
-
-            validation: |_validation_data: hdk::EntryValidationData<Address>| {
-                Ok(())
-            },
-
-            links: [
-                AnchorLink::anchor_link_definition()
-            ]
-        )
-    }
-
-    fn anchor_link_definition() -> ValidatingLinkDefinition {
-        from!(
-            ANCHOR,
-            tag: ANCHOR_LINK,
-            validation_package: || {
-                hdk::ValidationPackageDefinition::Entry
-            },
-            validation: | _validation_data: hdk::LinkValidationData | {
-                Ok(())
-            }
-        )
-    }
-
-    fn create(anchor_addr: &Address) -> ZomeApiResult<Address> {
-        hdk::commit_entry(&Entry::App(ANCHOR_LINK.into(), anchor_addr.into()))
-    }
-}
-
 pub fn handle_create_anchor(anchor: Anchor) -> JsonString {
     match create_anchor(&anchor) {
         Ok(value) => json!({ "value": value }).into(),
@@ -178,11 +155,9 @@ fn create_anchor(anchor: &Anchor) -> ZomeApiResult<Address> {
         hdk::commit_entry(&anchor_type_entry)?;
         let root_anchor_type_entry = Anchor::new(ANCHOR_TYPES, "").entry();
         let root_anchor_type_addr = hdk::commit_entry(&root_anchor_type_entry)?;
-        let anchor_type_link_addr = AnchorLink::create(&anchor_type_addr)?;
-        hdk::link_entries(&root_anchor_type_addr, &anchor_type_link_addr, ANCHOR_LINK)?;
+        hdk::link_entries(&root_anchor_type_addr, &anchor_type_addr, ANCHOR_LINK)?;
     }
-    let anchor_link_addr = AnchorLink::create(&anchor_addr)?;
-    hdk::link_entries(&anchor_type_addr, &anchor_link_addr, ANCHOR_LINK)?;
+    hdk::link_entries(&anchor_type_addr, &anchor_addr, ANCHOR_LINK)?;
     Ok(anchor_addr)
 }
 
@@ -194,8 +169,7 @@ fn unlink_anchor(anchor: &Anchor) -> ZomeApiResult<bool> {
     }
     let anchor_type_entry = Anchor::new(&anchor.anchor_type, "").entry();
     let anchor_type_addr = hdk::entry_address(&anchor_type_entry)?;
-    let anchor_link_addr = AnchorLink::create(&anchor_addr)?;
-    hdk::remove_link(&anchor_type_addr, &anchor_link_addr, ANCHOR_LINK)?;
+    hdk::remove_link(&anchor_type_addr, &anchor_addr, ANCHOR_LINK)?;
     Ok(true)
 }
 
@@ -212,13 +186,8 @@ fn anchor_exists(anchor: &Anchor) -> ZomeApiResult<bool> {
 fn get_anchor(addr: &Address) -> ZomeApiResult<Anchor> {
     if let Some(entry) = hdk::get_entry(addr)? {
         if let Entry::App(entry_type, value) = entry {
-            match entry_type.to_string().as_ref() {
-                ANCHOR => return Ok(Anchor::try_from(value)?),
-                ANCHOR_LINK => {
-                    let anchor_link = Address::try_from(value)?;
-                    return get_anchor(&anchor_link);
-                }
-                _ => (),
+            if let ANCHOR = entry_type.to_string().as_ref() {
+                return Ok(Anchor::try_from(value)?)
             }
         }
     }
