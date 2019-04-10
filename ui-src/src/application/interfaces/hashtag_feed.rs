@@ -1,4 +1,5 @@
 use std::time::Duration;
+
 use yew::{
     prelude::*,
     services::{IntervalService, Task},

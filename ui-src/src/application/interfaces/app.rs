@@ -1,5 +1,5 @@
-use yew::prelude::*;
 use stdweb::web::window;
+use yew::prelude::*;
 
 use crate::application::{
     Action,

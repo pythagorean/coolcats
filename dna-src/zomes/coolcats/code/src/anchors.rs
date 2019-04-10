@@ -187,7 +187,7 @@ fn get_anchor(addr: &Address) -> ZomeApiResult<Anchor> {
     if let Some(entry) = hdk::get_entry(addr)? {
         if let Entry::App(entry_type, value) = entry {
             if let ANCHOR = entry_type.to_string().as_ref() {
-                return Ok(Anchor::try_from(value)?)
+                return Ok(Anchor::try_from(value)?);
             }
         }
     }
