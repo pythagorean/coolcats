@@ -124,7 +124,6 @@ pub fn handle_get_profile_pic() -> JsonString {
     }
 }
 
-// incomplete
 fn app_property(key: &str) -> ZomeApiResult<String> {
     match key {
         "DNA_Address" => Ok(DNA_ADDRESS.to_string()),

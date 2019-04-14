@@ -6,6 +6,7 @@ use stdweb::{
 use yew::{
     prelude::*,
     services::{
+        DialogService,
         ReaderService,
         Task
     },
@@ -45,7 +46,7 @@ impl Local {
 pub enum LocalMsg {
     NewStates,
     UpdateNameText(InputData),
-    ReadImage,
+    LoadImage,
     LoadedImage(String),
     OnSubmit,
     Ignore,
@@ -64,8 +65,8 @@ impl EditProfile {
                 return true;
             }
 
-            LocalMsg::ReadImage => {
-                self.read_image();
+            LocalMsg::LoadImage => {
+                self.load_image();
             }
 
             LocalMsg::LoadedImage(dataurl) => {
@@ -103,11 +104,12 @@ impl EditProfile {
         self.update(Action::Redirect("/#/".into()).into());
     }
 
-    fn read_image(&mut self) {
+    fn load_image(&mut self) {
         let file = js! { return document.querySelector("#image").files[0] };
         let file_size: u32 = js! { return @{file.clone()}.size }.try_into().unwrap();
         if file_size > MAX_PIC_SIZE {
-            js! { alert("File is too big!") };
+            let mut dialog = DialogService::new();
+            dialog.alert("File is too big!");
             return;
         }
         let file: File = file.try_into().unwrap();
@@ -165,7 +167,7 @@ impl Renderable<EditProfile> for EditProfile {
                                     accept="image/*",
                                     id="image",
                                     hidden=true,
-                                    oninput=|_| LocalMsg::ReadImage.into(),
+                                    oninput=|_| LocalMsg::LoadImage.into(),
                                 />
                             </div>
                         </div>

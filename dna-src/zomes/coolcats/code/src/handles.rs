@@ -196,7 +196,7 @@ pub fn handle_get_following(user_handle: String) -> JsonString {
     }
 }
 
-// does not implement directory_links yet
+// does not implement directory_links
 pub fn use_handle(handle: &str) -> ZomeApiResult<Address> {
     if Handle::exists(handle)? {
         return Err(ZomeApiError::ValidationFailed("handle_in_use".into()));

@@ -2,12 +2,19 @@ use std::str::FromStr;
 use std::time::Duration;
 use std::sync::Mutex;
 use strum::AsStaticRef;
-use stdweb::web::Date;
 use serde::{Serialize, Deserialize};
+use stdweb::web::{window, Date};
+
 use yew::{
     prelude::*,
-    services::{IntervalService, Task},
+    services::{
+        ConsoleService,
+        DialogService,
+        IntervalService,
+        Task,
+    },
 };
+
 use yew_router::{routes, Route, RouterAgent};
 
 use crate::{
@@ -315,6 +322,7 @@ impl Component for Root {
     }
 
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
+        let mut dialog = DialogService::new();
         let holoclient_msg = props.params.0;
         match holoclient_msg {
             ToApplication::Initialize => {
@@ -441,7 +449,7 @@ impl Component for Root {
 
                     Redux::GetFollowing => {
                         if meta != *self.state.string("handle") {
-                            js! { alert(@{format!("Redux::GetFollowing on handle {} not supported", meta)}) };
+                            dialog.alert(&format!("Redux::GetFollowing on handle {} not supported", meta));
                             return false;
                         }
                         let follows = self.state.mut_dict("follows");
@@ -465,7 +473,7 @@ impl Component for Root {
                             return true;
                         } else {
                             self.state.mut_dict("posts").remove(&stamp);
-                            js! { alert("Redux::Post error") };
+                            dialog.alert("Redux::Post error");
                         }
                     }
 
@@ -518,17 +526,15 @@ impl Component for Root {
 
 impl Root {
     fn save_profile(&self) {
-        use stdweb::{ web::Storage, unstable::TryInto, };
-        let store: Storage = js! { return localStorage }.try_into().unwrap();
+        let storage = window().local_storage();
         let substate =
             self.state.subset(&["app_properties", "handle", "first_name", "profile_pic"]);
-        store.insert("coolcats2_state", &serde_json::to_string(&substate).unwrap()).unwrap();
+        storage.insert("coolcats2_state", &serde_json::to_string(&substate).unwrap()).unwrap();
     }
 
     fn load_profile(&mut self) {
-        use stdweb::{ web::Storage, unstable::TryInto, };
-        let store: Storage = js! { return localStorage }.try_into().unwrap();
-        if let Some(state) = store.get("coolcats2_state") {
+        let storage = window().local_storage();
+        if let Some(state) = storage.get("coolcats2_state") {
             let substate: State = serde_json::from_str(&state).unwrap();
             self.state.merge(&substate);
         }
@@ -595,7 +601,8 @@ impl RouterTarget {
 
 impl Renderable<Root> for Root {
     fn view(&self) -> Html<Self> {
-        js! { console.log(@{format!("state: {:#?}", self.state)}) };
+        let mut console = ConsoleService::new();
+        console.log(&format!("state: {:#?}", self.state));
         self.child.view()
     }
 }
