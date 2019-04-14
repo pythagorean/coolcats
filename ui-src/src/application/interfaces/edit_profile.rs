@@ -1,9 +1,20 @@
-use yew::prelude::*;
-use std::sync::Mutex;
+use stdweb::{
+    web::File,
+    unstable::TryInto,
+};
+
+use yew::{
+    prelude::*,
+    services::{
+        ReaderService,
+        Task
+    },
+};
 
 use crate::application::{
     Action,
     context::{ self, ContextAgent },
+    reader::ReaderServiceExt,
     state::State,
 };
 
@@ -15,17 +26,18 @@ interface_component!(EditProfile);
 // This will be mapped to EditProfile.local:
 pub struct Local {
     new_name_text: String,
-}
-
-// We can't store this inside the interface component due to lifetime expiry before onload
-lazy_static! {
-    static ref NEW_PROFILE_PIC: Mutex<String> = Mutex::new(String::new());
+    new_profile_pic: String,
+    reader: ReaderService,
+    reader_job: Option<Box<Task>>,
 }
 
 impl Local {
     fn new() -> Self {
         Self {
             new_name_text: String::new(),
+            new_profile_pic: String::new(),
+            reader: ReaderService::new(),
+            reader_job: None,
         }
     }
 }
@@ -34,6 +46,7 @@ pub enum LocalMsg {
     NewStates,
     UpdateNameText(InputData),
     ReadImage,
+    LoadedImage(String),
     OnSubmit,
     Ignore,
 }
@@ -52,7 +65,11 @@ impl EditProfile {
             }
 
             LocalMsg::ReadImage => {
-                static_read_image();
+                self.read_image();
+            }
+
+            LocalMsg::LoadedImage(dataurl) => {
+                self.loaded_image(dataurl);
             }
 
             LocalMsg::OnSubmit => {
@@ -73,7 +90,7 @@ impl EditProfile {
     }
 
     fn on_submit(&mut self) {
-        let new_profile_pic = { NEW_PROFILE_PIC.lock().unwrap().clone() };
+        let new_profile_pic = self.local.new_profile_pic.clone();
         if !new_profile_pic.is_empty() && new_profile_pic != *self.getstate.string("profile_pic") {
             self.set_profile_pic(&new_profile_pic);
         }
@@ -85,30 +102,24 @@ impl EditProfile {
 
         self.update(Action::Redirect("/#/".into()).into());
     }
-}
 
-// Should probably create a Yew service to do this
-fn static_read_image() {
-    use stdweb::unstable::TryInto;
-    let file = js! { return document.querySelector("#image").files[0] };
-    let file_size: u32 = js! { return @{file.clone()}.size }.try_into().unwrap();
-    if file_size > MAX_PIC_SIZE {
-        js! { alert("File is too big!") };
-        return;
+    fn read_image(&mut self) {
+        let file = js! { return document.querySelector("#image").files[0] };
+        let file_size: u32 = js! { return @{file.clone()}.size }.try_into().unwrap();
+        if file_size > MAX_PIC_SIZE {
+            js! { alert("File is too big!") };
+            return;
+        }
+        let file: File = file.try_into().unwrap();
+        let callback = self.link.send_back(|dataurl| LocalMsg::LoadedImage(dataurl).into());
+        let reader_job = self.local.reader.read_file_as_dataurl(&file, callback);
+        self.local.reader_job = Some(Box::new(reader_job));
     }
-    let onload = |dataurl: String| {
-        let mut new_profile_pic = NEW_PROFILE_PIC.lock().unwrap();
-        *new_profile_pic = dataurl;
-    };
-    js! {
-        var reader = new FileReader();
-        reader.onload = function(evt) {
-            var onload = @{onload};
-            onload(reader.result);
-            onload.drop();
-        };
-        reader.readAsDataURL(@{file});
-    };
+
+    fn loaded_image(&mut self, dataurl: String) {
+        self.local.new_profile_pic = dataurl;
+        self.local.reader_job = None;
+    }
 }
 
 impl Renderable<EditProfile> for EditProfile {

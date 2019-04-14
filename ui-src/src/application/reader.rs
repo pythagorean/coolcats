@@ -1,5 +1,5 @@
-use stdweb::Value;
 use stdweb::web::{
+    File,
     FileReader,
     FileReaderReadyState,
     FileReaderResult,
@@ -16,11 +16,11 @@ use yew::{
 };
 
 pub trait ReaderServiceExt {
-    fn read_file_as_dataurl(&mut self, file: Value, callback: Callback<String>) -> ReaderTask;
+    fn read_file_as_dataurl(&mut self, file: &File, callback: Callback<String>) -> ReaderTask;
 }
 
 impl ReaderServiceExt for ReaderService {
-    fn read_file_as_dataurl(&mut self, file: Value, callback: Callback<String>) -> ReaderTask {
+    fn read_file_as_dataurl(&mut self, file: &File, callback: Callback<String>) -> ReaderTask {
         let file_reader = FileReader::new();
         let reader = file_reader.clone();
         file_reader.add_event_listener(move |_event: LoadEndEvent| match reader.result() {
@@ -34,15 +34,15 @@ impl ReaderServiceExt for ReaderService {
 }
 
 trait FileReaderExt {
-    fn read_as_dataurl(&self, file: Value);
+    fn read_as_dataurl(&self, file: &File);
 }
 
 impl FileReaderExt for FileReader {
-    fn read_as_dataurl(&self, file: Value) {
+    fn read_as_dataurl(&self, file: &File) {
         js! {
-            var reader = {self.0};
+            var reader = @{self};
             reader.readAsDataURL(@{file});
-        }
+        };
     }
 }
 

@@ -15,30 +15,30 @@ pub struct Call {
     params: Params,
 }
 
-pub struct WsRpc {
+pub struct CallRpc {
     call: Call,
     id: String,
 }
 
-impl From<(Call, u32)> for WsRpc {
+impl From<(Call, u32)> for CallRpc {
     fn from(call_id: (Call, u32)) -> Self {
-        WsRpc {
+        CallRpc {
             call: call_id.0,
             id: call_id.1.to_string(),
         }
     }
 }
 
-impl From<(Call, String)> for WsRpc {
+impl From<(Call, String)> for CallRpc {
     fn from(call_id: (Call, String)) -> Self {
-        WsRpc {
+        CallRpc {
             call: call_id.0,
             id: call_id.1,
         }
     }
 }
 
-impl WsRpc {
+impl CallRpc {
     pub fn json(&self) -> String {
         let params = match &self.call.params {
             Params::Unspecified => r#""params":{}"#.to_string(),
@@ -173,6 +173,8 @@ impl Default for Call {
     }
 }
 
+// Function method
+
 impl From<String> for Call {
     fn from(function: String) -> Self {
         Call {
@@ -188,7 +190,7 @@ impl From<&str> for Call {
     }
 }
 
-// No params
+// No param
 
 impl From<&[&str]> for Call {
     fn from(args: &[&str]) -> Self {

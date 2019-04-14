@@ -175,7 +175,7 @@ impl Component for Root {
                 if let context::Response::Request(who, request) = response {
                     match *request {
                         context::Request::GetStates(keys) => {
-                            let keys: Vec<_> = keys.iter().map(|s| s.as_str()).collect();
+                            let keys: Vec<_> = keys.iter().map(String::as_str).collect();
                             self.context.send(
                                 (
                                     who,

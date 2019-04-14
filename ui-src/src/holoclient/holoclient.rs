@@ -14,7 +14,7 @@ use super::{
     },
     call_rpc::{
         Call,
-        WsRpc,
+        CallRpc,
     },
 };
 
@@ -33,7 +33,7 @@ pub struct WsResponse {
 pub enum WsAction {
     Connect(String),
     Initialize,
-    Call(WsRpc),
+    Call(CallRpc),
     Lost,
 }
 
@@ -216,7 +216,7 @@ impl Component for Holoclient {
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
         let call = props.params;
         if call.has_function() {
-            let rpc: WsRpc = if call.has_redux() {
+            let rpc: CallRpc = if call.has_redux() {
                 let rpc_id = format!("{}+{}", call.redux, call.index);
                 (call.rpc, rpc_id).into()
             } else {
