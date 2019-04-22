@@ -105,10 +105,10 @@ impl EditProfile {
     }
 
     fn load_image(&mut self) {
+        let mut dialog = DialogService::new();
         let file = js! { return document.querySelector("#image").files[0] };
         let file_size: u32 = js! { return @{file.clone()}.size }.try_into().unwrap();
         if file_size > MAX_PIC_SIZE {
-            let mut dialog = DialogService::new();
             dialog.alert("File is too big!");
             return;
         }

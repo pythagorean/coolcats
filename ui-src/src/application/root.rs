@@ -449,7 +449,10 @@ impl Component for Root {
 
                     Redux::GetFollowing => {
                         if meta != *self.state.string("handle") {
-                            dialog.alert(&format!("Redux::GetFollowing on handle {} not supported", meta));
+                            dialog.alert(&format!(
+                                "Redux::GetFollowing on handle {} not supported",
+                                meta
+                            ));
                             return false;
                         }
                         let follows = self.state.mut_dict("follows");
@@ -526,15 +529,16 @@ impl Component for Root {
 
 impl Root {
     fn save_profile(&self) {
-        let storage = window().local_storage();
         let substate =
             self.state.subset(&["app_properties", "handle", "first_name", "profile_pic"]);
-        storage.insert("coolcats2_state", &serde_json::to_string(&substate).unwrap()).unwrap();
+        window()
+            .local_storage()
+            .insert("coolcats2_state", &serde_json::to_string(&substate).unwrap())
+            .unwrap();
     }
 
     fn load_profile(&mut self) {
-        let storage = window().local_storage();
-        if let Some(state) = storage.get("coolcats2_state") {
+        if let Some(state) = window().local_storage().get("coolcats2_state") {
             let substate: State = serde_json::from_str(&state).unwrap();
             self.state.merge(&substate);
         }
