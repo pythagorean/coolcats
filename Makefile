@@ -1,6 +1,5 @@
 NIGHTLY = nightly-2019-01-24
-VERSION = --tag v0.0.13-alpha1
-N3H = n3h-0.0.11-alpha
+VERSION = --tag v0.0.15-alpha1
 
 all: dna ui
 
@@ -19,14 +18,10 @@ update: dna-update ui-update
 	rustup update
 
 update-cli:
-	rustup default $(NIGHTLY)
-	cargo install hc --force --git https://github.com/holochain/holochain-rust.git $(VERSION)
-	rustup default stable
+	cargo +$(NIGHTLY) install hc --force --git https://github.com/holochain/holochain-rust.git $(VERSION)
 
 update-conductor:
-	rustup default $(NIGHTLY)
-	cargo install holochain --force --git https://github.com/holochain/holochain-rust.git $(VERSION)
-	rustup default stable
+	cargo +$(NIGHTLY) install holochain --force --git https://github.com/holochain/holochain-rust.git $(VERSION)
 
 clean: reset dna-clean ui-clean
 
@@ -34,10 +29,10 @@ reset: dna-reset
 
 build: dna-build ui-build
 
-dna:
-	(cd dna-src; hc package)
+dna: dna-build
 
-dna-build: dna
+dna-build:
+	(cd dna-src; rustup run $(NIGHTLY) hc package)
 
 dna-fmt:
 	(cd dna-src/zomes/coolcats/code; cargo +$(NIGHTLY) fmt)
@@ -48,7 +43,7 @@ dna-lint:
 
 dna-test:
 	(cd dna-src/test; yarn -s)
-	(cd dna-src; hc test)
+	(cd dna-src; rustup run $(NIGHTLY) hc test)
 
 dna-start: dna
 	-(cd dna-src; hc run) || make dna-start
@@ -88,10 +83,10 @@ dna-clean:
 	(cd dna-src/test; rm -rf node_modules package-lock.json)
 	find . -name *.dna.json -exec rm {} +
 
-ui:
-	(cd ui-src; yarn -s; yarn build)
+ui: ui-build
 
-ui-build: ui
+ui-build:
+	(cd ui-src; yarn -s; yarn build)
 
 ui-fmt:
 	(cd ui-src; cargo +stable fmt)

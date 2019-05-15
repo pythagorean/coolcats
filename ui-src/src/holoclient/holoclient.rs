@@ -175,10 +175,13 @@ impl Component for Holoclient {
 
             Msg::WsReady(response) => {
                 let response = &json::parse(&response).unwrap();
+                if !response["signal"].is_null() {
+                    return false;
+                }
                 let result = response["result"].to_string();
                 let rpc_id = response["id"].to_string();
                 let mut id_split = rpc_id.split('+');
-                let redux = id_split.next().unwrap().to_string();
+                let redux = id_split.next().expect("Msg::WsReady: no redux").to_string();
                 let index = id_split.next().unwrap_or("").to_string();
                 self.update(ToApplication::Redux(result, redux, index).into());
             }

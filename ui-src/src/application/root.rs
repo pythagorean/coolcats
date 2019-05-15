@@ -333,8 +333,8 @@ impl Component for Root {
             }
 
             ToApplication::Redux(result, redux, meta) => {
-                let result = &json::parse(&result).unwrap();
-                let redux = Redux::from_str(&redux).unwrap();
+                let result = &json::parse(&result).expect("ToApplication::Redux: No result found");
+                let redux = Redux::from_str(&redux).expect("ToApplication::Redux: No match");
                 let value = &result["value"];
 
                 match redux {

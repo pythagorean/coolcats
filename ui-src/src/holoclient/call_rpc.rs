@@ -1,7 +1,7 @@
 use crate::utils::{DictValue, DictItem, DictList};
 
 #[derive(PartialEq, Clone)]
-pub enum Params {
+pub enum Args {
     Unspecified,
     Positional(Vec<DictValue>),
     Named(DictList),
@@ -12,7 +12,7 @@ pub struct Call {
     instance_id: String,
     zome: String,
     function: String,
-    params: Params,
+    args: Args,
 }
 
 pub struct CallRpc {
@@ -40,27 +40,27 @@ impl From<(Call, String)> for CallRpc {
 
 impl CallRpc {
     pub fn json(&self) -> String {
-        let params = match &self.call.params {
-            Params::Unspecified => r#""params":{}"#.to_string(),
-            Params::Positional(positional_params) => {
-                let mut params = Vec::new();
-                for param in positional_params {
-                    match param {
+        let args = match &self.call.args {
+            Args::Unspecified => r#""args":null"#.to_string(),
+            Args::Positional(positional_args) => {
+                let mut args = Vec::new();
+                for arg in positional_args {
+                    match arg {
                         DictValue::String(ref value) => {
-                            params.push(format! {
+                            args.push(format! {
                                 r#""{}""#, value
                             });
                         }
                         DictValue::Strings(ref value) => {
-                            params.push(format! {
+                            args.push(format! {
                                 r#"["{}"]"#, value.join(r#"",""#)
                             });
                         }
                         DictValue::Integer(value) => {
-                            params.push(value.to_string());
+                            args.push(value.to_string());
                         }
                         DictValue::Bool(value) => {
-                            params.push(
+                            args.push(
                                 if *value {
                                     "true"
                                 } else {
@@ -75,35 +75,35 @@ impl CallRpc {
                     }
                 }
                 format! {
-                    r#""params":[{}]"#,
-                    params.join(",")
+                    r#""args":[{}]"#,
+                    args.join(",")
                 }
             }
-            Params::Named(named_params) => {
-                let mut params = Vec::new();
-                for param in named_params {
-                    let key = &param.0;
-                    match param.1 {
+            Args::Named(named_args) => {
+                let mut args = Vec::new();
+                for arg in named_args {
+                    let key = &arg.0;
+                    match arg.1 {
                         DictValue::String(ref value) => {
-                            params.push(format! {
+                            args.push(format! {
                                 r#""{}":"{}""#,
                                 key, value
                             });
                         }
                         DictValue::Strings(ref value) => {
-                            params.push(format! {
+                            args.push(format! {
                                 r#""{}":["{}"]"#,
                                 key, value.join(r#"",""#)
                             });
                         }
                         DictValue::Integer(value) => {
-                            params.push(format! {
+                            args.push(format! {
                                 r#""{}":{}"#,
                                 key, value
                             });
                         }
                         DictValue::Bool(value) => {
-                            params.push(format! {
+                            args.push(format! {
                                 r#""{}":{}"#,
                                 key,
                                 if value {
@@ -119,8 +119,8 @@ impl CallRpc {
                     }
                 }
                 format! {
-                    r#""params":{{{}}}"#,
-                    params.join(",")
+                    r#""args":{{{}}}"#,
+                    args.join(",")
                 }
             }
         };
@@ -131,16 +131,16 @@ impl CallRpc {
         if self.call.instance_id.is_empty() && !self.call.function.is_empty() {
             return format! {
                 r#"{{"jsonrpc":"2.0",{},"method":"{}",{}}}"#,
-                id, self.call.function, params
+                id, self.call.function, args.replace("args", "params")
             };
         }
-        let call = format! {
+        let params = format! {
             r#"{{"instance_id":"{}","zome":"{}","function":"{}",{}}}"#,
-            self.call.instance_id, self.call.zome, self.call.function, params
+            self.call.instance_id, self.call.zome, self.call.function, args
         };
         format! {
             r#"{{"jsonrpc":"2.0",{},"method":"call","params":{}}}"#,
-            id, call
+            id, params
         }
     }
 }
@@ -151,7 +151,7 @@ impl Call {
             instance_id: String::new(),
             zome: String::new(),
             function: String::new(),
-            params: Params::Unspecified,
+            args: Args::Unspecified,
         }
     }
 
@@ -159,7 +159,7 @@ impl Call {
         self.instance_id.clear();
         self.zome.clear();
         self.function.clear();
-        self.params = Params::Unspecified;
+        self.args = Args::Unspecified;
     }
 
     pub fn has_function(&self) -> bool {
@@ -190,7 +190,7 @@ impl From<&str> for Call {
     }
 }
 
-// No param
+// No arg
 
 impl From<&[&str]> for Call {
     fn from(args: &[&str]) -> Self {
@@ -198,12 +198,12 @@ impl From<&[&str]> for Call {
             instance_id: args[0].into(),
             zome: args[1].into(),
             function: args[2].into(),
-            params: Params::Unspecified,
+            args: Args::Unspecified,
         }
     }
 }
 
-// Positional param
+// Positional arg
 
 impl From<(&[&str], DictValue)> for Call {
     fn from(args: (&[&str], DictValue)) -> Self {
@@ -217,7 +217,7 @@ impl From<(&[&str], &DictValue)> for Call {
     }
 }
 
-// Positional params
+// Positional args
 
 impl From<(&[&str], Vec<DictValue>)> for Call {
     fn from(args: (&[&str], Vec<DictValue>)) -> Self {
@@ -225,10 +225,10 @@ impl From<(&[&str], Vec<DictValue>)> for Call {
             instance_id: args.0[0].into(),
             zome: args.0[1].into(),
             function: args.0[2].into(),
-            params: if args.1.is_empty() {
-                Params::Unspecified
+            args: if args.1.is_empty() {
+                Args::Unspecified
             } else {
-                Params::Positional(args.1)
+                Args::Positional(args.1)
             },
         }
     }
@@ -240,7 +240,7 @@ impl From<(&[&str], &[DictValue])> for Call {
     }
 }
 
-// Named param
+// Named arg
 
 impl From<(&[&str], DictItem)> for Call {
     fn from(args: (&[&str], DictItem)) -> Self {
@@ -254,7 +254,7 @@ impl From<(&[&str], &DictItem)> for Call {
     }
 }
 
-// Named params
+// Named args
 
 impl From<(&[&str], DictList)> for Call {
     fn from(args: (&[&str], DictList)) -> Self {
@@ -262,10 +262,10 @@ impl From<(&[&str], DictList)> for Call {
             instance_id: args.0[0].into(),
             zome: args.0[1].into(),
             function: args.0[2].into(),
-            params: if args.1.is_empty() {
-                Params::Unspecified
+            args: if args.1.is_empty() {
+                Args::Unspecified
             } else {
-                Params::Named(args.1)
+                Args::Named(args.1)
             },
         }
     }
