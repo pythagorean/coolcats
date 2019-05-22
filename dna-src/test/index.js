@@ -20,7 +20,7 @@ if (process.env.RUNTEST) {
   runtests = [process.env.RUNTEST]
 }
 
-const dnaPath = "./dist/dna-src.dna.json"
+const dnaPath = "./dist/coolcats.dna.json"
 const dna = Config.dna(dnaPath)
 
 const aliceName = "alice"

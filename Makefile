@@ -1,11 +1,7 @@
 NIGHTLY = nightly-2019-01-24
-VERSION = --tag v0.0.15-alpha1
+VERSION = --tag v0.0.16-alpha1
 
 all: dna ui
-
-startnet: dna-startnet ui-startnet
-
-stopnet: dna-stopnet
 
 fmt: dna-fmt ui-fmt
 
@@ -16,6 +12,7 @@ test: dna-test
 update: dna-update ui-update
 	rustup self update
 	rustup update
+	cargo install-update -a
 
 update-cli:
 	cargo +$(NIGHTLY) install hc --force --git https://github.com/holochain/holochain-rust.git $(VERSION)
@@ -23,56 +20,32 @@ update-cli:
 update-conductor:
 	cargo +$(NIGHTLY) install holochain --force --git https://github.com/holochain/holochain-rust.git $(VERSION)
 
-clean: reset dna-clean ui-clean
-
-reset: dna-reset
+clean: dna-clean ui-clean
 
 build: dna-build ui-build
+
+conductor-start: dna ui-deploy
+	holochain -c conductor/conductor-config-agent1.toml
 
 dna: dna-build
 
 dna-build:
-	(cd dna-src; rustup run $(NIGHTLY) hc package)
+	(cd dna-src; mkdir dist; rustup run $(NIGHTLY) hc package -o dist/coolcats.dna.json)
+	-ln -s coolcats.dna.json dna-src/dist/dna-src.dna.json
 
 dna-fmt:
-	(cd dna-src/zomes/coolcats/code; cargo +$(NIGHTLY) fmt)
+	(cd dna-src/zomes/coolcats/code; cargo +$(NIGHTLY) do fmt, tomlfmt)
 	(cd dna-src/test; js-beautify -r -s 2 -n *.js)
 
 dna-lint:
 	(cd dna-src/zomes/coolcats/code; cargo +$(NIGHTLY) clippy)
 
-dna-test:
+dna-test: dna-build
 	(cd dna-src/test; yarn -s)
-	(cd dna-src; rustup run $(NIGHTLY) hc test)
+	(cd dna-src; rustup run $(NIGHTLY) hc test -s)
 
 dna-start: dna
 	-(cd dna-src; hc run) || make dna-start
-
-dna-startnet: dna
-	@if [ ! -d tmp-storage ]; then mkdir tmp-storage; fi
-	@sed -e "s;_N3H_;`pwd`/../${N3H};" \
-	  < conductor/conductor-config.tmpl > tmp-storage/conductor-config.toml
-	holochain -c tmp-storage/conductor-config.toml > tmp-storage/dna-testnet.log 2>&1 &
-	@sleep 30
-	@cat tmp-storage/dna-testnet.log | grep p2p: | cut -d'"' -f 2 > tmp-storage/dna-testnet.address
-	@export BOOTSTRAP=`cat tmp-storage/dna-testnet.address`; \
-	  sed -e "s;_N3H_;`pwd`/../${N3H};" \
-		    -e "s;_BOOTSTRAP_;$${BOOTSTRAP};" \
-	  < conductor/conductor-config2.tmpl > tmp-storage/conductor-config2.toml
-	holochain -c tmp-storage/conductor-config2.toml > tmp-storage/dna-testnet2.log 2>&1 &
-	@export BOOTSTRAP=`cat tmp-storage/dna-testnet.address`; \
-	  sed -e "s;_N3H_;`pwd`/../${N3H};" \
-		    -e "s;_BOOTSTRAP_;$${BOOTSTRAP};" \
-	  < conductor/conductor-config3.tmpl > tmp-storage/conductor-config3.toml
-	# performance issues currently if 3 holochains started
-	#holochain -c tmp-storage/conductor-config3.toml > tmp-storage/dna-testnet3.log 2>&1 &
-
-dna-stopnet:
-	killall holochain
-	killall node
-
-dna-reset:
-	rm -rf tmp-storage
 
 dna-update:
 	(cd dna-src/zomes/coolcats/code; cargo +$(NIGHTLY) update)
@@ -89,7 +62,7 @@ ui-build:
 	(cd ui-src; yarn -s; yarn build)
 
 ui-fmt:
-	(cd ui-src; cargo +stable fmt)
+	(cd ui-src; cargo +stable do fmt, tomlfmt)
 	(cd ui-src; js-beautify -r -s 2 -n *.js)
 
 ui-lint:
@@ -100,12 +73,6 @@ ui-start:
 
 ui-deploy:
 	(cd ui-src; yarn -s; yarn deploy)
-
-ui-startnet: ui-deploy
-	http-server ui-src/target/deploy -p8000 -s -g -c-1 &
-	http-server ui-src/target/deploy -p8001 -s -g -c-1 &
-	http-server ui-src/target/deploy -p8002 -s -g -c-1 &
-	fswatch -o ui-src/src | xargs -n 1 -I{} make ui-lint ui-deploy
 
 ui-update:
 	(cd ui-src; cargo +stable update)

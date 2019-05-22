@@ -1,5 +1,4 @@
 [network]
-n3h_path = "_N3H_"
 n3h_persistence_path = "/tmp"
 bootstrap_nodes = ["_BOOTSTRAP_"]
 

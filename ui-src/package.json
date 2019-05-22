@@ -5,7 +5,7 @@
     "scripts": {
         "build": "webpack; cargo +stable web build",
         "start": "webpack; cargo +stable web start",
-        "deploy": "webpack; cargo +stable web deploy --release; patch -p0 target/deploy/*.js < deploy-js.diff; gzip -9v target/deploy/*.js target/deploy/*.wasm"
+        "deploy": "webpack; cargo +stable web deploy --release; patch -p0 target/deploy/*.js < deploy-js.diff"
     },
     "dependencies": {},
     "devDependencies": {
@@ -17,9 +17,9 @@
         "html-webpack-plugin": "^3.2.0",
         "html-webpack-template": "^6.2.0",
         "style-loader": "^0.23.1",
-        "ts-loader": "^6.0.0",
+        "ts-loader": "^6.0.1",
         "typescript": "^3.4.5",
-        "webpack": "^4.31.0",
+        "webpack": "^4.32.0",
         "webpack-cli": "^3.3.2"
     }
 }
