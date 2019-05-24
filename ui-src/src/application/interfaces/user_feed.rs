@@ -80,7 +80,8 @@ impl UserFeed {
 
     fn get_posts(&mut self) {
         let (_, handle) = &self.params;
-        self.update(Action::GetPostsBy([handle.clone()].to_vec()).into());
+        let handle = handle.clone();
+        self.update(Action::GetPostsBy([handle].to_vec()).into());
     }
 
     fn get_feed(&mut self) -> bool {
@@ -110,12 +111,12 @@ impl UserFeed {
                     post.insert("stamp".into(), stamp.clone().into());
                 }
 
-                let author = post.string("author");
-                let mut user_handle = handles.string(author);
+                let author = post.string("author").clone();
+                let mut user_handle = handles.string(&author).clone();
                 if user_handle.is_empty() {
                     user_handle = author
                 };
-                post.insert("user_handle".into(), user_handle.clone().into());
+                post.insert("user_handle".into(), user_handle.into());
                 post
             })
             .collect();

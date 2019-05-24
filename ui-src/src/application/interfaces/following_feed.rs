@@ -129,12 +129,12 @@ impl FollowingFeed {
                     post.insert("stamp".into(), stamp.clone().into());
                 }
 
-                let author = post.string("author");
-                let mut user_handle = handles.string(author);
+                let author = post.string("author").clone();
+                let mut user_handle = handles.string(&author).clone();
                 if user_handle.is_empty() {
                     user_handle = author
                 };
-                post.insert("user_handle".into(), user_handle.clone().into());
+                post.insert("user_handle".into(), user_handle.into());
                 post
             })
             .collect();

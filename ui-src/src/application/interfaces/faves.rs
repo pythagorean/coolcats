@@ -33,12 +33,14 @@ impl Faves {
 
             LocalMsg::AddFavourite => {
                 let (_, address) = &self.params;
-                self.update(Action::AddFavourite(address.clone()).into());
+                let address = address.clone();
+                self.update(Action::AddFavourite(address).into());
             }
 
             LocalMsg::RemoveFavourite => {
                 let (_, address) = &self.params;
-                self.update(Action::RemoveFavourite(address.clone()).into());
+                let address = address.clone();
+                self.update(Action::RemoveFavourite(address).into());
             }
         }
         false
