@@ -84,7 +84,7 @@ impl Post {
     fn hashtag_link() -> ValidatingLinkDefinition {
         from!(
             ANCHOR,
-            tag: HASHTAG,
+            link_type: HASHTAG,
             validation_package: || {
                 hdk::ValidationPackageDefinition::Entry
             },
@@ -141,12 +141,12 @@ pub fn handle_get_posts_with_hashtag(hashtag: String) -> JsonString {
 fn post(message: &str, stamp: &str) -> ZomeApiResult<Address> {
     let post_addr = Post::create(message, stamp)?;
     let handle_addr = handles::get_handle_addr(None)?;
-    hdk::link_entries(&handle_addr, &post_addr, POST)?;
+    hdk::link_entries(&handle_addr, &post_addr, POST, "")?;
 
     let hashtags = get_hashtags(message);
     for hashtag in hashtags {
         let anchor = Anchor::create(HASHTAG, &hashtag)?;
-        hdk::link_entries(&anchor, &post_addr, HASHTAG)?;
+        hdk::link_entries(&anchor, &post_addr, HASHTAG, "")?;
     }
 
     Ok(post_addr)
@@ -204,7 +204,7 @@ fn get_post(addr: &Address) -> ZomeApiResult<GetPost> {
 fn get_posts_by(handles: &[String]) -> ZomeApiResult<Vec<GetPost>> {
     let mut posts: Vec<GetPost> = Vec::new();
     for user_handle in handles {
-        let post_links = hdk::get_links(&Handle::address(user_handle)?, POST)?;
+        let post_links = hdk::get_links(&Handle::address(user_handle)?, Some(POST.into()), None)?;
         for addr in post_links.addresses() {
             posts.push(get_post(&addr)?)
         }
@@ -232,7 +232,7 @@ fn get_posts_with_hashtag(hashtag: &str) -> ZomeApiResult<Vec<GetPost>> {
         hashtag
     };
     let mut posts: Vec<GetPost> = Vec::new();
-    let post_links = hdk::get_links(&Anchor::address(HASHTAG, &hashtag)?, HASHTAG)?;
+    let post_links = hdk::get_links(&Anchor::address(HASHTAG, &hashtag)?, Some(HASHTAG.into()), None)?;
     for addr in post_links.addresses() {
         posts.push(get_post(&addr)?);
     }

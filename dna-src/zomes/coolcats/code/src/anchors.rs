@@ -60,7 +60,7 @@ impl Anchor {
     fn anchor_link() -> ValidatingLinkDefinition {
         from!(
             ANCHOR,
-            tag: ANCHOR_LINK,
+            link_type: ANCHOR_LINK,
             validation_package: || {
                 hdk::ValidationPackageDefinition::Entry
             },
@@ -155,9 +155,9 @@ fn create_anchor(anchor: &Anchor) -> ZomeApiResult<Address> {
         hdk::commit_entry(&anchor_type_entry)?;
         let root_anchor_type_entry = Anchor::new(ANCHOR_TYPES, "").entry();
         let root_anchor_type_addr = hdk::commit_entry(&root_anchor_type_entry)?;
-        hdk::link_entries(&root_anchor_type_addr, &anchor_type_addr, ANCHOR_LINK)?;
+        hdk::link_entries(&root_anchor_type_addr, &anchor_type_addr, ANCHOR_LINK, "")?;
     }
-    hdk::link_entries(&anchor_type_addr, &anchor_addr, ANCHOR_LINK)?;
+    hdk::link_entries(&anchor_type_addr, &anchor_addr, ANCHOR_LINK, "")?;
     Ok(anchor_addr)
 }
 
@@ -169,7 +169,7 @@ fn unlink_anchor(anchor: &Anchor) -> ZomeApiResult<bool> {
     }
     let anchor_type_entry = Anchor::new(&anchor.anchor_type, "").entry();
     let anchor_type_addr = hdk::entry_address(&anchor_type_entry)?;
-    hdk::remove_link(&anchor_type_addr, &anchor_addr, ANCHOR_LINK)?;
+    hdk::remove_link(&anchor_type_addr, &anchor_addr, ANCHOR_LINK, "")?;
     Ok(true)
 }
 
@@ -197,6 +197,6 @@ fn get_anchor(addr: &Address) -> ZomeApiResult<Anchor> {
 fn get_anchors(anchor_type: &str) -> ZomeApiResult<Vec<Anchor>> {
     let anchor_type_entry = Anchor::new(anchor_type, "").entry();
     let anchor_type_addr = hdk::entry_address(&anchor_type_entry)?;
-    let anchor_type_links = hdk::get_links(&anchor_type_addr, ANCHOR_LINK)?;
+    let anchor_type_links = hdk::get_links(&anchor_type_addr, Some(ANCHOR_LINK.into()), None)?;
     anchor_type_links.addresses().iter().map(|addr| get_anchor(&addr)).collect()
 }

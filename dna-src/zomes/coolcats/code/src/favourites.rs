@@ -51,7 +51,7 @@ impl Favourite {
     fn link_from_agent() -> ValidatingLinkDefinition {
         from!(
             "%agent_id",
-            tag: FAVOURITE,
+            link_type: FAVOURITE,
             validation_package: || {
                 hdk::ValidationPackageDefinition::Entry
             },
@@ -105,7 +105,7 @@ fn add_favourite(fave_addr: &Address) -> ZomeApiResult<Vec<Address>> {
     }
     let mut faves = get_favourites()?;
     if !faves.iter().any(|x| *x == *fave_addr) {
-        hdk::link_entries(&AGENT_ADDRESS, &Favourite::create(fave_addr)?, FAVOURITE)?;
+        hdk::link_entries(&AGENT_ADDRESS, &Favourite::create(fave_addr)?, FAVOURITE, "")?;
         faves.push(fave_addr.clone());
     }
     Ok(faves)
@@ -125,14 +125,14 @@ fn remove_favourite(fave_addr: &Address) -> ZomeApiResult<Vec<Address>> {
         })
         .collect();
     if found_fave {
-        hdk::remove_link(&AGENT_ADDRESS, &Favourite::address(fave_addr)?, FAVOURITE)?;
+        hdk::remove_link(&AGENT_ADDRESS, &Favourite::address(fave_addr)?, FAVOURITE, "")?;
     }
     Ok(faves)
 }
 
 fn get_favourites() -> ZomeApiResult<Vec<Address>> {
     let mut faves: Vec<Address> = Vec::new();
-    for entry in hdk::get_links_and_load(&AGENT_ADDRESS, FAVOURITE)? {
+    for entry in hdk::get_links_and_load(&AGENT_ADDRESS, Some(FAVOURITE.into()), None)? {
         if let Entry::App(entry_type, value) = entry? {
             if entry_type.to_string() == FAVOURITE {
                 faves.push(Favourite::try_from(value)?.0);

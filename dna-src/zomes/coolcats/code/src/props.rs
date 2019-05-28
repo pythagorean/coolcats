@@ -35,8 +35,8 @@ impl PropValue {
         PropValue(value.into())
     }
 
-    fn create(tag: &str, data: &str) -> ZomeApiResult<Address> {
-        hdk::commit_entry(&Entry::App(tag.to_string().into(), PropValue::new(data).into()))
+    fn create(prop: &str, data: &str) -> ZomeApiResult<Address> {
+        hdk::commit_entry(&Entry::App(prop.to_string().into(), PropValue::new(data).into()))
     }
 }
 
@@ -65,7 +65,7 @@ macro_rules! prop_definition {
         fn agent_link_definition() -> ValidatingLinkDefinition {
             from!(
                 "%agent_id",
-                tag: $name,
+                link_type: $name,
                 validation_package: || {
                     hdk::ValidationPackageDefinition::Entry
                 },
@@ -149,21 +149,21 @@ fn get_profile_pic() -> ZomeApiResult<String> {
     get_profile_prop(PROFILE_PIC)
 }
 
-fn set_profile_prop(tag: &str, data: &str) -> ZomeApiResult<String> {
-    let prop_addr = PropValue::create(tag, data)?;
-    hdk::link_entries(&AGENT_ADDRESS, &prop_addr, tag)?;
+fn set_profile_prop(prop: &str, data: &str) -> ZomeApiResult<String> {
+    let prop_addr = PropValue::create(prop, data)?;
+    hdk::link_entries(&AGENT_ADDRESS, &prop_addr, prop, "")?;
     Ok(data.to_string())
 }
 
-fn get_profile_prop(tag: &str) -> ZomeApiResult<String> {
-    let links = hdk::get_links(&AGENT_ADDRESS, tag)?;
+fn get_profile_prop(prop: &str) -> ZomeApiResult<String> {
+    let links = hdk::get_links(&AGENT_ADDRESS, Some(prop.into()), None)?;
     let addrs = links.addresses();
     if addrs.is_empty() {
-        return Err(ZomeApiError::ValidationFailed(format!("unlinked_tag: {}", tag)));
+        return Err(ZomeApiError::ValidationFailed(format!("unlinked_prop: {}", prop)));
     }
     if let Some(entry) = hdk::get_entry(&addrs.last().unwrap())? {
         if let Entry::App(entry_type, value) = entry {
-            if entry_type.to_string() == tag {
+            if entry_type.to_string() == prop {
                 let data = PropValue::try_from(value)?;
                 return Ok(data.0);
             }

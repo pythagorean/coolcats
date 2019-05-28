@@ -1,5 +1,5 @@
 NIGHTLY = nightly-2019-01-24
-VERSION = --tag v0.0.16-alpha1
+VERSION = --tag v0.0.17-alpha2
 
 all: dna ui
 

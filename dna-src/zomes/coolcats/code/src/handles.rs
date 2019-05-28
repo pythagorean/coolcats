@@ -62,7 +62,7 @@ impl Handle {
     fn link_from_agent() -> ValidatingLinkDefinition {
         from!(
             "%agent_id",
-            tag: HANDLE,
+            link_type: HANDLE,
             validation_package: || {
                 hdk::ValidationPackageDefinition::Entry
             },
@@ -75,7 +75,7 @@ impl Handle {
     fn link_to_followers() -> ValidatingLinkDefinition {
         to!(
             HANDLE,
-            tag: FOLLOWERS,
+            link_type: FOLLOWERS,
             validation_package: || {
                 hdk::ValidationPackageDefinition::Entry
             },
@@ -88,7 +88,7 @@ impl Handle {
     fn link_to_following() -> ValidatingLinkDefinition {
         to!(
             HANDLE,
-            tag: FOLLOWING,
+            link_type: FOLLOWING,
             validation_package: || {
                 hdk::ValidationPackageDefinition::Entry
             },
@@ -101,7 +101,7 @@ impl Handle {
     fn link_to_post() -> ValidatingLinkDefinition {
         to!(
             POST,
-            tag: POST,
+            link_type: POST,
             validation_package: || {
                 hdk::ValidationPackageDefinition::Entry
             },
@@ -201,25 +201,25 @@ pub fn use_handle(handle: &str) -> ZomeApiResult<Address> {
     if Handle::exists(handle)? {
         return Err(ZomeApiError::ValidationFailed("handle_in_use".into()));
     }
-    let links = hdk::get_links(&AGENT_ADDRESS, HANDLE)?;
+    let links = hdk::get_links(&AGENT_ADDRESS, Some(HANDLE.into()), None)?;
     let addrs = links.addresses();
     if !addrs.is_empty() {
         let old_handle_addr = &addrs[0];
         let new_handle_addr = Handle::create(handle)?;
         Anchor::unlink(HANDLE, &get_handle(old_handle_addr)?)?;
         Handle::update(handle, old_handle_addr)?;
-        hdk::remove_link(&AGENT_ADDRESS, old_handle_addr, HANDLE)?;
-        hdk::link_entries(&AGENT_ADDRESS, &new_handle_addr, HANDLE)?;
+        hdk::remove_link(&AGENT_ADDRESS, old_handle_addr, HANDLE, "")?;
+        hdk::link_entries(&AGENT_ADDRESS, &new_handle_addr, HANDLE, "")?;
         return Ok(new_handle_addr);
     }
     let handle_addr = Handle::create(handle)?;
-    hdk::link_entries(&AGENT_ADDRESS, &handle_addr, HANDLE)?;
+    hdk::link_entries(&AGENT_ADDRESS, &handle_addr, HANDLE, "")?;
     Ok(handle_addr)
 }
 
 pub fn get_handle(addr: &Address) -> ZomeApiResult<String> {
     let mut addr = addr;
-    let links = hdk::get_links(addr, HANDLE)?;
+    let links = hdk::get_links(addr, Some(HANDLE.into()), None)?;
     let addrs = links.addresses();
     if !addrs.is_empty() {
         addr = &addrs[0];
@@ -262,7 +262,7 @@ pub fn get_agent(handle: &str) -> ZomeApiResult<Address> {
 
 pub fn get_handle_addr(addr: Option<&Address>) -> ZomeApiResult<Address> {
     let mut addr = addr.unwrap_or(&AGENT_ADDRESS);
-    let links = hdk::get_links(addr, HANDLE)?;
+    let links = hdk::get_links(addr, Some(HANDLE.into()), None)?;
     let addrs = links.addresses();
     if !addrs.is_empty() {
         addr = &addrs[0];
@@ -304,22 +304,22 @@ pub fn get_handles() -> ZomeApiResult<Vec<GetHandle>> {
 pub fn follow(user_handle: &str) -> ZomeApiResult<bool> {
     let follow_addr = Handle::address(user_handle)?;
     let handle_addr = get_handle_addr(None)?;
-    hdk::link_entries(&follow_addr, &handle_addr, FOLLOWERS)?;
-    hdk::link_entries(&handle_addr, &follow_addr, FOLLOWING)?;
+    hdk::link_entries(&follow_addr, &handle_addr, FOLLOWERS, "")?;
+    hdk::link_entries(&handle_addr, &follow_addr, FOLLOWING, "")?;
     Ok(true)
 }
 
 pub fn unfollow(user_handle: &str) -> ZomeApiResult<bool> {
     let follow_addr = Handle::address(user_handle)?;
     let handle_addr = get_handle_addr(None)?;
-    hdk::remove_link(&follow_addr, &handle_addr, FOLLOWERS)?;
-    hdk::remove_link(&handle_addr, &follow_addr, FOLLOWING)?;
+    hdk::remove_link(&follow_addr, &handle_addr, FOLLOWERS, "")?;
+    hdk::remove_link(&handle_addr, &follow_addr, FOLLOWING, "")?;
     Ok(true)
 }
 
-pub fn get_follow(user_handle: &str, tag: &str) -> ZomeApiResult<Vec<String>> {
+pub fn get_follow(user_handle: &str, link_type: &str) -> ZomeApiResult<Vec<String>> {
     let user_addr = Handle::address(user_handle)?;
-    let links = hdk::get_links(&user_addr, tag)?;
+    let links = hdk::get_links(&user_addr, Some(link_type.into()), None)?;
     let mut follow: Vec<String> = Vec::new();
     for follow_addr in links.addresses() {
         follow.push(get_handle(&follow_addr)?);

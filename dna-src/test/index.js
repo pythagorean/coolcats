@@ -487,7 +487,7 @@ runtests.includes('profile') && test('profile', (t) => {
     t.test('get the first name of the user which is not set', (t) => {
       t.plan(1)
       const result = display(call("get_first_name", {}))
-      t.equal(result.error.ValidationFailed, "unlinked_tag: first_name")
+      t.equal(result.error.ValidationFailed, "unlinked_prop: first_name")
     })
 
     t.test('set the first name of the user', (t) => {
@@ -523,7 +523,7 @@ runtests.includes('profile') && test('profile', (t) => {
     t.test('get the profile pic of the user which is not set', (t) => {
       t.plan(1)
       const result = display(call("get_profile_pic", {}))
-      t.equal(result.error.ValidationFailed, "unlinked_tag: profile_pic")
+      t.equal(result.error.ValidationFailed, "unlinked_prop: profile_pic")
     })
 
     t.test('set the profile_pic of the user', (t) => {
