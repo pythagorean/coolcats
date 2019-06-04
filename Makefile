@@ -1,5 +1,5 @@
 NIGHTLY = nightly-2019-01-24
-VERSION = --tag v0.0.17-alpha2
+VERSION = --tag v0.0.18-alpha1
 
 all: dna ui
 
@@ -24,8 +24,23 @@ clean: dna-clean ui-clean
 
 build: dna-build ui-build
 
+start: conductor-start
+
+stop: conductor-stop
+
 conductor-start: dna ui-deploy
-	holochain -c conductor/conductor-config-agent1.toml
+	holochain -c conductor/conductor-config-agent1.toml > /tmp/dna-testnet.log 2>&1 &
+	@( tail +1 -f /tmp/dna-testnet.log & ) | grep -q p2p:
+	@cat /tmp/dna-testnet.log | grep p2p: | cut -d'"' -f 2 > /tmp/dna-testnet.address
+	@export BOOTSTRAP=`cat /tmp/dna-testnet.address`; \
+		sed -e "s;_BOOTSTRAP_;$${BOOTSTRAP};" \
+		< conductor/conductor-config-agent2.toml > /tmp/conductor-config-agent2.toml
+	#not currently working with two or more conductors
+	#holochain -c /tmp/conductor-config-agent2.toml > /tmp/dna-testnet2.log 2>&1 &
+
+conductor-stop:
+	killall holochain
+	pkill -f n3h.app
 
 dna: dna-build
 

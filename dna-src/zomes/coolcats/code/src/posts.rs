@@ -232,7 +232,8 @@ fn get_posts_with_hashtag(hashtag: &str) -> ZomeApiResult<Vec<GetPost>> {
         hashtag
     };
     let mut posts: Vec<GetPost> = Vec::new();
-    let post_links = hdk::get_links(&Anchor::address(HASHTAG, &hashtag)?, Some(HASHTAG.into()), None)?;
+    let post_links =
+        hdk::get_links(&Anchor::address(HASHTAG, &hashtag)?, Some(HASHTAG.into()), None)?;
     for addr in post_links.addresses() {
         posts.push(get_post(&addr)?);
     }

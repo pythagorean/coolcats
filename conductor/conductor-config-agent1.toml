@@ -5,47 +5,40 @@ name = "Agent 1"
 public_address = "HcSCiH48BaDmgheazcQ5SKkbCCRfsrnpoMTMDFJh4BxyewhhIGgaxqB3Ior3pir"
 keystore_file = "conductor/agent1.keystore"
 
-# [[agents]]
-# id = "AgentID update the agent property in [[instances]]"
-# name = "Your agent name here"
-# public_address = "public addess"
-# keystore_file = "path/to/keystore"
-
 # -----------  DNA  -----------
 [[dnas]]
 id = "coolcats_dna"
 file = "dna-src/dist/coolcats.dna.json"
-hash = "QmYaR5tFUxpNJEvUB7JHdaNQUYc5TyE2LqjuBBrTH6AC5F"
 
 [[instances]]
-id = "coolcats"
+id = "coolcats_instance1"
 agent = "test_agent1"
 dna = "coolcats_dna"
-[instances.logger]
-type = "simple"
-file = "/tmp/coolcats.log"
 [instances.storage]
 type = "memory"
 
 [[interfaces]]
-id = "websocket_interface"
+id = "websocket_interface1"
 [interfaces.driver]
 type = "websocket"
 port = 8888
 [[interfaces.instances]]
-id = "coolcats"
+id = "coolcats_instance1"
 
 # -----------  UI  -----------
 [[ui_bundles]]
-id = "main"
+id = "coolcats2_ui"
 root_dir = "ui-src/target/deploy"
 
 [[ui_interfaces]]
-id = "ui-interface"
-bundle = "main"
+id = "ui-interface1"
+bundle = "coolcats2_ui"
 port = 8000
-dna_interface = "websocket_interface"
+dna_interface = "websocket_interface1"
 
 [network]
 n3h_persistence_path = "/tmp"
 bootstrap_nodes = []
+
+[logger]
+type = "simple"

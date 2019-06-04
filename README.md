@@ -32,10 +32,17 @@ Then
 make ui-start
 ```
 
-To run the Conductor for multiple user testing
+To run the Conductor (currently only single user mode is enabled due to error
+when starting multiple Conductors, edit Makefile to uncomment or add more)
 
 ```
 make conductor-start
+```
+
+To stop the Conductor
+
+```
+make conductor-stop
 ```
 
 Not for any sort of production use whatsoever at this time, no warranty express or implied.
