@@ -27,7 +27,7 @@ You should have test instances you can access on http://localhost:8000, http://l
 
 When you want to stop, run:
 
-    make start
+    make stop
 
 If you want to test a single instance on http://localhost:8000, to run a standalone holochain portion, first run:
 
