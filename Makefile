@@ -29,14 +29,16 @@ start: conductor-start
 stop: conductor-stop
 
 conductor-start: dna ui-deploy
+	@mkdir -p /tmp/n3h/1
 	holochain -c conductor/conductor-config-agent1.toml > /tmp/dna-testnet.log 2>&1 &
 	@( tail +1 -f /tmp/dna-testnet.log & ) | grep -q p2p:
-	@cat /tmp/dna-testnet.log | grep p2p: | cut -d'"' -f 2 > /tmp/dna-testnet.address
-	@export BOOTSTRAP=`cat /tmp/dna-testnet.address`; \
-		sed -e "s;_BOOTSTRAP_;$${BOOTSTRAP};" \
-		< conductor/conductor-config-agent2.toml > /tmp/conductor-config-agent2.toml
-	#not currently working with two or more conductors
-	#holochain -c /tmp/conductor-config-agent2.toml > /tmp/dna-testnet2.log 2>&1 &
+	@mkdir -p /tmp/n3h/2
+	holochain -c conductor/conductor-config-agent2.toml > /tmp/dna-testnet2.log 2>&1 &
+	@( tail +1 -f /tmp/dna-testnet2.log & ) | grep -q p2p:
+	@mkdir -p /tmp/n3h/3
+	holochain -c conductor/conductor-config-agent3.toml > /tmp/dna-testnet3.log 2>&1 &
+	@( tail +1 -f /tmp/dna-testnet3.log & ) | grep -q p2p:
+	@echo Conductor started. Logfiles in /tmp. Run \'make stop\' to stop processes.
 
 conductor-stop:
 	killall holochain

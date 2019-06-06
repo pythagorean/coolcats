@@ -37,7 +37,7 @@ port = 8000
 dna_interface = "websocket_interface1"
 
 [network]
-n3h_persistence_path = "/tmp"
+n3h_persistence_path = "/tmp/n3h/1"
 bootstrap_nodes = []
 
 [logger]

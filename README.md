@@ -16,36 +16,29 @@ Building the UI requires [cargo web](https://github.com/koute/cargo-web):
 
     cargo install cargo-web
 
-To run the holochain portion
+You can then start a multiuser server test by running:
 
-```
-make dna-start
-```
+    make start
 
-To run the standalone frontend
+You should have test instances you can access on http://localhost:8000, http://localhost:8001 and
+http://localhost:8001.
 
-Open a new separate terminal (So the backend stays running in the other one)
+When you want to stop, run:
 
-Then
+    make start
 
-```
-make ui-start
-```
+If you want to test a single instance on http://localhost:8000, to run a standalone holochain
+portion, first run:
 
-To run the Conductor (currently only single user mode is enabled due to error
-when starting multiple Conductors, edit Makefile to uncomment or add more)
+    make dna-start
 
-```
-make conductor-start
-```
+Then to run the standalone frontend, open a new separate terminal (so the backend stays
+running in the other one), and run:
 
-To stop the Conductor
+    make ui-start
 
-```
-make conductor-stop
-```
-
-Not for any sort of production use whatsoever at this time, no warranty express or implied.
+Not for any sort of production use whatsoever at this time, no warranty express or implied. Please
+feel free to file any issues on github.
 
 ## License
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
