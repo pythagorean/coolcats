@@ -1,5 +1,5 @@
-NIGHTLY = nightly-2019-01-24
-VERSION = --tag v0.0.18-alpha1
+HC_VERSION = 0.0.18-alpha1
+RUST_NIGHTLY = nightly-2019-01-24
 
 all: dna ui
 
@@ -10,15 +10,16 @@ lint: dna-lint ui-lint
 test: dna-test
 
 update: dna-update ui-update
+	if [ `holochain --version | cut -d ' ' -f 2` != $(HC_VERSION) ]; then make update-conductor; fi
 	rustup self update
 	rustup update
 	cargo install-update -a
 
 update-cli:
-	cargo +$(NIGHTLY) install hc --force --git https://github.com/holochain/holochain-rust.git $(VERSION)
+	cargo +$(RUST_NIGHTLY) install hc --force --git https://github.com/holochain/holochain-rust.git --tag v$(HC_VERSION)
 
 update-conductor:
-	cargo +$(NIGHTLY) install holochain --force --git https://github.com/holochain/holochain-rust.git $(VERSION)
+	cargo +$(RUST_NIGHTLY) install holochain --force --git https://github.com/holochain/holochain-rust.git --tag v$(HC_VERSION)
 
 clean: dna-clean ui-clean
 
@@ -47,29 +48,30 @@ conductor-stop:
 dna: dna-build
 
 dna-build:
-	(cd dna-src; mkdir dist; rustup run $(NIGHTLY) hc package -o dist/coolcats.dna.json)
+	(cd dna-src; mkdir dist; rustup run $(RUST_NIGHTLY) hc package -o dist/coolcats.dna.json)
 	-ln -s coolcats.dna.json dna-src/dist/dna-src.dna.json
 
 dna-fmt:
-	(cd dna-src/zomes/coolcats/code; cargo +$(NIGHTLY) do fmt, tomlfmt)
+	(cd dna-src/zomes/coolcats/code; cargo +$(RUST_NIGHTLY) do fmt, tomlfmt)
 	(cd dna-src/test; js-beautify -r -s 2 -n *.js)
 
 dna-lint:
-	(cd dna-src/zomes/coolcats/code; cargo +$(NIGHTLY) clippy)
+	(cd dna-src/zomes/coolcats/code; cargo +$(RUST_NIGHTLY) clippy)
 
 dna-test: dna-build
 	(cd dna-src/test; yarn -s)
-	(cd dna-src; rustup run $(NIGHTLY) hc test -s)
+	(cd dna-src; rustup run $(RUST_NIGHTLY) hc test -s)
 
 dna-start: dna
 	-(cd dna-src; hc run) || make dna-start
 
 dna-update:
-	(cd dna-src/zomes/coolcats/code; cargo +$(NIGHTLY) update)
+	if [ `hc --version | cut -d ' ' -f 2` != $(HC_VERSION) ]; then make update-cli; fi
+	(cd dna-src/zomes/coolcats/code; cargo +$(RUST_NIGHTLY) update)
 	-(cd dna-src/test; yarn -s upgrade --latest)
 
 dna-clean:
-	(cd dna-src/zomes/coolcats/code; cargo +$(NIGHTLY) clean && rm -f Cargo.lock)
+	(cd dna-src/zomes/coolcats/code; cargo +$(RUST_NIGHTLY) clean && rm -f Cargo.lock)
 	(cd dna-src/test; rm -rf node_modules package-lock.json)
 	find . -name *.dna.json -exec rm {} +
 
