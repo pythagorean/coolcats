@@ -16,6 +16,7 @@ use hdk::{
         entry::Entry,
         dna::entry_types::Sharing,
         json::JsonString,
+        link::LinkMatch,
     },
     holochain_wasm_utils::api_serialization::get_entry::{
         GetEntryOptions,
@@ -201,7 +202,7 @@ pub fn use_handle(handle: &str) -> ZomeApiResult<Address> {
     if Handle::exists(handle)? {
         return Err(ZomeApiError::ValidationFailed("handle_in_use".into()));
     }
-    let links = hdk::get_links(&AGENT_ADDRESS, Some(HANDLE.into()), None)?;
+    let links = hdk::get_links(&AGENT_ADDRESS, LinkMatch::Exactly(HANDLE), LinkMatch::Any)?;
     let addrs = links.addresses();
     if !addrs.is_empty() {
         let old_handle_addr = &addrs[0];
@@ -219,7 +220,7 @@ pub fn use_handle(handle: &str) -> ZomeApiResult<Address> {
 
 pub fn get_handle(addr: &Address) -> ZomeApiResult<String> {
     let mut addr = addr;
-    let links = hdk::get_links(addr, Some(HANDLE.into()), None)?;
+    let links = hdk::get_links(addr, LinkMatch::Exactly(HANDLE), LinkMatch::Any)?;
     let addrs = links.addresses();
     if !addrs.is_empty() {
         addr = &addrs[0];
@@ -262,7 +263,7 @@ pub fn get_agent(handle: &str) -> ZomeApiResult<Address> {
 
 pub fn get_handle_addr(addr: Option<&Address>) -> ZomeApiResult<Address> {
     let mut addr = addr.unwrap_or(&AGENT_ADDRESS);
-    let links = hdk::get_links(addr, Some(HANDLE.into()), None)?;
+    let links = hdk::get_links(addr, LinkMatch::Exactly(HANDLE), LinkMatch::Any)?;
     let addrs = links.addresses();
     if !addrs.is_empty() {
         addr = &addrs[0];
@@ -319,7 +320,7 @@ pub fn unfollow(user_handle: &str) -> ZomeApiResult<bool> {
 
 pub fn get_follow(user_handle: &str, link_type: &str) -> ZomeApiResult<Vec<String>> {
     let user_addr = Handle::address(user_handle)?;
-    let links = hdk::get_links(&user_addr, Some(link_type.into()), None)?;
+    let links = hdk::get_links(&user_addr, LinkMatch::Exactly(link_type), LinkMatch::Any)?;
     let mut follow: Vec<String> = Vec::new();
     for follow_addr in links.addresses() {
         follow.push(get_handle(&follow_addr)?);

@@ -17,6 +17,7 @@ use hdk::{
         dna::entry_types::Sharing,
         error::HolochainError,
         json::JsonString,
+        link::LinkMatch,
     },
 };
 
@@ -156,7 +157,7 @@ fn set_profile_prop(prop: &str, data: &str) -> ZomeApiResult<String> {
 }
 
 fn get_profile_prop(prop: &str) -> ZomeApiResult<String> {
-    let links = hdk::get_links(&AGENT_ADDRESS, Some(prop.into()), None)?;
+    let links = hdk::get_links(&AGENT_ADDRESS, LinkMatch::Exactly(prop), LinkMatch::Any)?;
     let addrs = links.addresses();
     if addrs.is_empty() {
         return Err(ZomeApiError::ValidationFailed(format!("unlinked_prop: {}", prop)));

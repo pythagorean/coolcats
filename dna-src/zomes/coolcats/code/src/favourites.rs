@@ -13,6 +13,7 @@ use hdk::{
         dna::entry_types::Sharing,
         error::HolochainError,
         json::JsonString,
+        link::LinkMatch,
     },
 };
 
@@ -132,7 +133,9 @@ fn remove_favourite(fave_addr: &Address) -> ZomeApiResult<Vec<Address>> {
 
 fn get_favourites() -> ZomeApiResult<Vec<Address>> {
     let mut faves: Vec<Address> = Vec::new();
-    for entry in hdk::get_links_and_load(&AGENT_ADDRESS, Some(FAVOURITE.into()), None)? {
+    for entry in
+        hdk::get_links_and_load(&AGENT_ADDRESS, LinkMatch::Exactly(FAVOURITE), LinkMatch::Any)?
+    {
         if let Entry::App(entry_type, value) = entry? {
             if entry_type.to_string() == FAVOURITE {
                 faves.push(Favourite::try_from(value)?.0);

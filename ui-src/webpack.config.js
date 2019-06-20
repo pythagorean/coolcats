@@ -1,6 +1,8 @@
 const path = require('path');
 const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const {
+  CleanWebpackPlugin
+} = require('clean-webpack-plugin');
 const HtmlBeautifyPlugin = require('html-beautify-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 

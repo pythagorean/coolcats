@@ -15,6 +15,7 @@ use hdk::{
         dna::entry_types::Sharing,
         error::HolochainError,
         json::JsonString,
+        link::LinkMatch,
     },
 };
 
@@ -197,6 +198,7 @@ fn get_anchor(addr: &Address) -> ZomeApiResult<Anchor> {
 fn get_anchors(anchor_type: &str) -> ZomeApiResult<Vec<Anchor>> {
     let anchor_type_entry = Anchor::new(anchor_type, "").entry();
     let anchor_type_addr = hdk::entry_address(&anchor_type_entry)?;
-    let anchor_type_links = hdk::get_links(&anchor_type_addr, Some(ANCHOR_LINK.into()), None)?;
+    let anchor_type_links =
+        hdk::get_links(&anchor_type_addr, LinkMatch::Exactly(ANCHOR_LINK), LinkMatch::Any)?;
     anchor_type_links.addresses().iter().map(|addr| get_anchor(&addr)).collect()
 }

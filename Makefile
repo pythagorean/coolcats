@@ -1,4 +1,4 @@
-HC_VERSION = 0.0.18-alpha1
+HC_VERSION = 0.0.20-alpha3
 RUST_NIGHTLY = nightly-2019-01-24
 
 all: dna ui
@@ -60,7 +60,7 @@ dna-lint:
 
 dna-test: dna-build
 	(cd dna-src/test; yarn -s)
-	(cd dna-src; rustup run $(RUST_NIGHTLY) hc test -s)
+	(cd dna-src; rustup run $(RUST_NIGHTLY) hc test -s) | egrep -v '^[[:blank:]]*(info:|$$)'
 
 dna-start: dna
 	-(cd dna-src; hc run) || make dna-start

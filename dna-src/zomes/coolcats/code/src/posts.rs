@@ -17,6 +17,7 @@ use hdk::{
         dna::entry_types::Sharing,
         cas::content::Address,
         entry::Entry,
+        link::LinkMatch,
     },
     holochain_wasm_utils::api_serialization::get_entry::{
         GetEntryOptions,
@@ -204,7 +205,11 @@ fn get_post(addr: &Address) -> ZomeApiResult<GetPost> {
 fn get_posts_by(handles: &[String]) -> ZomeApiResult<Vec<GetPost>> {
     let mut posts: Vec<GetPost> = Vec::new();
     for user_handle in handles {
-        let post_links = hdk::get_links(&Handle::address(user_handle)?, Some(POST.into()), None)?;
+        let post_links = hdk::get_links(
+            &Handle::address(user_handle)?,
+            LinkMatch::Exactly(POST),
+            LinkMatch::Any,
+        )?;
         for addr in post_links.addresses() {
             posts.push(get_post(&addr)?)
         }
@@ -232,8 +237,11 @@ fn get_posts_with_hashtag(hashtag: &str) -> ZomeApiResult<Vec<GetPost>> {
         hashtag
     };
     let mut posts: Vec<GetPost> = Vec::new();
-    let post_links =
-        hdk::get_links(&Anchor::address(HASHTAG, &hashtag)?, Some(HASHTAG.into()), None)?;
+    let post_links = hdk::get_links(
+        &Anchor::address(HASHTAG, &hashtag)?,
+        LinkMatch::Exactly(HASHTAG),
+        LinkMatch::Any,
+    )?;
     for addr in post_links.addresses() {
         posts.push(get_post(&addr)?);
     }
