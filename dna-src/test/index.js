@@ -22,16 +22,35 @@ const {
 const dnaPath = "./dist/coolcats.dna.json"
 const dna = Diorama.dna(dnaPath, "coolcats")
 
-const diorama = new Diorama({
+const config = {
+  bridges: [],
+  debugLog: false,
+  executor: tapeExecutor(tape),
+  middleware: backwardCompatibilityMiddleware
+}
+
+const diorama1 = new Diorama({
+  ...config,
+  instances: {
+    alice: dna
+  }
+})
+
+const diorama2 = new Diorama({
+  ...config,
+  instances: {
+    alice: dna,
+    bob: dna
+  }
+})
+
+const diorama3 = new Diorama({
+  ...config,
   instances: {
     alice: dna,
     bob: dna,
     carol: dna
-  },
-  bridges: [],
-  debugLog: false,
-  executor: tapeExecutor(tape),
-  middleware: backwardCompatibilityMiddleware,
+  }
 })
 
 const colors = require('colors')
@@ -48,7 +67,7 @@ function display(result) {
   return result
 }
 
-runtests.includes('anchors') && diorama.registerScenario('anchors', async (s, t, {
+runtests.includes('anchors') && diorama1.registerScenario('anchors', async (s, t, {
   alice
 }) => {
   call = (method, params) => alice.call("coolcats", method, params)
@@ -97,7 +116,7 @@ runtests.includes('anchors') && diorama.registerScenario('anchors', async (s, t,
   }
 })
 
-runtests.includes('properties') && diorama.registerScenario('properties', async (s, t, {
+runtests.includes('properties') && diorama1.registerScenario('properties', async (s, t, {
   alice
 }) => {
   call = (method, params) => alice.call("coolcats", method, params)
@@ -113,6 +132,7 @@ runtests.includes('properties') && diorama.registerScenario('properties', async 
       handle: "buffaloBill"
     }))
     t.equal(result.value, "QmUXkCgPqXcniV2JvRLeNZs21j4UyXoPWJ4pMtygRCdo8c")
+    await s.consistent()
 
     underline("test for now set agent handle")
     var result = display(await call("app_property", {
@@ -142,7 +162,7 @@ runtests.includes('properties') && diorama.registerScenario('properties', async 
   }
 })
 
-runtests.includes('handles') && diorama.registerScenario('handles', async (s, t, {
+runtests.includes('handles') && diorama1.registerScenario('handles', async (s, t, {
   alice
 }) => {
   call = (method, params) => alice.call("coolcats", method, params)
@@ -158,6 +178,7 @@ runtests.includes('handles') && diorama.registerScenario('handles', async (s, t,
       handle: "buffaloBill"
     }))
     t.equal(result.value, "QmUXkCgPqXcniV2JvRLeNZs21j4UyXoPWJ4pMtygRCdo8c")
+    await s.consistent()
 
     underline("we can retrieve the new handle")
     var result = display(await call("get_handle", {
@@ -170,6 +191,7 @@ runtests.includes('handles') && diorama.registerScenario('handles', async (s, t,
       handle: "phil"
     }))
     t.equal(result.value, "QmZeUu4dzkJpcZLbbn4pTN8n39CZncmQoRAWKjCuKYazN2")
+    await s.consistent()
 
     underline("trying to use a handle already in use returns error")
     var result = display(await call("use_handle", {
@@ -202,7 +224,7 @@ runtests.includes('handles') && diorama.registerScenario('handles', async (s, t,
   }
 })
 
-runtests.includes('posts') && diorama.registerScenario('posts', async (s, t, {
+runtests.includes('posts') && diorama1.registerScenario('posts', async (s, t, {
   alice
 }) => {
   call = (method, params) => alice.call("coolcats", method, params)
@@ -212,6 +234,7 @@ runtests.includes('posts') && diorama.registerScenario('posts', async (s, t, {
       handle: "buffaloBill"
     }))
     t.equal(result.value, "QmUXkCgPqXcniV2JvRLeNZs21j4UyXoPWJ4pMtygRCdo8c")
+    await s.consistent()
 
     underline("getting non-existent posts returns empty list")
     var result = display(await call("get_posts_by", {
@@ -239,6 +262,7 @@ runtests.includes('posts') && diorama.registerScenario('posts', async (s, t, {
       stamp: "12345"
     }))
     t.equal(result.value, "QmWZZxnYwVuBBShQSqK7E8TTjix8bKMaA1nKkiyFhbfxHv")
+    await s.consistent()
 
     underline("we can retrieve posts")
     var result = display(await call("get_posts_by", {
@@ -278,7 +302,7 @@ runtests.includes('posts') && diorama.registerScenario('posts', async (s, t, {
   }
 })
 
-runtests.includes('hashtags') && diorama.registerScenario('hashtags', async (s, t, {
+runtests.includes('hashtags') && diorama1.registerScenario('hashtags', async (s, t, {
   alice
 }) => {
   call = (method, params) => alice.call("coolcats", method, params)
@@ -288,6 +312,7 @@ runtests.includes('hashtags') && diorama.registerScenario('hashtags', async (s, 
       handle: "hashmasterBill"
     }))
     t.equal(result.value, "QmWWgqWEyVpNY2qcP3S1MJrmDUySeJr1mSH146VcMTLL6p")
+    await s.consistent()
 
     underline("a message with a hashtag is successfully created")
     var result = display(await call("post", {
@@ -295,6 +320,7 @@ runtests.includes('hashtags') && diorama.registerScenario('hashtags', async (s, 
       stamp: "12345"
     }))
     t.equal(result.value, "Qmc91z3qNcyAFu5boQXZbTkjm27gqLXQxvaq9iPj6LyWwW")
+    await s.consistent()
 
     underline("given a hashtag, a post containing that hashtag is returned")
     var result = display(await call("get_posts_with_hashtag", {
@@ -313,7 +339,7 @@ runtests.includes('hashtags') && diorama.registerScenario('hashtags', async (s, 
   }
 })
 
-runtests.includes('favourites') && diorama.registerScenario('favourites', async (s, t, {
+runtests.includes('favourites') && diorama1.registerScenario('favourites', async (s, t, {
   alice
 }) => {
   call = (method, params) => alice.call("coolcats", method, params)
@@ -323,6 +349,7 @@ runtests.includes('favourites') && diorama.registerScenario('favourites', async 
       handle: "lindsey"
     }))
     t.equal(result.value, "QmTf5gGdsyCXZnZFrhvrWgB1DS29zGeFAvfub43y5YBSLH")
+    await s.consistent()
 
     underline("creating a new post to add later as a favourite")
     var result = display(await call("post", {
@@ -330,12 +357,14 @@ runtests.includes('favourites') && diorama.registerScenario('favourites', async 
       stamp: "12345"
     }))
     t.equal(result.value, "QmYDs49zjGfcL5ZDhA6bcXE3kX7GkGe2S8jBtWicYk1NLt")
+    await s.consistent()
 
     underline("adding the last post as a favourite returns an array of one favourite")
     var result = display(await call("add_favourite", {
       address: "QmYDs49zjGfcL5ZDhA6bcXE3kX7GkGe2S8jBtWicYk1NLt"
     }))
     t.deepEqual(result.value, ["QmYDs49zjGfcL5ZDhA6bcXE3kX7GkGe2S8jBtWicYk1NLt"])
+    await s.consistent()
 
     underline("creating a new post to add later as a favourite")
     var result = display(await call("post", {
@@ -343,6 +372,7 @@ runtests.includes('favourites') && diorama.registerScenario('favourites', async 
       stamp: "12345"
     }))
     t.equal(result.value, "QmaeajZ8BtH9sRthShKdfa3ChcenUwX7GczuHRiY45Kj51")
+    await s.consistent()
 
     underline("adding another favourite (2 favourites) returns an array of 2 items")
     var result = display(await call("add_favourite", {
@@ -351,6 +381,7 @@ runtests.includes('favourites') && diorama.registerScenario('favourites', async 
     t.equal(result.value.length, 2)
     t.equal(result.value.includes("QmaeajZ8BtH9sRthShKdfa3ChcenUwX7GczuHRiY45Kj51"), true)
     t.equal(result.value.includes("QmYDs49zjGfcL5ZDhA6bcXE3kX7GkGe2S8jBtWicYk1NLt"), true)
+    await s.consistent()
 
     underline("adding a favourite that is not an address returns empty list")
     var result = display(await call("add_favourite", {
@@ -363,6 +394,7 @@ runtests.includes('favourites') && diorama.registerScenario('favourites', async 
       address: "QmYDs49zjGfcL5ZDhA6bcXE3kX7GkGe2S8jBtWicYk1NLt"
     }))
     t.deepEqual(result.value, ["QmaeajZ8BtH9sRthShKdfa3ChcenUwX7GczuHRiY45Kj51"])
+    await s.consistent()
 
     underline("removing a favourite that doesn't exist returns an unchanged list of favourites")
     var result = display(await call("remove_favourite", {
@@ -374,7 +406,7 @@ runtests.includes('favourites') && diorama.registerScenario('favourites', async 
   }
 })
 
-runtests.includes('profile') && diorama.registerScenario('profile', async (s, t, {
+runtests.includes('profile') && diorama1.registerScenario('profile', async (s, t, {
   alice
 }) => {
   call = (method, params) => alice.call("coolcats", method, params)
@@ -388,6 +420,7 @@ runtests.includes('profile') && diorama.registerScenario('profile', async (s, t,
       name: "alice"
     }))
     t.equal(result.value, "alice")
+    await s.consistent()
 
     underline("get the first name of the user")
     var result = display(await call("get_first_name", {}))
@@ -398,6 +431,7 @@ runtests.includes('profile') && diorama.registerScenario('profile', async (s, t,
       name: "bob"
     }))
     t.equal(result.value, "bob")
+    await s.consistent()
 
     underline("get the new first name of the user")
     var result = display(await call("get_first_name", {}))
@@ -412,6 +446,7 @@ runtests.includes('profile') && diorama.registerScenario('profile', async (s, t,
       dataurl: "random stuff for now"
     }))
     t.equal(result.value, "random stuff for now")
+    await s.consistent()
 
     underline("get the profile pic of the user")
     var result = display(await call("get_profile_pic", {}))
@@ -422,6 +457,7 @@ runtests.includes('profile') && diorama.registerScenario('profile', async (s, t,
       dataurl: "random other stuff"
     }))
     t.equal(result.value, "random other stuff")
+    await s.consistent()
 
     underline("get the new profile pic of the user")
     var result = display(await call("get_profile_pic", {}))
@@ -431,7 +467,7 @@ runtests.includes('profile') && diorama.registerScenario('profile', async (s, t,
   }
 })
 
-runtests.includes('collisions') && diorama.registerScenario('collisions', async (s, t, {
+runtests.includes('collisions') && diorama3.registerScenario('collisions', async (s, t, {
   alice,
   bob,
   carol
@@ -442,6 +478,7 @@ runtests.includes('collisions') && diorama.registerScenario('collisions', async 
       handle: "bob"
     }))
     t.equal(result.value, "QmQ19PsiG92X1Jc2zjV6CTE68CNY1X1W4WUDGjBnCE5kze")
+    await s.consistent()
 
     underline("Alice can retrieve a list of all handles")
     var result = display(await alice.call("coolcats", "get_handles", {}))
@@ -460,6 +497,7 @@ runtests.includes('collisions') && diorama.registerScenario('collisions', async 
       handle: "Archer"
     }))
     t.equal(result.value, "QmQz48TQHbpqnF4MEVxwTXmpzQs1kFuFkMDQKc3qMBPTYx")
+    await s.consistent()
 
     underline("Alice tries to use handle 'Archer' which is already taken")
     var result = display(await alice.call("coolcats", "use_handle", {
@@ -471,7 +509,7 @@ runtests.includes('collisions') && diorama.registerScenario('collisions', async 
   }
 })
 
-runtests.includes('follows') && diorama.registerScenario('follows', async (s, t, {
+runtests.includes('follows') && diorama2.registerScenario('follows', async (s, t, {
   alice,
   bob
 }) => {
@@ -481,6 +519,7 @@ runtests.includes('follows') && diorama.registerScenario('follows', async (s, t,
       handle: "alice"
     }))
     t.equal(result.value, "QmNUHXyeperNGU2FBo5YxBZ5TvZLtgWBJQwaJ3CzmxJL3g")
+    await s.consistent()
 
     underline("we can retrieve a list of all handles")
     var result = display(await alice.call("coolcats", "get_handles", {}))
@@ -492,12 +531,14 @@ runtests.includes('follows') && diorama.registerScenario('follows', async (s, t,
       stamp: "12345"
     }))
     t.equal(result.value, "Qmf3ddxyxXFjHpCCQqGg187mytBLBWa2AZNofYkLPLP4Fg")
+    await s.consistent()
 
     underline("setup handle for posting")
     var result = display(await bob.call("coolcats", "use_handle", {
       handle: "bob"
     }))
     t.equal(result.value, "QmQ19PsiG92X1Jc2zjV6CTE68CNY1X1W4WUDGjBnCE5kze")
+    await s.consistent()
 
     underline("There are no followers for Bob yet")
     var result = display(await bob.call("coolcats", "get_followers", {
@@ -510,6 +551,7 @@ runtests.includes('follows') && diorama.registerScenario('follows', async (s, t,
       user_handle: "alice"
     }))
     t.equal(result.value, true)
+    await s.consistent()
 
     underline("retrieve Alice's posts")
     var result = display(await bob.call("coolcats", "get_posts_by", {
@@ -538,4 +580,6 @@ runtests.includes('follows') && diorama.registerScenario('follows', async (s, t,
   }
 })
 
-diorama.run()
+diorama3.run()
+diorama2.run()
+diorama1.run()
