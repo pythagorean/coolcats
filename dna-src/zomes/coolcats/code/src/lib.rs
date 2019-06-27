@@ -2,7 +2,7 @@
 #[macro_use]
 extern crate hdk;
 #[macro_use]
-extern crate holochain_core_types_derive;
+extern crate holochain_json_derive;
 
 extern crate serde;
 #[macro_use]
@@ -15,9 +15,9 @@ mod props;
 mod posts;
 mod favourites;
 
-use hdk::holochain_core_types::{
-    error::HolochainError,
+use hdk::holochain_json_api::{
     json::JsonString,
+    error::JsonError,
 };
 
 use serde::{Serialize, Deserialize};

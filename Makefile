@@ -1,4 +1,4 @@
-HC_VERSION = 0.0.20-alpha3
+HC_VERSION = 0.0.21-alpha1
 RUST_NIGHTLY = nightly-2019-01-24
 
 all: dna ui
@@ -8,6 +8,10 @@ fmt: dna-fmt ui-fmt
 lint: dna-lint ui-lint
 
 test: dna-test
+
+upgrade:
+	git pull
+	make update
 
 update: dna-update ui-update
 	if [ `holochain --version | cut -d ' ' -f 2` != $(HC_VERSION) ]; then make update-conductor; fi

@@ -10,13 +10,15 @@ use hdk::{
         ZomeApiError,
     },
     holochain_core_types::{
-        cas::content::Address,
         entry::Entry,
         dna::entry_types::Sharing,
-        error::HolochainError,
-        json::JsonString,
         link::LinkMatch,
     },
+    holochain_json_api::{
+        json::JsonString,
+        error::JsonError,
+    },
+    holochain_persistence_api::cas::content::Address,
 };
 
 use serde::{

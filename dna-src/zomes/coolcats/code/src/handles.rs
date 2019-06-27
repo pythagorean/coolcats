@@ -12,12 +12,12 @@ use hdk::{
         ZomeApiError,
     },
     holochain_core_types::{
-        cas::content::Address,
         entry::Entry,
         dna::entry_types::Sharing,
-        json::JsonString,
         link::LinkMatch,
     },
+    holochain_json_api::json::JsonString,
+    holochain_persistence_api::cas::content::Address,
     holochain_wasm_utils::api_serialization::get_entry::{
         GetEntryOptions,
         GetEntryResultType
