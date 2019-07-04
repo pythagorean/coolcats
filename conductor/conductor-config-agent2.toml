@@ -37,6 +37,7 @@ port = 8001
 dna_interface = "websocket_interface2"
 
 [network]
+type="n3h"
 n3h_persistence_path = "/tmp/n3h/2"
 bootstrap_nodes = []
 
