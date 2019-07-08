@@ -91,7 +91,7 @@ impl Renderable<Meow> for Meow {
         let user_handle = self.post.string("user_handle");
         html! {<>
             <div class="meow", id={stamp},>
-                <a class="meow-edit", onclick="openEditPost('+id+')",>
+                <a class="meow-edit",>// onclick="openEditPost('+id+')",>
                     {"edit"}
                 </a>
                 <a class="user", href={format!("/#/u/{}", author)},>

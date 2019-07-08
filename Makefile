@@ -1,5 +1,6 @@
 HC_VERSION = 0.0.22-alpha1
 RUST_NIGHTLY = nightly-2019-01-24
+#RUST_NIGHTLY = nightly-2019-06-07
 
 all: dna ui
 
@@ -11,7 +12,13 @@ test: dna-test
 
 upgrade:
 	git pull
+	make rust-upgrade
 	make update
+
+rust-upgrade:
+	rustup toolchain install $(RUST_NIGHTLY)
+	rustup target add wasm32-unknown-unknown --toolchain $(RUST_NIGHTLY)
+	rustup component add clippy --toolchain $(RUST_NIGHTLY)
 
 update: dna-update ui-update
 	if [ `holochain --version | cut -d ' ' -f 2` != $(HC_VERSION) ]; then make update-conductor; fi
@@ -53,7 +60,6 @@ dna: dna-build
 
 dna-build:
 	(cd dna-src; mkdir dist; rustup run $(RUST_NIGHTLY) hc package -o dist/coolcats.dna.json)
-	-ln -s coolcats.dna.json dna-src/dist/dna-src.dna.json
 
 dna-fmt:
 	(cd dna-src/zomes/coolcats/code; cargo +$(RUST_NIGHTLY) do fmt, tomlfmt)
@@ -67,7 +73,7 @@ dna-test: dna-build
 	(cd dna-src; rustup run $(RUST_NIGHTLY) hc test -s) | egrep -v '^[[:blank:]]*(info:|$$)'
 
 dna-start: dna
-	-(cd dna-src; hc run) || make dna-start
+	hc run -d dna-src/dist/coolcats.dna.json || make dna-start
 
 dna-update:
 	if [ `hc --version | cut -d ' ' -f 2` != $(HC_VERSION) ]; then make update-cli; fi
