@@ -60,8 +60,8 @@ impl Renderable<App> for App {
 
             html! {
                 <div class="container",>
-                    <div class="spinner transition500",/>
-                    <div class="error transition500",/>
+                    <div class="spinner transition500",></div>
+                    <div class="error transition500",></div>
                     <div class="row first",>
                         <div class="fixed-area",>
                             <div class="col-sm-2 contentcontainer",>
