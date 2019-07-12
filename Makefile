@@ -1,4 +1,4 @@
-HC_VERSION = 0.0.22-alpha1
+HC_VERSION = 0.0.23-alpha1
 RUST_NIGHTLY = nightly-2019-01-24
 #RUST_NIGHTLY = nightly-2019-06-07
 
