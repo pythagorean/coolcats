@@ -1,6 +1,6 @@
 HC_VERSION = 0.0.23-alpha1
 RUST_NIGHTLY = nightly-2019-01-24
-#RUST_NIGHTLY = nightly-2019-06-07
+#RUST_NIGHTLY = nightly-2019-07-14
 
 all: dna ui
 
@@ -102,6 +102,13 @@ ui-start:
 
 ui-deploy:
 	(cd ui-src; yarn -s; yarn deploy)
+	@for file in ui-src/target/deploy/*.wasm; \
+		do \
+			echo "Optimizing wasm to save space, size shown before and after:"; \
+			wc -c $$file; \
+			wasm-opt -Os -o $$file.new $$file && mv -f $$file.new $$file; \
+			wc -c $$file; \
+		done
 
 ui-update:
 	(cd ui-src; cargo +stable update)
