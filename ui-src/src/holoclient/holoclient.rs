@@ -2,20 +2,11 @@ use yew::prelude::*;
 
 use serde::Deserialize;
 
-use crate::{
-    application::ToApplication,
-    utils::DictItem,
-};
+use crate::{application::ToApplication, utils::DictItem};
 
 use super::{
-    websocket::{
-        WebSocketService,
-        WebSocketStatus,
-    },
-    call_rpc::{
-        Call,
-        CallRpc,
-    },
+    websocket::{WebSocketService, WebSocketStatus},
+    call_rpc::{Call, CallRpc},
 };
 
 pub struct Holoclient {

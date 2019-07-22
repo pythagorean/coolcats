@@ -3,32 +3,15 @@ use serde::Serialize;
 
 use hdk::{
     AGENT_ADDRESS,
-    entry_definition::{
-        ValidatingEntryType,
-        ValidatingLinkDefinition,
-    },
-    error::{
-        ZomeApiResult,
-        ZomeApiError,
-    },
-    holochain_core_types::{
-        entry::Entry,
-        dna::entry_types::Sharing,
-        link::LinkMatch,
-    },
+    entry_definition::{ValidatingEntryType, ValidatingLinkDefinition},
+    error::{ZomeApiResult, ZomeApiError},
+    holochain_core_types::{entry::Entry, dna::entry_types::Sharing, link::LinkMatch},
     holochain_json_api::json::JsonString,
     holochain_persistence_api::cas::content::Address,
-    holochain_wasm_utils::api_serialization::get_entry::{
-        GetEntryOptions,
-        GetEntryResultType
-    },
+    holochain_wasm_utils::api_serialization::get_entry::{GetEntryOptions, GetEntryResultType},
 };
 
-use crate::{
-    utils::hdk_address_exists,
-    anchors::Anchor,
-    posts::POST,
-};
+use crate::{utils::hdk_address_exists, anchors::Anchor, posts::POST};
 
 pub const HANDLE: &str = "handle";
 pub struct Handle;
@@ -37,6 +20,7 @@ pub const FOLLOWERS: &str = "followers";
 pub const FOLLOWING: &str = "following";
 
 impl Handle {
+    #[allow(clippy::try_err)]
     pub fn definition() -> ValidatingEntryType {
         entry!(
             name: HANDLE,
@@ -255,7 +239,7 @@ pub fn get_agent(handle: &str) -> ZomeApiResult<Address> {
             .map(|header| header.provenances().first().unwrap().clone().source())
             .next()
             .unwrap();
-        return Ok(agent);
+        Ok(agent)
     } else {
         unimplemented!()
     }

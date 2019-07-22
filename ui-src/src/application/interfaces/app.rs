@@ -3,15 +3,11 @@ use yew::prelude::*;
 
 use crate::application::{
     Action,
-    context::{ self, ContextAgent },
+    context::{self, ContextAgent},
     state::State,
     interfaces::{
-        settings::Settings,
-        new_meow::NewMeow,
-        find_meow::FindMeow,
-        following_feed::FollowingFeed,
-        hashtag_feed::HashtagFeed,
-        user_feed::UserFeed,
+        settings::Settings, new_meow::NewMeow, find_meow::FindMeow, following_feed::FollowingFeed,
+        hashtag_feed::HashtagFeed, user_feed::UserFeed,
     },
 };
 

@@ -2,35 +2,20 @@ use std::collections::HashSet;
 use std::convert::TryFrom;
 
 use hdk::{
-    entry_definition::{
-        ValidatingEntryType,
-        ValidatingLinkDefinition,
-    },
-    error::{
-        ZomeApiResult,
-        ZomeApiError,
-    },
+    entry_definition::{ValidatingEntryType, ValidatingLinkDefinition},
+    error::{ZomeApiResult, ZomeApiError},
     holochain_core_types::{
         validation::{EntryValidationData},
         dna::entry_types::Sharing,
         entry::Entry,
         link::LinkMatch,
     },
-    holochain_json_api::{
-        json::JsonString,
-        error::JsonError,
-    },
+    holochain_json_api::{json::JsonString, error::JsonError},
     holochain_persistence_api::cas::content::Address,
-    holochain_wasm_utils::api_serialization::get_entry::{
-        GetEntryOptions,
-        GetEntryResultType
-    },
+    holochain_wasm_utils::api_serialization::get_entry::{GetEntryOptions, GetEntryResultType},
 };
 
-use serde::{
-    Serialize,
-    Deserialize,
-};
+use serde::{Serialize, Deserialize};
 
 use crate::{
     utils::hdk_address_exists,
@@ -48,6 +33,7 @@ pub struct Post {
 pub const HASHTAG: &str = "hashtag";
 
 impl Post {
+    #[allow(clippy::try_err)]
     pub fn definition() -> ValidatingEntryType {
         entry!(
             name: POST,

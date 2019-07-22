@@ -1,6 +1,7 @@
-#![feature(try_from)]
+#![feature(proc_macro_hygiene)]
 #[macro_use]
 extern crate hdk;
+extern crate hdk_proc_macros;
 #[macro_use]
 extern crate holochain_json_derive;
 
@@ -15,10 +16,8 @@ mod props;
 mod posts;
 mod favourites;
 
-use hdk::holochain_json_api::{
-    json::JsonString,
-    error::JsonError,
-};
+use hdk::entry_definition::ValidatingEntryType;
+use hdk_proc_macros::zome;
 
 use serde::{Serialize, Deserialize};
 
@@ -28,145 +27,164 @@ use props::{FirstName, ProfilePic};
 use posts::Post;
 use favourites::Favourite;
 
-define_zome! {
-    entries: [
-       Anchor::definition(), Handle::definition(), FirstName::definition(),
-       ProfilePic::definition(), Post::definition(), Favourite::definition()
-    ]
+#[zome]
+pub mod main {
+    #[genesis]
+    pub fn genesis() {
+        Ok(())
+    }
 
-    genesis: || { Ok(()) }
+    // Entry definitions:
 
-    functions: [
-        create_anchor: {
-            inputs: |anchor: Anchor|,
-            outputs: |result: JsonString|,
-            handler: anchors::handle_create_anchor
-        }
-        anchor_exists: {
-            inputs: |anchor: Anchor|,
-            outputs: |result: JsonString|,
-            handler: anchors::handle_anchor_exists
-        }
-        get_anchor: {
-            inputs: |address: String|,
-            outputs: |result: JsonString|,
-            handler: anchors::handle_get_anchor
-        }
-        get_anchors: {
-            inputs: |anchor_type: String|,
-            outputs: |result: JsonString|,
-            handler: anchors::handle_get_anchors
-        }
-        use_handle: {
-            inputs: |handle: String|,
-            outputs: |result: JsonString|,
-            handler: handles::handle_use_handle
-        }
-        get_handle: {
-            inputs: |address: String|,
-            outputs: |result: JsonString|,
-            handler: handles::handle_get_handle
-        }
-        get_agent: {
-            inputs: |handle: String|,
-            outputs: |result: JsonString|,
-            handler: handles::handle_get_agent
-        }
-        get_handles: {
-            inputs: | |,
-            outputs: |result: JsonString|,
-            handler: handles::handle_get_handles
-        }
-        app_property: {
-            inputs: |key: String|,
-            outputs: |result: JsonString|,
-            handler: props::handle_app_property
-        }
-        set_first_name: {
-            inputs: |name: String|,
-            outputs: |result: JsonString|,
-            handler: props::handle_set_first_name
-        }
-        get_first_name: {
-            inputs: | |,
-            outputs: |result: JsonString|,
-            handler: props::handle_get_first_name
-        }
-        set_profile_pic: {
-            inputs: |dataurl: String|,
-            outputs: |result: JsonString|,
-            handler: props::handle_set_profile_pic
-        }
-        get_profile_pic: {
-            inputs: | |,
-            outputs: |result: JsonString|,
-            handler: props::handle_get_profile_pic
-        }
-        follow: {
-            inputs: |user_handle: String|,
-            outputs: |result: JsonString|,
-            handler: handles::handle_follow
-        }
-        unfollow: {
-            inputs: |user_handle: String|,
-            outputs: |result: JsonString|,
-            handler: handles::handle_unfollow
-        }
-        get_followers: {
-            inputs: |user_handle: String|,
-            outputs: |result: JsonString|,
-            handler: handles::handle_get_followers
-        }
-        get_following: {
-            inputs: |user_handle: String|,
-            outputs: |result: JsonString|,
-            handler: handles::handle_get_following
-        }
-        post: {
-            inputs: |message: String, stamp: String|,
-            outputs: |result: JsonString|,
-            handler: posts::handle_post
-        }
-        get_post: {
-            inputs: |address: String|,
-            outputs: |result: JsonString|,
-            handler: posts::handle_get_post
-        }
-        get_posts_by: {
-            inputs: |handles: Vec<String>|,
-            outputs: |result: JsonString|,
-            handler: posts::handle_get_posts_by
-        }
-        get_posts_with_hashtag: {
-            inputs: |hashtag: String|,
-            outputs: |result: JsonString|,
-            handler: posts::handle_get_posts_with_hashtag
-        }
-        add_favourite: {
-            inputs: |address: String|,
-            outputs: |result: JsonString|,
-            handler: favourites::handle_add_favourite
-        }
-        remove_favourite: {
-            inputs: |address: String|,
-            outputs: |result: JsonString|,
-            handler: favourites::handle_remove_favourite
-        }
-        get_favourites: {
-            inputs: | |,
-            outputs: |result: JsonString|,
-            handler: favourites::handle_get_favourites
-        }
-    ]
+    #[entry_def]
+    fn anchor_entry_def() -> ValidatingEntryType {
+        Anchor::definition()
+    }
 
-    traits: {
-        hc_public [
-            create_anchor, anchor_exists, get_anchor, get_anchors,
-            use_handle, get_handle, get_agent, get_handles,
-            follow, unfollow, get_followers, get_following,
-            app_property, set_first_name, get_first_name, set_profile_pic, get_profile_pic,
-            post, get_post, get_posts_by, get_posts_with_hashtag,
-            add_favourite, remove_favourite, get_favourites
-        ]
+    #[entry_def]
+    fn handle_entry_def() -> ValidatingEntryType {
+        Handle::definition()
+    }
+
+    #[entry_def]
+    fn first_name_def() -> ValidatingEntryType {
+        FirstName::definition()
+    }
+
+    #[entry_def]
+    fn profile_pic_def() -> ValidatingEntryType {
+        ProfilePic::definition()
+    }
+
+    #[entry_def]
+    fn post_def() -> ValidatingEntryType {
+        Post::definition()
+    }
+
+    #[entry_def]
+    fn favourite_def() -> ValidatingEntryType {
+        Favourite::definition()
+    }
+
+    // Zome functions:
+
+    #[zome_fn("hc_public")]
+    fn create_anchor(anchor: Anchor) -> JsonString {
+        anchors::handle_create_anchor(anchor)
+    }
+
+    #[zome_fn("hc_public")]
+    fn anchor_exists(anchor: Anchor) -> JsonString {
+        anchors::handle_anchor_exists(anchor)
+    }
+
+    #[zome_fn("hc_public")]
+    fn get_anchor(address: String) -> JsonString {
+        anchors::handle_get_anchor(address)
+    }
+
+    #[zome_fn("hc_public")]
+    fn get_anchors(anchor_type: String) -> JsonString {
+        anchors::handle_get_anchors(anchor_type)
+    }
+
+    #[zome_fn("hc_public")]
+    fn use_handle(handle: String) -> JsonString {
+        handles::handle_use_handle(handle)
+    }
+
+    #[zome_fn("hc_public")]
+    fn get_handle(address: String) -> JsonString {
+        handles::handle_get_handle(address)
+    }
+
+    #[zome_fn("hc_public")]
+    fn get_agent(handle: String) -> JsonString {
+        handles::handle_get_agent(handle)
+    }
+
+    #[zome_fn("hc_public")]
+    fn get_handles() -> JsonString {
+        handles::handle_get_handles()
+    }
+
+    #[zome_fn("hc_public")]
+    fn app_property(key: String) -> JsonString {
+        props::handle_app_property(key)
+    }
+
+    #[zome_fn("hc_public")]
+    fn set_first_name(name: String) -> JsonString {
+        props::handle_set_first_name(name)
+    }
+
+    #[zome_fn("hc_public")]
+    fn get_first_name() -> JsonString {
+        props::handle_get_first_name()
+    }
+
+    #[zome_fn("hc_public")]
+    fn set_profile_pic(dataurl: String) -> JsonString {
+        props::handle_set_profile_pic(dataurl)
+    }
+
+    #[zome_fn("hc_public")]
+    fn get_profile_pic() -> JsonString {
+        props::handle_get_profile_pic()
+    }
+
+    #[zome_fn("hc_public")]
+    fn follow(user_handle: String) -> JsonString {
+        handles::handle_follow(user_handle)
+    }
+
+    #[zome_fn("hc_public")]
+    fn unfollow(user_handle: String) -> JsonString {
+        handles::handle_unfollow(user_handle)
+    }
+
+    #[zome_fn("hc_public")]
+    fn get_followers(user_handle: String) -> JsonString {
+        handles::handle_get_followers(user_handle)
+    }
+
+    #[zome_fn("hc_public")]
+    fn get_following(user_handle: String) -> JsonString {
+        handles::handle_get_following(user_handle)
+    }
+
+    #[zome_fn("hc_public")]
+    fn post(message: String, stamp: String) -> JsonString {
+        posts::handle_post(message, stamp)
+    }
+
+    #[zome_fn("hc_public")]
+    fn get_post(address: String) -> JsonString {
+        posts::handle_get_post(address)
+    }
+
+    #[zome_fn("hc_public")]
+    fn get_posts_by(handles: Vec<String>) -> JsonString {
+        posts::handle_get_posts_by(handles)
+    }
+
+    #[zome_fn("hc_public")]
+    fn get_posts_with_hashtag(hashtag: String) -> JsonString {
+        posts::handle_get_posts_with_hashtag(hashtag)
+    }
+
+    #[zome_fn("hc_public")]
+    fn add_favourite(address: String) -> JsonString {
+        favourites::handle_add_favourite(address)
+    }
+
+    #[zome_fn("hc_public")]
+    fn remove_favourite(address: String) -> JsonString {
+        favourites::handle_remove_favourite(address)
+    }
+
+    #[zome_fn("hc_public")]
+    fn get_favourites() -> JsonString {
+        favourites::handle_get_favourites()
     }
 }

@@ -1,6 +1,6 @@
-HC_VERSION = 0.0.23-alpha1
-RUST_NIGHTLY = nightly-2019-01-24
-#RUST_NIGHTLY = nightly-2019-07-14
+HC_VERSION = 0.0.24-alpha2
+#RUST_NIGHTLY = nightly-2019-01-24
+RUST_NIGHTLY = nightly-2019-07-14
 
 all: dna ui
 
@@ -27,10 +27,10 @@ update: dna-update ui-update
 	cargo install-update -a
 
 update-cli:
-	cargo +$(RUST_NIGHTLY) install hc --force --git https://github.com/holochain/holochain-rust.git --tag v$(HC_VERSION)
+	cargo +$(RUST_NIGHTLY) install hc --force --git https://github.com/holochain/holochain-rust.git
 
 update-conductor:
-	cargo +$(RUST_NIGHTLY) install holochain --force --git https://github.com/holochain/holochain-rust.git --tag v$(HC_VERSION)
+	cargo +$(RUST_NIGHTLY) install holochain --force --git https://github.com/holochain/holochain-rust.git
 
 clean: dna-clean ui-clean
 

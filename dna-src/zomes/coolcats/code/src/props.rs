@@ -1,32 +1,15 @@
 use std::convert::TryFrom;
 
 use hdk::{
-    DNA_ADDRESS,
-    AGENT_ADDRESS,
-    entry_definition::{
-        ValidatingEntryType,
-        ValidatingLinkDefinition,
-    },
-    error::{
-        ZomeApiResult,
-        ZomeApiError,
-    },
-    holochain_core_types::{
-        entry::Entry,
-        dna::entry_types::Sharing,
-        link::LinkMatch,
-    },
-    holochain_json_api::{
-        json::JsonString,
-        error::JsonError,
-    },
+    DNA_ADDRESS, AGENT_ADDRESS,
+    entry_definition::{ValidatingEntryType, ValidatingLinkDefinition},
+    error::{ZomeApiResult, ZomeApiError},
+    holochain_core_types::{entry::Entry, dna::entry_types::Sharing, link::LinkMatch},
+    holochain_json_api::{json::JsonString, error::JsonError},
     holochain_persistence_api::cas::content::Address,
 };
 
-use serde::{
-    Serialize,
-    Deserialize,
-};
+use serde::{Serialize, Deserialize};
 
 use crate::handles;
 
@@ -45,6 +28,7 @@ impl PropValue {
 
 macro_rules! prop_definition {
     ($name:ident) => {
+        #[allow(clippy::try_err)]
         pub fn definition() -> ValidatingEntryType {
             entry!(
                 name: $name,

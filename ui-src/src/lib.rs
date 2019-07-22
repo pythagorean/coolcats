@@ -11,10 +11,7 @@ extern crate strum_macros;
 #[macro_use]
 extern crate lazy_static;
 
-use yew::{
-    prelude::*,
-    html::Scope,
-};
+use yew::{prelude::*, html::Scope};
 
 mod holoclient;
 mod application;

@@ -1,20 +1,13 @@
-use stdweb::{
-    web::File,
-    unstable::TryInto,
-};
+use stdweb::{web::File, unstable::TryInto};
 
 use yew::{
     prelude::*,
-    services::{
-        DialogService,
-        ReaderService,
-        Task
-    },
+    services::{DialogService, ReaderService, Task},
 };
 
 use crate::application::{
     Action,
-    context::{ self, ContextAgent },
+    context::{self, ContextAgent},
     reader::ReaderServiceExt,
     state::State,
 };

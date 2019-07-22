@@ -2,7 +2,7 @@ use yew::prelude::*;
 
 use crate::application::{
     Action,
-    context::{ self, ContextAgent },
+    context::{self, ContextAgent},
     state::State,
     interfaces::meow::Meow,
 };

@@ -1,6 +1,6 @@
 use serde::{Serialize, Deserialize};
 
-use crate::utils::{ Dict, DictKey };
+use crate::utils::{Dict, DictKey};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct State(Dict);

@@ -1,30 +1,14 @@
 use std::convert::TryFrom;
 
 use hdk::{
-    entry_definition::{
-        ValidatingEntryType,
-        ValidatingLinkDefinition,
-    },
-    error::{
-        ZomeApiResult,
-        ZomeApiError,
-    },
-    holochain_core_types::{
-        entry::Entry,
-        dna::entry_types::Sharing,
-        link::LinkMatch,
-    },
-    holochain_json_api::{
-        json::JsonString,
-        error::JsonError,
-    },
+    entry_definition::{ValidatingEntryType, ValidatingLinkDefinition},
+    error::{ZomeApiResult, ZomeApiError},
+    holochain_core_types::{entry::Entry, dna::entry_types::Sharing, link::LinkMatch},
+    holochain_json_api::{json::JsonString, error::JsonError},
     holochain_persistence_api::cas::content::Address,
 };
 
-use serde::{
-    Serialize,
-    Deserialize,
-};
+use serde::{Serialize, Deserialize};
 
 use crate::utils::hdk_address_exists;
 
@@ -40,6 +24,7 @@ pub struct Anchor {
 const ANCHOR_LINK: &str = "anchor_link";
 
 impl Anchor {
+    #[allow(clippy::try_err)]
     pub fn definition() -> ValidatingEntryType {
         entry!(
             name: ANCHOR,

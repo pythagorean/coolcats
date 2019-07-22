@@ -7,12 +7,7 @@ use stdweb::web::{window, Date};
 
 use yew::{
     prelude::*,
-    services::{
-        ConsoleService,
-        DialogService,
-        IntervalService,
-        Task,
-    },
+    services::{ConsoleService, DialogService, IntervalService, Task},
 };
 
 use yew_router::{routes, Route, RouterAgent};
@@ -25,11 +20,7 @@ use crate::{
 use super::{
     context::{self, ContextAgent},
     state::State,
-    interfaces::{
-        app::App,
-        edit_profile::EditProfile,
-        follow::Follow,
-    },
+    interfaces::{app::App, edit_profile::EditProfile, follow::Follow},
     ToApplication,
 };
 

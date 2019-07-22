@@ -2,27 +2,14 @@ use std::convert::TryFrom;
 
 use hdk::{
     AGENT_ADDRESS,
-    entry_definition::{
-        ValidatingEntryType,
-        ValidatingLinkDefinition,
-    },
+    entry_definition::{ValidatingEntryType, ValidatingLinkDefinition},
     error::ZomeApiResult,
-    holochain_core_types::{
-        entry::Entry,
-        dna::entry_types::Sharing,
-        link::LinkMatch,
-    },
-    holochain_json_api::{
-        json::JsonString,
-        error::JsonError,
-    },
+    holochain_core_types::{entry::Entry, dna::entry_types::Sharing, link::LinkMatch},
+    holochain_json_api::{json::JsonString, error::JsonError},
     holochain_persistence_api::cas::content::Address,
 };
 
-use serde::{
-    Serialize,
-    Deserialize,
-};
+use serde::{Serialize, Deserialize};
 
 use crate::utils::hdk_address_exists;
 
@@ -31,6 +18,7 @@ pub const FAVOURITE: &str = "favourite";
 pub struct Favourite(Address);
 
 impl Favourite {
+    #[allow(clippy::try_err)]
     pub fn definition() -> ValidatingEntryType {
         entry!(
             name: FAVOURITE,

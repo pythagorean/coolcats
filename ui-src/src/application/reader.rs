@@ -1,17 +1,9 @@
 use stdweb::web::{
-    File,
-    FileReader,
-    FileReaderReadyState,
-    FileReaderResult,
-    IEventTarget,
-    event::LoadEndEvent,
+    File, FileReader, FileReaderReadyState, FileReaderResult, IEventTarget, event::LoadEndEvent,
 };
 
 use yew::{
-    services::{
-        ReaderService,
-        Task,
-    },
+    services::{ReaderService, Task},
     callback::Callback,
 };
 

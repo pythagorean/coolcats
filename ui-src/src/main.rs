@@ -1,19 +1,8 @@
-use stdweb::web::{
-    IParentNode,
-    document,
-    window,
-};
+use stdweb::web::{IParentNode, document, window};
 
-use yew::{
-    prelude::App,
-    html::Scope,
-};
+use yew::{prelude::App, html::Scope};
 
-use coolcats2::{
-    Model,
-    ModelType,
-    Msg,
-};
+use coolcats2::{Model, ModelType, Msg};
 
 fn mount_new_app(selector: &'static str) -> Scope<Model> {
     let element = document().query_selector(selector).unwrap().unwrap();

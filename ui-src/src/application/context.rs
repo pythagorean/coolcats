@@ -2,10 +2,7 @@ use yew::prelude::worker::*;
 
 use serde::{Serialize, Deserialize};
 
-use super::{
-    Action,
-    state::State,
-};
+use super::{Action, state::State};
 
 pub struct ContextAgent {
     link: AgentLink<ContextAgent>,

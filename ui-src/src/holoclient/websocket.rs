@@ -1,20 +1,10 @@
-use yew::{
-    services::Task,
-    callback::Callback,
-};
+use yew::{services::Task, callback::Callback};
 
 use stdweb::{
     traits::IMessageEvent,
     web::{
-        WebSocket,
-        SocketReadyState,
-        IEventTarget,
-        event::{
-            SocketOpenEvent,
-            SocketCloseEvent,
-            SocketErrorEvent,
-            SocketMessageEvent,
-        },
+        WebSocket, SocketReadyState, IEventTarget,
+        event::{SocketOpenEvent, SocketCloseEvent, SocketErrorEvent, SocketMessageEvent},
     },
 };
 
