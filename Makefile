@@ -42,18 +42,17 @@ stop: conductor-stop
 conductor-start: dna ui-deploy
 	@mkdir -p /tmp/n3h/1
 	holochain -c conductor/conductor-config-agent1.toml > /tmp/dna-testnet.log 2>&1 &
-	@( tail +1 -f /tmp/dna-testnet.log & ) | grep -q p2p:
+	@( tail -f /tmp/dna-testnet.log & ) | grep -q p2p:
 	@mkdir -p /tmp/n3h/2
 	holochain -c conductor/conductor-config-agent2.toml > /tmp/dna-testnet2.log 2>&1 &
-	@( tail +1 -f /tmp/dna-testnet2.log & ) | grep -q p2p:
+	@( tail -f /tmp/dna-testnet2.log & ) | grep -q p2p:
 	@mkdir -p /tmp/n3h/3
 	holochain -c conductor/conductor-config-agent3.toml > /tmp/dna-testnet3.log 2>&1 &
-	@( tail +1 -f /tmp/dna-testnet3.log & ) | grep -q p2p:
+	@( tail -f /tmp/dna-testnet3.log & ) | grep -q p2p:
 	@echo Conductor started. Logfiles in /tmp. Run \'make stop\' to stop processes.
 
 conductor-stop:
 	killall holochain
-	pkill -f n3h.app
 
 dna: dna-build
 
@@ -77,7 +76,7 @@ dna-start: dna
 dna-update:
 	if [ `hc --version | cut -d ' ' -f 2` != $(HC_VERSION) ]; then make update-cli; fi
 	(cd dna-src/zomes/coolcats/code; cargo +$(RUST_NIGHTLY) update)
-	-(cd dna-src/test; yarn -s upgrade --latest)
+	-(cd dna-src/test; yarn -s; yarn -s upgrade --latest)
 
 dna-clean:
 	(cd dna-src/zomes/coolcats/code; cargo +$(RUST_NIGHTLY) clean && rm -f Cargo.lock)
@@ -111,7 +110,7 @@ ui-deploy:
 
 ui-update:
 	(cd ui-src; cargo +stable update)
-	-(cd ui-src; yarn -s upgrade --latest)
+	-(cd ui-src; yarn -s; yarn -s upgrade --latest)
 
 ui-clean:
 	(cd ui-src; cargo +stable clean && rm -f Cargo.lock)
