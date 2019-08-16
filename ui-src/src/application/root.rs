@@ -38,11 +38,11 @@ pub struct Root {
     state: State,
     conductor: String,
     child: RouterTarget,
-    router: Box<Bridge<RouterAgent<()>>>,
-    context: Box<Bridge<ContextAgent>>,
+    router: Box<dyn Bridge<RouterAgent<()>>>,
+    context: Box<dyn Bridge<ContextAgent>>,
     link: ComponentLink<Root>,
     interval: IntervalService,
-    interval_job: Option<Box<Task>>,
+    interval_job: Option<Box<dyn Task>>,
 }
 
 #[derive(PartialEq, Clone, Debug)]

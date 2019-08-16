@@ -22,7 +22,7 @@ pub struct Local {
     new_name_text: String,
     new_profile_pic: String,
     reader: ReaderService,
-    reader_job: Option<Box<Task>>,
+    reader_job: Option<Box<dyn Task>>,
 }
 
 impl Local {

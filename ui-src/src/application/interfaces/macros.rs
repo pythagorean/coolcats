@@ -60,7 +60,7 @@ macro_rules! interface_component {
 
         #[allow(dead_code)]
         pub struct $name {
-            context: Box<Bridge<ContextAgent>>,
+            context: Box<dyn Bridge<ContextAgent>>,
             link: ComponentLink<$name>,
             getstate: State,
             local: Local,

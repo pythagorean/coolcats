@@ -23,7 +23,7 @@ pub struct Local {
     posts_by_len: usize,
     post_list: Vec<Dict>,
     interval: IntervalService,
-    interval_job: Option<Box<Task>>,
+    interval_job: Option<Box<dyn Task>>,
 }
 
 impl Local {

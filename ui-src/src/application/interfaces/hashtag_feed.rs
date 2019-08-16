@@ -22,7 +22,7 @@ interface_component!(HashtagFeed, params, (u32, String), (0, String::new()));
 pub struct Local {
     post_list: Vec<Dict>,
     interval: IntervalService,
-    interval_job: Option<Box<Task>>,
+    interval_job: Option<Box<dyn Task>>,
 }
 
 impl Local {
