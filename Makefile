@@ -57,30 +57,30 @@ conductor-stop:
 dna: dna-build
 
 dna-build:
-	(cd dna-src; mkdir dist; rustup run $(RUST_NIGHTLY) hc package -o dist/coolcats.dna.json)
+	(mkdir dist; rustup run $(RUST_NIGHTLY) hc package -o dist/coolcats.dna.json)
 
 dna-fmt:
-	(cd dna-src/zomes/coolcats/code; cargo +$(RUST_NIGHTLY) do fmt, tomlfmt)
-	(cd dna-src/test; js-beautify -r -s 2 -n *.js)
+	(cd zomes/coolcats/code; cargo +$(RUST_NIGHTLY) do fmt, tomlfmt)
+	(cd test; js-beautify -r -s 2 -n *.js)
 
 dna-lint:
-	(cd dna-src/zomes/coolcats/code; cargo +$(RUST_NIGHTLY) clippy)
+	(cd zomes/coolcats/code; cargo +$(RUST_NIGHTLY) clippy)
 
 dna-test: dna-build
-	(cd dna-src/test; yarn -s)
-	(cd dna-src; rustup run $(RUST_NIGHTLY) hc test -s) | egrep -v '^[[:blank:]]*(info:|$$)'
+	(cd test; yarn -s)
+	rustup run $(RUST_NIGHTLY) hc test -s | egrep -v '^[[:blank:]]*(info:|$$)'
 
 dna-start: dna
-	hc run -d dna-src/dist/coolcats.dna.json || make dna-start
+	hc run -d dist/coolcats.dna.json || make dna-start
 
 dna-update:
 	if [ `hc --version | cut -d ' ' -f 2` != $(HC_VERSION) ]; then make update-cli; fi
-	(cd dna-src/zomes/coolcats/code; cargo +$(RUST_NIGHTLY) update)
-	-(cd dna-src/test; yarn -s; yarn -s upgrade --latest)
+	(cd zomes/coolcats/code; cargo +$(RUST_NIGHTLY) update)
+	-(cd test; yarn -s; yarn -s upgrade --latest)
 
 dna-clean:
-	(cd dna-src/zomes/coolcats/code; cargo +$(RUST_NIGHTLY) clean && rm -f Cargo.lock)
-	(cd dna-src/test; rm -rf node_modules package-lock.json)
+	(cd zomes/coolcats/code; cargo +$(RUST_NIGHTLY) clean && rm -f Cargo.lock)
+	(cd test; rm -rf node_modules package-lock.json)
 	find . -name *.dna.json -exec rm {} +
 
 ui: ui-build
