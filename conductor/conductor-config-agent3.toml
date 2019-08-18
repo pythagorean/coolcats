@@ -9,7 +9,7 @@ keystore_file = "conductor/agent3.keystore"
 [[dnas]]
 id = "coolcats_dna"
 file = "dna-src/dist/coolcats.dna.json"
-hash = "QmWasuCgjozzJJ35jgx3rfiy6uomVGbdeoYVUwgwrPu32L"
+hash = "QmWHhGqoma4kBkG7rbKyVryYRB1G4UL7k5ruDEhsrnG5mZ"
 
 [[instances]]
 id = "coolcats_instance3"
