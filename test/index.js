@@ -67,7 +67,7 @@ function display(result) {
   return result
 }
 
-runtests.includes('anchors') && diorama1.registerScenario('anchors', async (s, t, {
+runtests.includes('anchors') && diorama1.registerScenario('anchors', async(s, t, {
   alice
 }) => {
   call = (method, params) => alice.call("coolcats", method, params)
@@ -116,7 +116,7 @@ runtests.includes('anchors') && diorama1.registerScenario('anchors', async (s, t
   }
 })
 
-runtests.includes('properties') && diorama1.registerScenario('properties', async (s, t, {
+runtests.includes('properties') && diorama1.registerScenario('properties', async(s, t, {
   alice
 }) => {
   call = (method, params) => alice.call("coolcats", method, params)
@@ -162,7 +162,7 @@ runtests.includes('properties') && diorama1.registerScenario('properties', async
   }
 })
 
-runtests.includes('handles') && diorama1.registerScenario('handles', async (s, t, {
+runtests.includes('handles') && diorama1.registerScenario('handles', async(s, t, {
   alice
 }) => {
   call = (method, params) => alice.call("coolcats", method, params)
@@ -213,18 +213,16 @@ runtests.includes('handles') && diorama1.registerScenario('handles', async (s, t
 
     underline("we can retrieve list of handles, in single node mode there will be only one")
     var result = display(await call("get_handles", {}))
-    t.deepEqual(result.value,
-      [{
-        handle: "phil",
-        address: "QmZeUu4dzkJpcZLbbn4pTN8n39CZncmQoRAWKjCuKYazN2"
-      }]
-    )
+    t.deepEqual(result.value, [{
+      handle: "phil",
+      address: "QmZeUu4dzkJpcZLbbn4pTN8n39CZncmQoRAWKjCuKYazN2"
+    }])
   } catch (err) {
     t.fail(err.message)
   }
 })
 
-runtests.includes('posts') && diorama1.registerScenario('posts', async (s, t, {
+runtests.includes('posts') && diorama1.registerScenario('posts', async(s, t, {
   alice
 }) => {
   call = (method, params) => alice.call("coolcats", method, params)
@@ -302,7 +300,7 @@ runtests.includes('posts') && diorama1.registerScenario('posts', async (s, t, {
   }
 })
 
-runtests.includes('hashtags') && diorama1.registerScenario('hashtags', async (s, t, {
+runtests.includes('hashtags') && diorama1.registerScenario('hashtags', async(s, t, {
   alice
 }) => {
   call = (method, params) => alice.call("coolcats", method, params)
@@ -339,7 +337,7 @@ runtests.includes('hashtags') && diorama1.registerScenario('hashtags', async (s,
   }
 })
 
-runtests.includes('favourites') && diorama1.registerScenario('favourites', async (s, t, {
+runtests.includes('favourites') && diorama1.registerScenario('favourites', async(s, t, {
   alice
 }) => {
   call = (method, params) => alice.call("coolcats", method, params)
@@ -406,7 +404,7 @@ runtests.includes('favourites') && diorama1.registerScenario('favourites', async
   }
 })
 
-runtests.includes('profile') && diorama1.registerScenario('profile', async (s, t, {
+runtests.includes('profile') && diorama1.registerScenario('profile', async(s, t, {
   alice
 }) => {
   call = (method, params) => alice.call("coolcats", method, params)
@@ -467,7 +465,7 @@ runtests.includes('profile') && diorama1.registerScenario('profile', async (s, t
   }
 })
 
-runtests.includes('collisions') && diorama3.registerScenario('collisions', async (s, t, {
+runtests.includes('collisions') && diorama3.registerScenario('collisions', async(s, t, {
   alice,
   bob,
   carol
@@ -509,7 +507,7 @@ runtests.includes('collisions') && diorama3.registerScenario('collisions', async
   }
 })
 
-runtests.includes('follows') && diorama2.registerScenario('follows', async (s, t, {
+runtests.includes('follows') && diorama2.registerScenario('follows', async(s, t, {
   alice,
   bob
 }) => {
