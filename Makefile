@@ -57,7 +57,9 @@ conductor-stop:
 dna: dna-build
 
 dna-build:
-	(mkdir dist; cd zomes; rustup run $(RUST_NIGHTLY) hc package -o ../dist/coolcats.dna.json)
+	for f in ui-src/*.json; do mv $$f $$f.p; done
+	rustup run $(RUST_NIGHTLY) hc package
+	for f in ui-src/*.json.p; do mv $$f `echo $$f | cut -f 1,2 -d '.'`; done
 
 dna-fmt:
 	(cd zomes/coolcats/code; cargo +$(RUST_NIGHTLY) do fmt, tomlfmt)
@@ -71,7 +73,7 @@ dna-test: dna-build
 	rustup run $(RUST_NIGHTLY) hc test -s | egrep -v '^[[:blank:]]*(info:|$$)'
 
 dna-start: dna
-	hc run -d dist/coolcats.dna.json || make dna-start
+	hc run || make dna-start
 
 dna-update:
 	if [ `hc --version | cut -d ' ' -f 2` != $(HC_VERSION) ]; then make update-cli; fi
