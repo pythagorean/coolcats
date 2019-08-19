@@ -57,9 +57,9 @@ conductor-stop:
 dna: dna-build
 
 dna-build:
-	for f in ui-src/*.json; do mv $$f $$f.p; done
+	for f in ui/*.json; do mv $$f $$f.p; done
 	rustup run $(RUST_NIGHTLY) hc package
-	for f in ui-src/*.json.p; do mv $$f `echo $$f | cut -f 1,2 -d '.'`; done
+	for f in ui/*.json.p; do mv $$f `echo $$f | cut -f 1,2 -d '.'`; done
 
 dna-fmt:
 	(cd zomes/coolcats/code; cargo +$(RUST_NIGHTLY) do fmt, tomlfmt)
@@ -88,21 +88,21 @@ dna-clean:
 ui: ui-build
 
 ui-build:
-	(cd ui-src; yarn -s; yarn build)
+	(cd ui; yarn -s; yarn build)
 
 ui-fmt:
-	(cd ui-src; cargo +stable do fmt, tomlfmt)
-	(cd ui-src; js-beautify -r -s 2 -n *.js)
+	(cd ui; cargo +stable do fmt, tomlfmt)
+	(cd ui; js-beautify -r -s 2 -n *.js)
 
 ui-lint:
-	(cd ui-src; cargo +stable clippy)
+	(cd ui; cargo +stable clippy)
 
 ui-start:
-	(cd ui-src; yarn -s; yarn start)
+	(cd ui; yarn -s; yarn start)
 
 ui-deploy:
-	(cd ui-src; yarn -s; yarn deploy)
-	@for file in ui-src/target/deploy/*.wasm; \
+	(cd ui; yarn -s; yarn deploy)
+	@for file in ui/target/deploy/*.wasm; \
 		do \
 			echo "Optimizing wasm to save space, size shown before and after:"; \
 			wc -c $$file; \
@@ -111,9 +111,9 @@ ui-deploy:
 		done
 
 ui-update:
-	(cd ui-src; cargo +stable update)
-	-(cd ui-src; yarn -s; yarn -s upgrade --latest)
+	(cd ui; cargo +stable update)
+	-(cd ui; yarn -s; yarn -s upgrade --latest)
 
 ui-clean:
-	(cd ui-src; cargo +stable clean && rm -f Cargo.lock)
-	(cd ui-src; rm -rf static node_modules yarn.lock)
+	(cd ui; cargo +stable clean && rm -f Cargo.lock)
+	(cd ui; rm -rf static node_modules yarn.lock)

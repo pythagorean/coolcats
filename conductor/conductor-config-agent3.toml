@@ -29,7 +29,7 @@ id = "coolcats_instance3"
 # -----------  UI  -----------
 [[ui_bundles]]
 id = "coolcats3_ui"
-root_dir = "ui-src/target/deploy"
+root_dir = "ui/target/deploy"
 
 [[ui_interfaces]]
 id = "ui-interface3"
