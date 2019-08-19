@@ -57,7 +57,7 @@ conductor-stop:
 dna: dna-build
 
 dna-build:
-	(mkdir dist; rustup run $(RUST_NIGHTLY) hc package -o dist/coolcats.dna.json)
+	(mkdir dist; cd zomes; rustup run $(RUST_NIGHTLY) hc package -o ../dist/coolcats.dna.json)
 
 dna-fmt:
 	(cd zomes/coolcats/code; cargo +$(RUST_NIGHTLY) do fmt, tomlfmt)
