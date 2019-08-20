@@ -190,7 +190,7 @@ impl Renderable<Follow> for Follow {
                                             height: 100px;\
                                         ",
                                     >
-                                        {for following_list}
+                                        {for following_list.into_iter()}
                                     </div>
                                 </div>
                             }}}
@@ -228,7 +228,7 @@ impl Renderable<Follow> for Follow {
                                             height: 200px;\
                                         ",
                                     >
-                                        {for not_following_list}
+                                        {for not_following_list.into_iter()}
                                     </div>
                                 </div>
                             }}}

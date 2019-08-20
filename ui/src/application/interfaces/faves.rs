@@ -62,7 +62,7 @@ impl Renderable<Faves> for Faves {
                             onclick=|_| LocalMsg::RemoveFavourite.into(),
                             class="glyphicon glyphicon-heart",
                             style="color: red;",
-                        >
+                        />
                     </>}
                 } else {
                     html! {<>
@@ -70,7 +70,7 @@ impl Renderable<Faves> for Faves {
                             onclick=|_| LocalMsg::AddFavourite.into(),
                             class="glyphicon glyphicon-heart-empty",
                             style="color: red;",
-                        >
+                        />
                     </>}
                 }}
             </div>
