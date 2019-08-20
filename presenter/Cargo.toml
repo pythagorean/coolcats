@@ -4,5 +4,10 @@ version = "0.1.0"
 authors = ["Michael Goldman <mike.goldman@allstreets.org>"]
 edition = "2018"
 
+[profile.release]
+lto = true
+panic = "abort"
+codegen-units = 1
+
 [dependencies]
 gotham = "0.4.0"

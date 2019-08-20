@@ -89,6 +89,7 @@ presenter-start: ui-deploy
 	@echo "Compressing files to reduce bandwidth"; \
 		(cd ui/target/deploy; gzip -9v *.wasm *.js)
 	(cd presenter; cargo +stable build --release)
+	@strip presenter/target/release/presenter
 	presenter/target/release/presenter ui/target/deploy
 
 ui: ui-build
