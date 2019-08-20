@@ -85,6 +85,12 @@ dna-clean:
 	(cd test; rm -rf node_modules package-lock.json)
 	find . -name *.dna.json -exec rm {} +
 
+presenter-start: ui-deploy
+	@echo "Compressing files to reduce bandwidth"; \
+		(cd ui/target/deploy; gzip -9v *.wasm *.js)
+	(cd presenter; cargo +stable build --release)
+	presenter/target/release/presenter ui/target/deploy
+
 ui: ui-build
 
 ui-build:

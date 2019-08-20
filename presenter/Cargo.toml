@@ -1,0 +1,8 @@
+[package]
+name = "presenter"
+version = "0.1.0"
+authors = ["Michael Goldman <mike.goldman@allstreets.org>"]
+edition = "2018"
+
+[dependencies]
+gotham = "0.4.0"
