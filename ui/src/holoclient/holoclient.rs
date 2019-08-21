@@ -12,7 +12,7 @@ use super::{
 pub struct Holoclient {
     websocket: Option<WebSocketService>,
     link: ComponentLink<Holoclient>,
-    callback: Option<Callback<ToApplication>>,
+    callback: Callback<ToApplication>,
     rpc_id: u32,
 }
 
@@ -124,21 +124,14 @@ pub enum ToHoloclient {
     Call(Params),
 }
 
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Properties)]
 pub struct Props {
+    #[props(required)]
     pub ws_server: String,
+    #[props(required)]
     pub params: Params,
-    pub callback: Option<Callback<ToApplication>>,
-}
-
-impl Default for Props {
-    fn default() -> Self {
-        Props {
-            ws_server: String::new(),
-            params: Params::new(),
-            callback: None,
-        }
-    }
+    #[props(required)]
+    pub callback: Callback<ToApplication>,
 }
 
 impl Component for Holoclient {
@@ -159,9 +152,7 @@ impl Component for Holoclient {
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
             Msg::Callback(msg) => {
-                if let Some(ref mut callback) = self.callback {
-                    callback.emit(msg);
-                }
+                self.callback.emit(msg);
             }
 
             Msg::WsReady(response) => {

@@ -10,19 +10,13 @@ pub struct Meow {
 
 pub enum Msg {}
 
-#[derive(PartialEq, Clone)]
-pub struct Props {
-    pub counter: u32,
-    pub post: Dict,
-}
 
-impl Default for Props {
-    fn default() -> Self {
-        Props {
-            counter: 0,
-            post: Dict::new(),
-        }
-    }
+#[derive(PartialEq, Properties)]
+pub struct Props {
+    #[props(required)]
+    pub counter: u32,
+    #[props(required)]
+    pub post: Dict,
 }
 
 impl Component for Meow {

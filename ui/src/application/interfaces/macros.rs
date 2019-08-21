@@ -67,17 +67,10 @@ macro_rules! interface_component {
             $prop: $prop_type,
         }
 
-        #[derive(PartialEq, Clone)]
+        #[derive(PartialEq, Properties)]
         pub struct Props {
+            #[props(required)]
             pub $prop: $prop_type,
-        }
-
-        impl Default for Props {
-            fn default() -> Self {
-                Props {
-                    $prop: $prop_dflt,
-                }
-            }
         }
 
         impl Component for $name {

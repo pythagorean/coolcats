@@ -34,7 +34,7 @@ routes! {
 }
 
 pub struct Root {
-    callback: Option<Callback<ToHoloclient>>,
+    callback: Callback<ToHoloclient>,
     state: State,
     conductor: String,
     child: RouterTarget,
@@ -114,19 +114,13 @@ impl From<Action> for Msg {
     }
 }
 
-#[derive(PartialEq, Clone)]
-pub struct Props {
-    pub params: Params,
-    pub callback: Option<Callback<ToHoloclient>>,
-}
 
-impl Default for Props {
-    fn default() -> Self {
-        Props {
-            params: Params(ToRoot::None),
-            callback: None,
-        }
-    }
+#[derive(PartialEq, Properties)]
+pub struct Props {
+    #[props(required)]
+    pub params: Params,
+    #[props(required)]
+    pub callback: Callback<ToHoloclient>,
 }
 
 impl Component for Root {
@@ -155,9 +149,7 @@ impl Component for Root {
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
             Msg::Callback(msg) => {
-                if let Some(ref mut callback) = self.callback {
-                    callback.emit(msg);
-                }
+                self.callback.emit(msg);
             }
 
             Msg::Route(route) => {
