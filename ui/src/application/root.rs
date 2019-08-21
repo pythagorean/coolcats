@@ -114,7 +114,6 @@ impl From<Action> for Msg {
     }
 }
 
-
 #[derive(PartialEq, Properties)]
 pub struct Props {
     #[props(required)]

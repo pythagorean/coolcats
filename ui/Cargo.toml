@@ -7,7 +7,7 @@ build = "build.rs"
 
 [profile.release]
 lto = true
-opt-level = 'z'
+opt-level = 's'
 
 [dependencies]
 json = "0.11.15"

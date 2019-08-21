@@ -10,7 +10,6 @@ pub struct Meow {
 
 pub enum Msg {}
 
-
 #[derive(PartialEq, Properties)]
 pub struct Props {
     #[props(required)]
