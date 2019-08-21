@@ -119,18 +119,18 @@ impl Renderable<Follow> for Follow {
             .map(|user| {
                 let user_handle = user.string("handle").clone();
                 html! {
-                    <li class="following-handle", key={&user_handle},>
-                        <div class="col-xs-9",>
-                            <span class="handle",>{&user_handle}</span>
+                    <li class="following-handle", key={&user_handle}>
+                        <div class="col-xs-9">
+                            <span class="handle">{&user_handle}</span>
                         </div>
                         <div
                             class="col-xs-3",
-                            style="padding-bottom: 10px;",
+                            style="padding-bottom: 10px;"
                         >
                             <button
                                 type="button",
                                 class="btn btn default",
-                                onclick=|_| LocalMsg::Unfollow(user_handle.to_string()).into(),
+                                onclick=|_| LocalMsg::Unfollow(user_handle.to_string()).into()
                             >
                                 {"Unfollow"}
                             </button>
@@ -145,18 +145,18 @@ impl Renderable<Follow> for Follow {
             .map(|user| {
                 let user_handle = user.string("handle").clone();
                 html! {
-                    <li class="following-handle", key={&user_handle},>
-                        <div class="col-xs-9",>
-                            <span class="handle",>{&user_handle}</span>
+                    <li class="following-handle", key={&user_handle}>
+                        <div class="col-xs-9">
+                            <span class="handle">{&user_handle}</span>
                         </div>
                         <div
                           class="col-xs-3",
-                          style="padding-bottom: 10px;",
+                          style="padding-bottom: 10px;"
                         >
                             <button
                                 type="button",
                                 class="btn btn-default",
-                                onclick=|_| LocalMsg::Follow(user_handle.to_string()).into(),
+                                onclick=|_| LocalMsg::Follow(user_handle.to_string()).into()
                             >
                                 {"Follow"}
                             </button>
@@ -167,20 +167,20 @@ impl Renderable<Follow> for Follow {
             .collect();
 
         html! {
-            <div class="panel panel-default",>
-                <div class="close",>
-                    <a href="/#/",>{"x"}</a>
+            <div class="panel panel-default">
+                <div class="close">
+                    <a href="/#/">{"x"}</a>
                 </div>
-                <div class="panel-body",>
-                    <div class="row",>
+                <div class="panel-body">
+                    <div class="row">
                         <h3>{"Following"}</h3>
-                        <ul id="following",>
+                        <ul id="following">
                             {if following.is_empty() {html! {
                                 <li>{"You currently aren't following anyone."}</li>
                             }} else { html! {
                                 <div
                                     class="panel-body",
-                                    style="overflow-y: scroll; height: 100px",
+                                    style="overflow-y: scroll; height: 100px"
                                 >
                                     <div
                                         class="mid-width wrapItems",
@@ -188,7 +188,7 @@ impl Renderable<Follow> for Follow {
                                             padding-top: 10px; \
                                             background-color: #eeeeee; \
                                             height: 100px;\
-                                        ",
+                                        "
                                     >
                                         {for following_list.into_iter()}
                                     </div>
@@ -197,10 +197,10 @@ impl Renderable<Follow> for Follow {
                         </ul>
                     </div>
 
-                    <div class="row",>
-                        <h3 id="myModalLabel",>{"Follow someone"}</h3>
-                        <div class="col-xs-12",>
-                            <div class="form-group input-icon",>
+                    <div class="row">
+                        <h3 id="myModalLabel">{"Follow someone"}</h3>
+                        <div class="col-xs-12">
+                            <div class="form-group input-icon">
                                 <i>{"@"}</i>
                                 <input
                                     value={new_follow_text},
@@ -208,17 +208,17 @@ impl Renderable<Follow> for Follow {
                                     class="form-control",
                                     id="followHandle",
                                     placeholder="handle",
-                                    oninput=|input| LocalMsg::UpdateFollowText(input).into(),
+                                    oninput=|input| LocalMsg::UpdateFollowText(input).into()
                                 />
                             </div>
                         </div>
-                        <ul id="not-following",>
+                        <ul id="not-following">
                             {if filtered_not_following.is_empty() {html! {
                                 <li>{"There are no users that you aren't already following."}</li>
                             }} else {html! {
                                 <div
                                     class="panel-body",
-                                    style="overflow-y: scroll; height: 200px",
+                                    style="overflow-y: scroll; height: 200px"
                                 >
                                     <div
                                         class="mid-width wrapItems",
@@ -226,22 +226,22 @@ impl Renderable<Follow> for Follow {
                                             padding-top: 10px; \
                                             background-color: #eeeeee; \
                                             height: 200px;\
-                                        ",
+                                        "
                                     >
                                         {for not_following_list.into_iter()}
                                     </div>
                                 </div>
                             }}}
                         </ul>
-                        <div class="row",>
-                            <div class="col-sm-1",></div>
-                            <div class="col-sm-4",></div>
-                            <div class="col-sm-6",>
+                        <div class="row">
+                            <div class="col-sm-1"/>
+                            <div class="col-sm-4"/>
+                            <div class="col-sm-6">
                                 <button
                                     type="button",
                                     id="close",
                                     class="btn btn-primary pull-right",
-                                    onclick=|_| Action::Redirect("/#/".into()).into(),
+                                    onclick=|_| Action::Redirect("/#/".into()).into()
                                 >
                                     {"Close"}
                                 </button>

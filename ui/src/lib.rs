@@ -119,21 +119,21 @@ impl Renderable<Model> for Model {
     fn view(&self) -> Html<Self> {
         match self.model_type {
             Some(ModelType::Holoclient) => html! {
-                <Holoclient:
+                <Holoclient
                     ws_server = &self.ws_server,
                     params = self.holoclient_params.clone(),
-                    callback = Msg::FromHoloclient,
+                    callback = Msg::FromHoloclient
                 />
             },
 
             Some(ModelType::Application) => html! {
-                <Application:
+                <Application
                     params = self.application_params.clone(),
-                    callback = Msg::FromApplication,
+                    callback = Msg::FromApplication
                 />
             },
 
-            None => html! { <></> },
+            None => html! {},
         }
     }
 }

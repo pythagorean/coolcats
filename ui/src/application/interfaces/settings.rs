@@ -84,15 +84,15 @@ impl Settings {
 impl Renderable<Settings> for Settings {
     fn view(&self) -> Html<Self> {
         if self.getstate.is_empty() {
-            return html! { <></> };
+            return html! {};
         };
         let use_handle_text = self.local.use_handle_text.clone();
         let handle_taken = self.getstate.bool("handle_taken").unwrap();
 
         html! {
-            <div class="panel panel-default",>
-                <div class="panel-body",>
-                    <div style="padding-left: 30; padding-bottom: 10;",>
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div style="padding-left: 30; padding-bottom: 10;">
                         <p
                             class="text-info",
                             style={
@@ -101,12 +101,12 @@ impl Renderable<Settings> for Settings {
                                 } else {
                                     "display: none;"
                                 }
-                            },
+                            }
                         >
                             {"Set your handle to get meowing"}
                         </p>
                     </div>
-                    <div style="padding-left: 30; padding-bottom: 10;",>
+                    <div style="padding-left: 30; padding-bottom: 10;">
                         <p
                             class="text-danger",
                             style={
@@ -115,13 +115,13 @@ impl Renderable<Settings> for Settings {
                                 } else {
                                     "display: none;"
                                 }
-                            },
+                            }
                         >
                             {"This handle already has a home, try something else!"}
                         </p>
                     </div>
-                    <div class="col-xs-8",>
-                        <div class="form-group input-icon",>
+                    <div class="col-xs-8">
+                        <div class="form-group input-icon">
                             <i>{"@"}</i>
                             <input
                                 value=use_handle_text,
@@ -133,15 +133,15 @@ impl Renderable<Settings> for Settings {
                                 type="text",
                                 class="form-control",
                                 id="myHandle",
-                                placeholder="handle",
+                                placeholder="handle"
                             />
                         </div>
                     </div>
-                    <div class="col-xs-2",>
+                    <div class="col-xs-2">
                         <button
                             id="setHandleButton",
                             class="btn btn-primary",
-                            onclick=|_| LocalMsg::OnHandleSubmit.into(),
+                            onclick=|_| LocalMsg::OnHandleSubmit.into()
                         >
                             {"Set Handle"}
                         </button>

@@ -216,6 +216,6 @@ impl Component for Holoclient {
 
 impl Renderable<Holoclient> for Holoclient {
     fn view(&self) -> Html<Self> {
-        html! { <></> }
+        html! {}
     }
 }

@@ -66,20 +66,20 @@ impl Renderable<NewMeow> for NewMeow {
         let new_meow_text = &self.local.new_meow_text;
 
         html! {<>
-            <div class="form-group col-xs-12",>
+            <div class="form-group col-xs-12">
                 <textarea
                     class="form-control",
                     id="meow",
                     name="meow",
                     wrap="soft",
                     value={new_meow_text},
-                    oninput=|input| LocalMsg::UpdateMeowText(input).into(),
+                    oninput=|input| LocalMsg::UpdateMeowText(input).into()
                 />
                 <button
                     type="submit",
                     id="postMeow",
                     class="btn btn-primary",
-                    onclick=|_| LocalMsg::OnSubmit.into(),
+                    onclick=|_| LocalMsg::OnSubmit.into()
                 >
                     {"Meow"}
                 </button>

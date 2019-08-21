@@ -50,7 +50,7 @@ impl Faves {
 impl Renderable<Faves> for Faves {
     fn view(&self) -> Html<Self> {
         if self.getstate.is_empty() {
-            return html! { <></> };
+            return html! {};
         };
         let favourites = self.getstate.strings("favourites");
         let (_, address) = &self.params;
@@ -61,7 +61,7 @@ impl Renderable<Faves> for Faves {
                         <button
                             onclick=|_| LocalMsg::RemoveFavourite.into(),
                             class="glyphicon glyphicon-heart",
-                            style="color: red;",
+                            style="color: red;"
                         />
                     </>}
                 } else {
@@ -69,7 +69,7 @@ impl Renderable<Faves> for Faves {
                         <button
                             onclick=|_| LocalMsg::AddFavourite.into(),
                             class="glyphicon glyphicon-heart-empty",
-                            style="color: red;",
+                            style="color: red;"
                         />
                     </>}
                 }}

@@ -598,9 +598,9 @@ impl Renderable<Root> for RouterTarget {
         // Send counter parameter to notify interface components of state changes
         let counter = self.counter();
         match self {
-            RouterTarget::EditProfile => html! { <EditProfile: counter = counter,/> },
-            RouterTarget::Follow => html! { <Follow: counter = counter,/> },
-            _ => html! { <App: counter = counter,/> },
+            RouterTarget::EditProfile => html! { <EditProfile counter = counter/> },
+            RouterTarget::Follow => html! { <Follow counter = counter/> },
+            _ => html! { <App counter = counter/> },
         }
     }
 }

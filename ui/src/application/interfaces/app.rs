@@ -20,7 +20,7 @@ interface_view_only!(App);
 impl Renderable<App> for App {
     fn view(&self) -> Html<Self> {
         if self.getstate.is_empty() {
-            return html! { <></> };
+            return html! {};
         };
         let app_properties = self.getstate.get_dict("app_properties");
         let first_name = self.getstate.string("first_name");
@@ -29,12 +29,12 @@ impl Renderable<App> for App {
 
         if app_properties.string("Agent_Handle").is_empty() {
             html! {
-                <div class="modal_backdrop",>
-                    <div class="modal_style",>
-                        <div align="center",>
-                            <p class="h1",>{ "Welcome to Coolcats2!" }</p>
+                <div class="modal_backdrop">
+                    <div class="modal_style">
+                        <div align="center">
+                            <p class="h1">{ "Welcome to Coolcats2!" }</p>
                         </div>
-                        <Settings: counter = self.counter,/>
+                        <Settings counter = self.counter/>
                     </div>
                 </div>
             }
@@ -55,72 +55,72 @@ impl Renderable<App> for App {
             }
 
             html! {
-                <div class="container",>
-                    <div class="spinner transition500",></div>
-                    <div class="error transition500",></div>
-                    <div class="row first",>
-                        <div class="fixed-area",>
-                            <div class="col-sm-2 contentcontainer",>
-                                <div class="logo",>
+                <div class="container">
+                    <div class="spinner transition500"/>
+                    <div class="error transition500"/>
+                    <div class="row first">
+                        <div class="fixed-area">
+                            <div class="col-sm-2 contentcontainer">
+                                <div class="logo">
                                     <img
                                         src={
                                             if !profile_pic.is_empty() { &profile_pic }
                                             else { DEFAULT_PROFILE_PIC }
                                         },
-                                        alt="user-profile",
+                                        alt="user-profile"
                                     />
-                                    <div id="displayName",>{first_name}</div>
+                                    <div id="displayName">{first_name}</div>
                                     <a href="/#/editProfile",
-                                        id="handle",
+                                        id="handle"
                                     >
                                         {"@"}{handle}
                                     </a>
                                 </div>
                             </div>
-                            <div class="col-sm-7",>
-                                <div class="contentcontainer",>
+                            <div class="col-sm-7">
+                                <div class="contentcontainer">
                                     <a href="/#/follow",
                                         id="followButton",
-                                        class="btn btn-default",
+                                        class="btn btn-default"
                                     >
                                         {"Follow People"}
                                     </a>
-                                    <div id="banner",>
-                                        <a href="/",>{"Coolcats2 (Clutter)"}</a>
-                                        <div class="subtitle",>{"can haz herd cats?"}</div>
+                                    <div id="banner">
+                                        <a href="/">{"Coolcats2 (Clutter)"}</a>
+                                        <div class="subtitle">{"can haz herd cats?"}</div>
                                     </div>
-                                    <div id="content",>
+                                    <div id="content">
                                         {match route {
-                                            "/" => html! {<NewMeow: counter = self.counter,/>},
+                                            "/" => html! {<NewMeow counter = self.counter/>},
                                             "/meow" => html! {
-                                                <FindMeow:
+                                                <FindMeow
                                                     params = (
                                                         self.counter,
                                                         route_param.to_string()
-                                                    ),
+                                                    )
                                                 />
                                             },
                                             "/tag" => html! {
-                                                <HashtagFeed:
+                                                <HashtagFeed
                                                     params = (
                                                         self.counter,
                                                         route_param.to_string()
-                                                    ),
+                                                    )
                                                 />
                                             },
-                                            _ => html! {<></>},
+                                            _ => html! {},
                                         }}
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-sm-3",>
-                                <div class="alphabox",>
-                                    <div id="about",>
+                            <div class="col-sm-3">
+                                <div class="alphabox">
+                                    <div id="about">
                                         <h2>{"What is Clutter?"}</h2>
                                           <p>
                                               <a
                                                 href="https://en.wiktionary.org/wiki/clutter",
-                                                target="blank",
+                                                target="blank"
                                               >
                                                   <em>{"clutter"}</em>
                                               </a>
@@ -133,7 +133,7 @@ impl Renderable<App> for App {
                                           <p>{"Impossible to censor or control."}</p>
                                           <p>
                                               {"Join the mewvolution on "}
-                                              <a href="http://holochain.org", target="blank",>
+                                              <a href="http://holochain.org", target="blank">
                                                   {"holochain.org"}
                                               </a>{"."}
                                           </p>
@@ -141,17 +141,17 @@ impl Renderable<App> for App {
                                 </div>
                             </div>
                         </div>
-                        <div class="row",>
-                            <div class="contentcontainer", id="feedContent",>
+                        <div class="row">
+                            <div class="contentcontainer", id="feedContent">
                                 <div>
                                     {match route {
-                                        "/" => html! {<FollowingFeed: counter = self.counter,/>},
+                                        "/" => html! {<FollowingFeed counter = self.counter/>},
                                         "/u" => html! {
-                                            <UserFeed:
-                                                params = (self.counter, route_param.to_string()),
+                                            <UserFeed
+                                                params = (self.counter, route_param.to_string())
                                             />
                                         },
-                                        _ => html! {<></>},
+                                        _ => html! {},
                                     }}
                                 </div>
                             </div>

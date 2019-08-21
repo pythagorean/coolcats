@@ -49,7 +49,7 @@ impl Meow {
                     && s.starts_with("https://")
                 {
                     html! {<>
-                        <a href={s}, target="_blank",>{s}</a>
+                        <a href={s}, target="_blank">{s}</a>
                         {' '}
                     </>}
                 } else if s.len() > 1
@@ -61,7 +61,7 @@ impl Meow {
                         .is_none()
                 {
                     html! {<>
-                        <a href={format!("/#/tag/{}", &s[1..])}, class="hashtag",>{s}</a>
+                        <a href={format!("/#/tag/{}", &s[1..])}, class="hashtag">{s}</a>
                         {' '}
                     </>}
                 } else {
@@ -80,19 +80,19 @@ impl Renderable<Meow> for Meow {
         let address = self.post.string("address");
         let user_handle = self.post.string("user_handle");
         html! {<>
-            <div class="meow", id={stamp},>
-                <a class="meow-edit",>// onclick="openEditPost('+id+')",>
+            <div class="meow", id={stamp}>
+                <a class="meow-edit">// onclick="openEditPost('+id+')">
                     {"edit"}
                 </a>
-                <a class="user", href={format!("/#/u/{}", author)},>
+                <a class="user", href={format!("/#/u/{}", author)}>
                     {"@"}{user_handle}
                 </a>
                 {" | "}
-                <a class="stamp", href={format!("/#/meow/{}", address)},>
+                <a class="stamp", href={format!("/#/meow/{}", address)}>
                     { Date::from_time(stamp.parse().unwrap()).to_string() }
                 </a>
-                <div class="message",>{self.linkify(message)}</div>
-                <Faves: params = (self.counter, address.clone()),/>
+                <div class="message">{self.linkify(message)}</div>
+                <Faves params = (self.counter, address.clone())/>
             </div>
         </>}
     }

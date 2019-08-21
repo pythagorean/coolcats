@@ -120,24 +120,24 @@ impl EditProfile {
 impl Renderable<EditProfile> for EditProfile {
     fn view(&self) -> Html<Self> {
         if self.getstate.is_empty() {
-            return html! { <></> };
+            return html! {};
         };
         let handle = &self.getstate.string("handle");
         let new_name_text = &self.local.new_name_text;
 
         html! {
-            <div class="panel panel-default",>
-                <div class="close",>
-                    <a href="/#/",>{"x"}</a>
+            <div class="panel panel-default">
+                <div class="close">
+                    <a href="/#/">{"x"}</a>
                 </div>
-                <div class="panel-body",>
+                <div class="panel-body">
                     <p>{"Profile"}</p>
-                    <div class="form-row",>
-                        <div class="form-group col-xs-6",>
+                    <div class="form-row">
+                        <div class="form-group col-xs-6">
                             <label>{"Handle"}</label>
-                            <p id="handle",>{"@"}{handle}</p>
+                            <p id="handle">{"@"}{handle}</p>
                         </div>
-                        <div class="form-group col-xs-6",>
+                        <div class="form-group col-xs-6">
                             <label>{"Name"}</label>
                             <input
                                 type="text",
@@ -149,27 +149,27 @@ impl Renderable<EditProfile> for EditProfile {
                                 onkeypress=|pressed| {
                                     if pressed.key() == "Enter" { LocalMsg::OnSubmit.into() }
                                     else { LocalMsg::Ignore.into() }
-                                },
+                                }
                             />
                         </div>
-                        <div class="form-group",>
-                            <div class="form-group col-xs-10",>
+                        <div class="form-group">
+                            <div class="form-group col-xs-10">
                                 <label>{"Profile Picture"}</label>
                                 <input
                                     type="file",
                                     accept="image/*",
                                     id="image",
                                     hidden=true,
-                                    oninput=|_| LocalMsg::LoadImage.into(),
+                                    oninput=|_| LocalMsg::LoadImage.into()
                                 />
                             </div>
                         </div>
                     </div>
-                    <div class="form-group col-xs-6",>
+                    <div class="form-group col-xs-6">
                         <button
                             id="saveChanges",
                             class="btn btn-primary",
-                            onclick=|_| LocalMsg::OnSubmit.into(),
+                            onclick=|_| LocalMsg::OnSubmit.into()
                         >
                             {"Save Changes"}
                         </button>

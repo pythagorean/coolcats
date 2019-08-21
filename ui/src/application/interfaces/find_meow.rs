@@ -14,7 +14,7 @@ interface_view_only!(FindMeow);
 impl Renderable<FindMeow> for FindMeow {
     fn view(&self) -> Html<Self> {
         if self.getstate.is_empty() {
-            return html! { <></> };
+            return html! {};
         };
         let handles = self.getstate.get_dict("handles");
         let posts = self.getstate.get_dict("posts");
@@ -34,8 +34,8 @@ impl Renderable<FindMeow> for FindMeow {
                 user_handle = author
             };
             post.insert("user_handle".into(), user_handle.into());
-            return html! { <Meow: counter = counter, post = post,/> };
+            return html! { <Meow counter = counter, post = post/> };
         }
-        html! { <></> }
+        html! {}
     }
 }

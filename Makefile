@@ -90,6 +90,10 @@ presenter-start: ui-deploy
 		(cd ui/target/deploy; gzip -9v *.wasm *.js)
 	(cd presenter; cargo +stable build --release)
 	@strip presenter/target/release/presenter
+	@echo ""
+	@echo "Files and file sizes to be served:"
+	@wc -c ui/target/deploy/*
+	@echo ""
 	presenter/target/release/presenter ui/target/deploy
 
 ui: ui-build

@@ -135,12 +135,12 @@ impl Renderable<UserFeed> for UserFeed {
         let post_list = &self.local.post_list;
 
         html! {<>
-            <div id="meows",>
-                <h2 id="user-header",>
+            <div id="meows">
+                <h2 id="user-header">
                     {handle}
                 </h2>
                 { for post_list.iter().map(|post| {
-                    html! { <Meow: counter = counter, post = post,/> }
+                    html! { <Meow counter = counter, post = post/> }
                 })}
             </div>
         </>}

@@ -146,9 +146,9 @@ impl Renderable<FollowingFeed> for FollowingFeed {
         let post_list = &self.local.post_list;
 
         html! {<>
-            <div id="meows",>
+            <div id="meows">
                 { for post_list.iter().map(|post| {
-                    html! { <Meow: counter = self.counter, post = post,/> }
+                    html! { <Meow counter = self.counter, post = post/> }
                 })}
             </div>
         </>}
