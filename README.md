@@ -7,7 +7,7 @@ The front-end is implemented in Rust with the Yew framework, and of course the b
 
 See https://github.com/holochain/clutter for the original.
 
-See https://github.com/pythagorean/coolcats for the Python port that was made of this, both for the old Holochain Proto.
+See https://github.com/pythagorean/pycoolcats for the Python port that was made of this, both for the old Holochain Proto.
 
 You can start a multiuser server test by running:
 
