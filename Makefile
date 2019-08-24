@@ -39,7 +39,7 @@ start: conductor-start
 
 stop: conductor-stop
 
-conductor-start: dna ui-deploy
+conductor-start: dna ui-deploy HOLOCHAIN_CONDUCTOR-required
 	@mkdir -p /tmp/n3h/1
 	holochain -c conductor/conductor-config-agent1.toml > /tmp/dna-testnet.log 2>&1 &
 	@( tail -f /tmp/dna-testnet.log & ) | grep -q p2p:
@@ -56,16 +56,16 @@ conductor-stop:
 
 dna: dna-build
 
-dna-build:
+dna-build: HOLOCHAIN_CLI-required
 	for f in ui/*.json; do mv $$f $$f.p; done
 	rustup run $(RUST_NIGHTLY) hc package
 	for f in ui/*.json.p; do mv $$f `echo $$f | cut -f 1,2 -d '.'`; done
 
-dna-fmt:
+dna-fmt: CARGO-DO-required RUST_NIGHTLY-FMT-required CARGO-TOMLFMT-required JS-BEAUTIFY-required
 	(cd zomes/coolcats/code; cargo +$(RUST_NIGHTLY) do fmt, tomlfmt)
-	(cd test; js-beautify -r -s 2 -n *.js)
+	for js in test/*.js; do js-beautify -r -s 2 -n $$js || true; done
 
-dna-lint:
+dna-lint: CARGO-required RUST_NIGHTLY-required
 	(cd zomes/coolcats/code; cargo +$(RUST_NIGHTLY) clippy)
 
 dna-test: dna-build
@@ -94,24 +94,29 @@ presenter-start: ui-deploy
 	@echo "Files and file sizes to be served:"
 	@wc -c ui/target/deploy/*
 	@echo ""
-	presenter/target/release/presenter ui/target/deploy
+	presenter/target/release/presenter ui/target/deploy &
+	@echo "Presenter started. Run 'make presenter-stop' to stop process."
+	@sleep 1
+
+presenter-stop:
+	killall presenter
 
 ui: ui-build
 
-ui-build:
+ui-build: YARN-required WASM_PACK-required
 	(cd ui; yarn -s; yarn build)
 
-ui-fmt:
+ui-fmt: CARGO-DO-required RUST-FMT-required CARGO-TOMLFMT-required JS-BEAUTIFY-required
 	(cd ui; cargo +stable do fmt, tomlfmt)
-	for js in ui/*.js; do js-beautify -r -s 2 -n $$js; done
+	for js in ui/*.js; do js-beautify -r -s 2 -n $$js || true; done
 
-ui-lint:
+ui-lint: CARGO-required CLIPPY-required
 	(cd ui; cargo +stable clippy)
 
-ui-start:
+ui-start: YARN-required WASM_PACK-required
 	(cd ui; yarn -s; yarn start)
 
-ui-deploy:
+ui-deploy: YARN-required WASM_PACK-required WASM-OPT-recommended
 	(cd ui; yarn -s; yarn deploy)
 	@for file in ui/target/deploy/*.wasm; \
 		do \
@@ -128,3 +133,84 @@ ui-update:
 ui-clean:
 	(cd ui; cargo +stable clean && rm -f Cargo.lock)
 	(cd ui; rm -rf pkg node_modules yarn.lock)
+
+YARN-required:
+	@which yarn > /dev/null || ( \
+		echo "No yarn found. Attempting to install."; \
+		curl -o- -L https://yarnpkg.com/install.sh | bash; \
+		false; \
+ 	)
+
+CARGO-required:
+	@which cargo > /dev/null || ( \
+		echo "No cargo found. Attempting to install Rust."; \
+		curl https://sh.rustup.rs -sSf | sh; \
+		false; \
+	)
+
+CARGO-DO-required:
+	@which cargo-do > /dev/null || ( \
+		echo "Cargo-do not found. Attempting to install."; \
+		cargo install cargo-do; \
+	)
+
+CARGO-TOMLFMT-required:
+	@which cargo-tomlfmt > /dev/null || ( \
+		echo "Cargo-tomlfmt not found. Attempting to install."; \
+		cargo install cargo-tomlfmt; \
+	)
+
+WASM_PACK-required:
+	@which wasm-pack > /dev/null || ( \
+		echo "No wasm-pack found. Attempting to install."; \
+		curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh; \
+	)
+
+RUST_NIGHTLY-required:
+	@echo "Checking if required Rust nightly toolchain is installed."
+	@rustup toolchain list | grep $(RUST_NIGHTLY) || ( \
+		make rust-upgrade; \
+	)
+
+RUST-FMT-required:
+	@rustup component list --installed --toolchain stable | grep rustfmt || ( \
+	  echo "Rustfmt needs to be installed for stable."; \
+		rustup component add rustfmt --toolchain stable; \
+	)
+
+RUST_NIGHTLY-FMT-required:
+	@rustup component list --installed --toolchain $(RUST_NIGHTLY) | grep rustfmt || ( \
+	  echo "Rustfmt needs to be installed for nightly."; \
+		rustup component add rustfmt --toolchain $(RUST_NIGHTLY); \
+	)
+
+JS-BEAUTIFY-required:
+	@which js-beautify > /dev/null || ( \
+		echo "JS-Beautify not found. Attempting to install."; \
+		yarn global add js-beautify; \
+	)
+
+CLIPPY-required:
+	@rustup component list --installed --toolchain stable | grep clippy || ( \
+		echo "Clippy needs to be installed for Rust stable."; \
+		rustup component add clippy --toolchain stable; \
+	)
+
+HOLOCHAIN_CLI-required:
+	@which hc > /dev/null || ( \
+	  echo "Holochain CLI needs to be installed."; \
+		make update-cli; \
+	)
+
+HOLOCHAIN_CONDUCTOR-required:
+	@which holochain > /dev/null || ( \
+	  echo "Holochain conductor needs to be installed."; \
+		make update-conductor; \
+	)
+
+WASM-OPT-recommended:
+	@which wasm-opt > /dev/null || ( \
+		echo "It is recommended to install wasm-opt from binaryen:"; \
+		echo "https://github.com/WebAssembly/binaryen"; \
+		echo ""; \
+	)

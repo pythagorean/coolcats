@@ -4,7 +4,7 @@ Cargo.lock
 dist/
 node_modules/
 target/
-static/
+pkg/
 package-lock.json
 yarn.lock
 .ftpconfig
