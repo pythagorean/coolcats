@@ -19,7 +19,7 @@ rust-upgrade:
 	rustup target add wasm32-unknown-unknown --toolchain $(RUST_NIGHTLY)
 	rustup component add clippy --toolchain $(RUST_NIGHTLY)
 
-update: dna-update ui-update
+update: dna-update ui-update CARGO-UPDATE-required
 	if [ `holochain --version | cut -d ' ' -f 2` != $(HC_VERSION) ]; then make update-conductor; fi
 	rustup self update
 	rustup update
@@ -146,6 +146,12 @@ CARGO-required:
 		echo "No cargo found. Attempting to install Rust."; \
 		curl https://sh.rustup.rs -sSf | sh; \
 		false; \
+	)
+
+CARGO-UPDATE-required:
+	@which cargo-install-update > /dev/null || ( \
+		echo "Cargo-update not found. Attempting to install."; \
+		cargo install cargo-update; \
 	)
 
 CARGO-DO-required:
