@@ -1,13 +1,22 @@
 const path = require('path');
-const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 const {
   CleanWebpackPlugin
 } = require('clean-webpack-plugin');
-const HtmlBeautifyPlugin = require('html-beautify-webpack-plugin');
+const WasmPackPlugin = require('@wasm-tool/wasm-pack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const HtmlBeautifyPlugin = require('html-beautify-webpack-plugin');
 
+const distPath = path.resolve(__dirname, "target/deploy");
 module.exports = {
-  entry: './src/runtime.ts',
+  entry: ['./bootstrap.js', './src/runtime.ts'],
+  output: {
+    path: distPath,
+    filename: 'coolcats2.js',
+    webassemblyModuleFilename: 'coolcats2.wasm'
+  },
+  resolve: {
+    extensions: ['.ts', '.js', '.wasm']
+  },
   module: {
     rules: [{
       test: /\.ts$/,
@@ -22,31 +31,25 @@ module.exports = {
         loader: 'file-loader',
         options: {
           name: '[name].[ext]',
-          outputPath: '../static',
+          outputPath: './',
           publicPath: './',
         },
       }, ],
     }, ],
   },
-  resolve: {
-    extensions: ['.ts', '.js']
-  },
-  output: {
-    filename: 'runtime.js',
-    path: path.resolve(__dirname, 'target')
-  },
   plugins: [
-    new HardSourceWebpackPlugin(),
     new CleanWebpackPlugin({
-      dry: false,
       verbose: true,
-      cleanOnceBeforeBuildPatterns: ['../static'],
-      dangerouslyAllowCleanPatternsOutsideProject: true,
+      cleanOnceBeforeBuildPatterns: [distPath],
+    }),
+    new WasmPackPlugin({
+      crateDirectory: ".",
+      extraArgs: "--no-typescript",
     }),
     new HtmlWebpackPlugin({
       inject: false,
       template: require('html-webpack-template'),
-      filename: '../static/index.html',
+      filename: 'index.html',
       title: 'Coolcats2',
       meta: [{
         name: 'viewport',
@@ -72,5 +75,8 @@ module.exports = {
       },
     }),
   ],
-  mode: 'none',
-}
+  devServer: {
+    contentBase: distPath,
+    port: 8000
+  },
+};

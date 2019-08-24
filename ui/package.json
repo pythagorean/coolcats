@@ -1,18 +1,15 @@
 {
-    "name": "coolcats2",
-    "version": "0.1.0",
     "private": true,
     "scripts": {
-        "build": "webpack; cargo +stable web build",
-        "start": "webpack; cargo +stable web start",
-        "deploy": "webpack; cargo +stable web deploy --release"
+        "build": "webpack --mode development --progress --color --display-error-details",
+        "start": "webpack-dev-server --mode development --watch",
+        "deploy": "webpack --mode production"
     },
-    "dependencies": {},
     "devDependencies": {
+        "@wasm-tool/wasm-pack-plugin": "^1.0.0",
         "clean-webpack-plugin": "^3.0.0",
         "css-loader": "^3.2.0",
         "file-loader": "^4.2.0",
-        "hard-source-webpack-plugin": "^0.13.1",
         "html-beautify-webpack-plugin": "^1.0.5",
         "html-webpack-plugin": "^3.2.0",
         "html-webpack-template": "^6.2.0",
@@ -20,6 +17,7 @@
         "ts-loader": "^6.0.4",
         "typescript": "^3.5.3",
         "webpack": "^4.39.2",
-        "webpack-cli": "^3.3.6"
+        "webpack-cli": "^3.3.7",
+        "webpack-dev-server": "^3.7.2"
     }
 }

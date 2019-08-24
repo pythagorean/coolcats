@@ -1,24 +1,8 @@
-#![recursion_limit = "551"]
-extern crate yew;
-extern crate yew_router;
-#[macro_use]
-extern crate stdweb;
-extern crate json;
-extern crate strum;
-#[macro_use]
-extern crate strum_macros;
-#[macro_use]
-extern crate lazy_static;
-
 use yew::{prelude::*, html::Scope};
 
-mod holoclient;
-mod application;
-mod utils;
-
-use self::{
-    holoclient::{Holoclient, ToHoloclient},
-    application::{Application, ToApplication},
+use crate::{
+    holoclient::{self, Holoclient, ToHoloclient},
+    application::{self, Application, ToApplication},
 };
 
 pub enum ModelType {

@@ -103,7 +103,7 @@ ui-build:
 
 ui-fmt:
 	(cd ui; cargo +stable do fmt, tomlfmt)
-	(cd ui; js-beautify -r -s 2 -n *.js)
+	for js in ui/*.js; do js-beautify -r -s 2 -n $$js; done
 
 ui-lint:
 	(cd ui; cargo +stable clippy)
@@ -127,4 +127,4 @@ ui-update:
 
 ui-clean:
 	(cd ui; cargo +stable clean && rm -f Cargo.lock)
-	(cd ui; rm -rf static node_modules yarn.lock)
+	(cd ui; rm -rf pkg node_modules yarn.lock)
