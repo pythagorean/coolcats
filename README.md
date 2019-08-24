@@ -1,5 +1,5 @@
-# coolcats2
-**Rust rewrite of Clutter/Coolcats, a fully distributed social messaging app built on Holochain**
+# coolcats
+**Rust rewrite of Clutter/PyCoolcats, a fully distributed social messaging app built on Holochain**
 
 This is a Clutter clone, as close to exact in functionality as I could make it.
 
