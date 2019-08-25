@@ -1,4 +1,17 @@
-const path = require('path');
+const {
+  createConfig,
+  entryPoint,
+  setOutput,
+  resolve,
+  match,
+  typescript,
+  css,
+  file,
+  addPlugins,
+  env,
+  devServer
+} = require('webpack-blocks');
+
 const {
   CleanWebpackPlugin
 } = require('clean-webpack-plugin');
@@ -6,38 +19,31 @@ const WasmPackPlugin = require('@wasm-tool/wasm-pack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlBeautifyPlugin = require('html-beautify-webpack-plugin');
 
+const path = require('path');
 const distPath = path.resolve(__dirname, "target/deploy");
-module.exports = {
-  entry: ['./bootstrap.js', './src/runtime.ts'],
-  output: {
+
+module.exports = createConfig([
+  entryPoint(['./bootstrap.js', './src/runtime.ts']),
+  setOutput({
     path: distPath,
     filename: 'coolcats-ui.js',
     webassemblyModuleFilename: 'coolcats-ui.wasm'
-  },
-  resolve: {
-    extensions: ['.ts', '.js', '.wasm']
-  },
-  module: {
-    rules: [{
-      test: /\.ts$/,
-      use: 'ts-loader',
-      exclude: /node_modules/
-    }, {
-      test: /\.css$/,
-      use: ['style-loader', 'css-loader']
-    }, {
-      test: /\.(png|jpg|gif)$/,
-      use: [{
-        loader: 'file-loader',
-        options: {
-          name: '[name].[ext]',
-          outputPath: './',
-          publicPath: './',
-        },
-      }, ],
-    }, ],
-  },
-  plugins: [
+  }),
+  resolve({
+    extensions: ['.wasm']
+  }),
+  typescript(),
+  css({
+    options: {
+      styleLoader: true
+    }
+  }),
+  match(['*.png', '*.jpg', '*.gif'], [
+    file({
+      name: '[name].[ext]',
+    })
+  ]),
+  addPlugins([
     new CleanWebpackPlugin({
       verbose: true,
       cleanOnceBeforeBuildPatterns: [distPath],
@@ -74,9 +80,11 @@ module.exports = {
         },
       },
     }),
-  ],
-  devServer: {
-    contentBase: distPath,
-    port: 8000
-  },
-};
+  ]),
+  env('development', [
+    devServer({
+      contentBase: distPath,
+      port: 8000
+    })
+  ])
+])
