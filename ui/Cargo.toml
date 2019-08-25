@@ -8,8 +8,8 @@ edition = "2018"
 crate-type = ["cdylib", "rlib"]
 
 [profile.release]
-lto = true
 opt-level = 's'
+codegen-units = 1
 
 [dependencies]
 json = "0.11.15"

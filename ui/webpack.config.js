@@ -11,8 +11,8 @@ module.exports = {
   entry: ['./bootstrap.js', './src/runtime.ts'],
   output: {
     path: distPath,
-    filename: 'coolcats2.js',
-    webassemblyModuleFilename: 'coolcats2.wasm'
+    filename: 'coolcats-ui.js',
+    webassemblyModuleFilename: 'coolcats-ui.wasm'
   },
   resolve: {
     extensions: ['.ts', '.js', '.wasm']
@@ -50,7 +50,7 @@ module.exports = {
       inject: false,
       template: require('html-webpack-template'),
       filename: 'index.html',
-      title: 'Coolcats2',
+      title: 'coolcats-ui',
       meta: [{
         name: 'viewport',
         content: 'width=device-width, initial-scale=1, shrink-to-fit=no',
@@ -63,7 +63,7 @@ module.exports = {
       }],
       favicon: 'src/application/interfaces/images/favicon.png',
       appMountIds: ['holoclient', 'application'],
-      scripts: ['coolcats2.js'],
+      scripts: ['coolcats-ui.js'],
       chunks: [],
     }),
     new HtmlBeautifyPlugin({
