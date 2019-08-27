@@ -19,7 +19,7 @@ const {
   backwardCompatibilityMiddleware
 } = require('@holochain/diorama')
 
-const dnaPath = "./dist/coolcats2.dna.json"
+const dnaPath = "./dist/coolcats.dna.json"
 const dna = Diorama.dna(dnaPath, "coolcats")
 
 const config = {

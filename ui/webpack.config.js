@@ -1,8 +1,8 @@
 const {
   createConfig,
   entryPoint,
-  setOutput,
   resolve,
+  setOutput,
   match,
   typescript,
   css,
@@ -24,13 +24,13 @@ const distPath = path.resolve(__dirname, "target/deploy");
 
 module.exports = createConfig([
   entryPoint(['./bootstrap.js', './src/runtime.ts']),
+  resolve({
+    extensions: ['.wasm']
+  }),
   setOutput({
     path: distPath,
     filename: 'coolcats-ui.js',
     webassemblyModuleFilename: 'coolcats-ui.wasm'
-  }),
-  resolve({
-    extensions: ['.wasm']
   }),
   typescript(),
   css({
@@ -79,7 +79,7 @@ module.exports = createConfig([
           end_with_newline: true,
         },
       },
-    }),
+    })
   ]),
   env('development', [
     devServer({

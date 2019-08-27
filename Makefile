@@ -1,4 +1,4 @@
-HC_VERSION = 0.0.28-alpha1
+HC_VERSION = 0.0.29-alpha2
 RUST_NIGHTLY = nightly-2019-07-14
 
 all: dna ui
