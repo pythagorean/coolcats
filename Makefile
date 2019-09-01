@@ -25,10 +25,10 @@ update: dna-update ui-update CARGO-UPDATE-required
 	rustup update
 	cargo install-update -a
 
-update-cli:
+update-cli: CARGO-required RUST_NIGHTLY-required
 	cargo +$(RUST_NIGHTLY) install hc --force --git https://github.com/holochain/holochain-rust.git
 
-update-conductor:
+update-conductor: CARGO-required RUST_NIGHTLY-required
 	cargo +$(RUST_NIGHTLY) install holochain --force --git https://github.com/holochain/holochain-rust.git
 
 clean: dna-clean ui-clean
@@ -78,7 +78,7 @@ dna-start: dna
 dna-update:
 	if [ `hc --version | cut -d ' ' -f 2` != $(HC_VERSION) ]; then make update-cli; fi
 	(cd zomes/coolcats/code; cargo +$(RUST_NIGHTLY) update)
-	-(cd test; yarn -s; yarn -s upgrade --latest)
+	#-(cd test; yarn -s; yarn -s upgrade --latest)
 
 dna-clean:
 	(cd zomes/coolcats/code; cargo +$(RUST_NIGHTLY) clean && rm -f Cargo.lock)
