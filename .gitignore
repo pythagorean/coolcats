@@ -8,3 +8,4 @@ pkg/
 package-lock.json
 yarn.lock
 .ftpconfig
+.vagrant

@@ -1,0 +1,20 @@
+use wasm_bindgen::prelude::*;
+use stdweb::web::{IParentNode, document};
+use yew::{prelude::App, html::Scope};
+
+mod model;
+use model::Model;
+
+// This is the entry point for the web app
+#[wasm_bindgen]
+pub fn run_app() -> Result<(), JsValue> {
+    yew::initialize();
+    mount_new_app("#application");
+    yew::run_loop();
+    Ok(())
+}
+
+fn mount_new_app(selector: &'static str) -> Scope<Model> {
+    let element = document().query_selector(selector).unwrap().unwrap();
+    App::new().mount(element)
+}

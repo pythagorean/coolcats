@@ -1,0 +1,103 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+ENV["PORT"] ||= "3000"
+
+$provision = <<SCRIPT
+
+# Upgrade to latest packages
+sudo apt-get update
+sudo apt-get upgrade -y
+
+cd /vagrant # This is where the host folder/repo is mounted
+
+# Add the yarn repo + yarn repo keys
+curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+sudo apt-add-repository 'deb https://dl.yarnpkg.com/debian/ stable main'
+
+# Add repo for NodeJS
+curl -sL https://deb.nodesource.com/setup_10.x | sudo bash -
+
+# Add packages to build and run gabbycat
+sudo apt-get install \
+  gcc \
+  yarn \
+  -y
+
+# Install Rust + wasm-pack
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh /dev/stdin -y
+source $HOME/.cargo/env
+curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+# Install node modules
+yarn install
+
+# Build gabbycat
+yarn build
+
+SCRIPT
+
+Vagrant.configure("2") do |config|
+
+  config.vm.box = "hashicorp/bionic64"
+
+  config.vm.provider :virtualbox do |vb|
+    vb.name = "gabbycat"
+    vb.customize ["modifyvm", :id, "--memory", 2048]
+
+    # Disable VirtualBox DNS proxy to skip long-delay IPv6 resolutions.
+    # https://github.com/mitchellh/vagrant/issues/1172
+    vb.customize ["modifyvm", :id, "--natdnsproxy1", "off"]
+    vb.customize ["modifyvm", :id, "--natdnshostresolver1", "off"]
+
+    # Use "virtio" network interfaces for better performance.
+    vb.customize ["modifyvm", :id, "--nictype1", "virtio"]
+    vb.customize ["modifyvm", :id, "--nictype2", "virtio"]
+
+    # Prevent VERR_PATH_NOT_FOUND when run from WSL
+    vb.customize ["modifyvm", :id, "--uartmode1", "disconnected"]
+  end
+
+  # Use rsync for Rust not to have errors building things with vboxsf
+  config.vm.synced_folder ".", "/vagrant", type: "rsync",
+    rsync__exclude: [".git/", "node_modules/", "pkg/", "target/", "yarn.lock", "Cargo.lock"]
+
+  # Automatically rsync transfer to running Vagrant when updates made locally
+  config.trigger.after :up do |trigger|
+    trigger.info = "start rsync auto"
+    trigger.run = {inline: "bash -c 'vagrant rsync-auto &'"}
+  end
+
+  config.trigger.before :halt do |trigger|
+    trigger.info = "stop rsync auto"
+    trigger.run = {inline: "pkill -f 'vagrant rsync-auto'"}
+  end
+
+  # This uses the vagrant-hostsupdater plugin, and lets you
+  # access the development site at http://gabbycat.local.
+  #
+  # To install:
+  #   $ vagrant plugin install vagrant-hostsupdater
+  config.vm.hostname = "gabbycat.local"
+
+  if defined?(VagrantPlugins::HostsUpdater)
+    config.vm.network :private_network, ip: "192.168.42.42", nictype: "virtio"
+    config.hostsupdater.remove_on_suspend = false
+  end
+
+  # Otherwise, you can access the site at http://localhost:3000
+  config.vm.network :forwarded_port, guest: 3000, host: 3000
+
+  # Full provisioning script, only runs on first 'vagrant up' or with 'vagrant provision'
+  config.vm.provision :shell, inline: $provision, privileged: false
+
+  # Start up script, runs on every 'vagrant up'
+  config.trigger.after :up do |trigger|
+    trigger.info = "Vagrant is up"
+    trigger.ruby do |env,machine|
+      puts 'To start server'
+      puts '  $ vagrant ssh -c "cd /vagrant && yarn start"'
+    end
+  end
+
+end
