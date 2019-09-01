@@ -62,11 +62,11 @@ dna-build: HOLOCHAIN_CLI-required
 	for f in ui/*.json.p; do mv $$f `echo $$f | cut -f 1,2 -d '.'`; done
 
 dna-fmt: CARGO-DO-required RUST_NIGHTLY-FMT-required CARGO-TOMLFMT-required JS-BEAUTIFY-required
-	(cd zomes/coolcats/code; cargo +$(RUST_NIGHTLY) do fmt, tomlfmt)
+	for zome in zomes/*; do (cd $$zome/code; cargo +$(RUST_NIGHTLY) do fmt, tomlfmt); done
 	for js in test/*.js; do js-beautify -r -s 2 -n $$js || true; done
 
 dna-lint: CARGO-required RUST_NIGHTLY-required
-	(cd zomes/coolcats/code; cargo +$(RUST_NIGHTLY) clippy)
+	for zome in zomes/*; do (cd $$zome/code; cargo +$(RUST_NIGHTLY) clippy); done
 
 dna-test: dna-build
 	(cd test; yarn -s)
@@ -77,11 +77,11 @@ dna-start: dna
 
 dna-update:
 	if [ `hc --version | cut -d ' ' -f 2` != $(HC_VERSION) ]; then make update-cli; fi
-	(cd zomes/coolcats/code; cargo +$(RUST_NIGHTLY) update)
+	for zome in zomes/*; do (cd $$zome/code; cargo +$(RUST_NIGHTLY) update); done
 	#-(cd test; yarn -s; yarn -s upgrade --latest)
 
 dna-clean:
-	(cd zomes/coolcats/code; cargo +$(RUST_NIGHTLY) clean && rm -f Cargo.lock)
+	for zome in zomes/*; do (cd $$zome/code; cargo +$(RUST_NIGHTLY) clean && rm -f Cargo.lock); done
 	(cd test; rm -rf node_modules package-lock.json)
 	find . -name *.dna.json -exec rm {} +
 
