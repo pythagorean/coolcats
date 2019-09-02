@@ -57,9 +57,7 @@ conductor-stop:
 dna: dna-build
 
 dna-build: HOLOCHAIN_CLI-required
-	for f in ui/*.json; do mv $$f $$f.p; done
 	rustup run $(RUST_NIGHTLY) hc package
-	for f in ui/*.json.p; do mv $$f `echo $$f | cut -f 1,2 -d '.'`; done
 
 dna-fmt: CARGO-DO-required RUST_NIGHTLY-FMT-required CARGO-TOMLFMT-required JS-BEAUTIFY-required
 	for zome in zomes/*; do (cd $$zome/code; cargo +$(RUST_NIGHTLY) do fmt, tomlfmt); done
@@ -87,14 +85,14 @@ dna-clean:
 
 presenter-start: ui-deploy
 	@echo "Compressing files to reduce bandwidth"; \
-		(cd ui/target/deploy; gzip -9v *.wasm *.js)
+		(cd ui/standard/target/deploy; gzip -9v *.wasm *.js)
 	(cd presenter; cargo +stable build --release)
 	@strip presenter/target/release/presenter
 	@echo ""
 	@echo "Files and file sizes to be served:"
-	@wc -c ui/target/deploy/*
+	@wc -c ui/standard/target/deploy/*
 	@echo ""
-	presenter/target/release/presenter ui/target/deploy &
+	presenter/target/release/presenter ui/standard/target/deploy &
 	@echo "Presenter started. Run 'make presenter-stop' to stop process."
 	@sleep 1
 
@@ -104,21 +102,21 @@ presenter-stop:
 ui: ui-build
 
 ui-build: YARN-required WASM_PACK-required
-	(cd ui; yarn -s; yarn build)
+	(cd ui/standard; yarn -s; yarn build)
 
 ui-fmt: CARGO-DO-required RUST-FMT-required CARGO-TOMLFMT-required JS-BEAUTIFY-required
-	(cd ui; cargo +stable do fmt, tomlfmt)
-	for js in ui/*.js; do js-beautify -r -s 2 -n $$js || true; done
+	(cd ui/standard; cargo +stable do fmt, tomlfmt)
+	for js in ui/*/*.js; do js-beautify -r -s 2 -n $$js || true; done
 
 ui-lint: CARGO-required CLIPPY-required
-	(cd ui; cargo +stable clippy)
+	(cd ui/standard; cargo +stable clippy)
 
 ui-start: YARN-required WASM_PACK-required
-	(cd ui; yarn -s; yarn start)
+	(cd ui/standard; yarn -s; yarn start)
 
 ui-deploy: YARN-required WASM_PACK-required WASM-OPT-recommended
-	(cd ui; yarn -s; yarn deploy)
-	@for file in ui/target/deploy/*.wasm; \
+	(cd ui/standard; yarn -s; yarn deploy)
+	@for file in ui/standard/target/deploy/*.wasm; \
 		do \
 			echo "Optimizing wasm to save space, size shown before and after:"; \
 			wc -c $$file; \
@@ -127,12 +125,12 @@ ui-deploy: YARN-required WASM_PACK-required WASM-OPT-recommended
 		done
 
 ui-update:
-	(cd ui; cargo +stable update)
-	-(cd ui; yarn -s; yarn -s upgrade --latest)
+	(cd ui/standard; cargo +stable update)
+	-(cd ui/standard; yarn -s; yarn -s upgrade --latest)
 
 ui-clean:
-	(cd ui; cargo +stable clean && rm -f Cargo.lock)
-	(cd ui; rm -rf pkg node_modules yarn.lock)
+	(cd ui/standard; cargo +stable clean && rm -f Cargo.lock)
+	(cd ui/standard; rm -rf pkg node_modules yarn.lock)
 
 YARN-required:
 	@which yarn > /dev/null || ( \
