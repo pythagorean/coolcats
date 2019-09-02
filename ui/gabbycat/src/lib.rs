@@ -1,6 +1,6 @@
+use stdweb::web::{document, IParentNode};
 use wasm_bindgen::prelude::*;
-use stdweb::web::{IParentNode, document};
-use yew::{prelude::App, html::Scope};
+use yew::{html::Scope, prelude::App};
 
 mod model;
 use model::Model;

@@ -8,8 +8,8 @@ edition = "2018"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
+fluent = "0.7.1"
 stdweb = "0.4.18"
+unic-langid = "0.4.2"
 wasm-bindgen = "=0.2.42"
 yew = "0.8.0"
-fluent = "0.7.1"
-unic-langid = "0.4.2"

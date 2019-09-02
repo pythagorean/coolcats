@@ -84,9 +84,9 @@ dna-clean:
 	(cd test; rm -rf node_modules package-lock.json)
 	find . -name *.dna.json -exec rm {} +
 
-presenter-start: presenter-start-standard
+presenter-start: presenter-standard-start
 
-presenter-start-standard: ui-deploy-standard
+presenter-standard-start: ui-standard-deploy
 	@echo "Compressing files to reduce bandwidth"; \
 		(cd ui/target/deploy; gzip -9v *.wasm *.js)
 	(cd presenter; cargo +stable build --release)
@@ -102,40 +102,36 @@ presenter-start-standard: ui-deploy-standard
 presenter-stop:
 	killall presenter
 
-presenter-stop-standard: presenter-stop
-
-presenter-clean:
-	(cd presenter; cargo +stable clean && rm -f Cargo.lock)
-	(cd presenter; rm -rf pkg node_modules yarn.lock)
+presenter-standard-stop: presenter-stop
 
 ui: ui-standard
 
-ui-standard: ui-build-standard
+ui-standard: ui-standard-build
 
-ui-build: ui-build-standard
+ui-build: ui-standard-build
 
-ui-build-standard: YARN-required WASM_PACK-required
-	(cd ui/standard; yarn -s; rustup run stable yarn build)
+ui-standard-build: YARN-required WASM_PACK-required
+	(cd ui/standard; yarn -s; yarn build)
 
 ui-fmt: CARGO-DO-required RUST-FMT-required CARGO-TOMLFMT-required JS-BEAUTIFY-required
 	for ui in ui/*; do (cd $$ui; cargo +stable do fmt, tomlfmt); done
 	for js in ui/*/*.js; do js-beautify -r -s 2 -n $$js || true; done
 
-ui-lint: ui-lint-standard
+ui-lint: ui-standard-lint
 
-ui-lint-standard: CARGO-required CLIPPY-required
+ui-standard-lint: CARGO-required CLIPPY-required
 	(cd ui/standard; cargo +stable clippy)
 
-ui-start: ui-start-standard
+ui-start: ui-standard-start
 
-ui-start-standard: CARGO-required YARN-required WASM_PACK-required
-	(cd ui/standard; yarn -s; rustup run stable yarn start)
+ui-standard-start: YARN-required WASM_PACK-required
+	(cd ui/standard; yarn -s; yarn start)
 
-ui-deploy: ui-deploy-standard
+ui-deploy: ui-standard-deploy
 
-ui-deploy-standard: CARGO-required YARN-required WASM_PACK-required WASM-OPT-recommended
-	(cd ui/standard; yarn -s; rustup run stable yarn deploy)
-	@for file in ui/target/deploy/*.wasm; \
+ui-standard-deploy: YARN-required WASM_PACK-required WASM-OPT-recommended
+	(cd ui/standard; yarn -s; yarn deploy)
+	@for file in ui/standard/target/deploy/*.wasm; \
 		do \
 			echo "Optimizing wasm to save space, size shown before and after:"; \
 			wc -c $$file; \
@@ -143,16 +139,16 @@ ui-deploy-standard: CARGO-required YARN-required WASM_PACK-required WASM-OPT-rec
 			wc -c $$file; \
 		done
 
-ui-update: ui-update-standard
+ui-update: ui-standard-update
 
-ui-update-standard: CARGO-required YARN-required
+ui-standard-update:
 	(cd ui/standard; cargo +stable update)
 	-(cd ui/standard; yarn -s; yarn -s upgrade --latest)
 
-ui-clean: ui-clean-standard
+ui-clean: ui-standard-clean
 
-ui-clean-standard: CARGO-required
-	(cd ui; cargo +stable clean && rm -f Cargo.lock)
+ui-standard-clean:
+	(cd ui/standard; cargo +stable clean && rm -f Cargo.lock)
 	(cd ui/standard; rm -rf pkg node_modules yarn.lock)
 
 YARN-required:
