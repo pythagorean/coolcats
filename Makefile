@@ -113,10 +113,13 @@ ui-gabbycat: ui-gabbycat-build
 ui-build: ui-standard-build ui-gabbycat-build
 
 ui-standard-build: YARN-required WASM_PACK-required
-	(cd ui/standard; yarn -s; yarn build)
+	(cd ui/standard; yarn -s; rustup run stable yarn build)
 
 ui-gabbycat-build: YARN-required WASM_PACK-required
-	(cd ui/gabbycat; yarn -s; yarn build)
+	(cd ui/gabbycat; yarn -s; rustup run stable yarn build)
+
+vm-gabbycat-build: VAGRANT-required
+	(cd ui/gabbycat; vagrant up)
 
 ui-fmt: CARGO-DO-required RUST-FMT-required CARGO-TOMLFMT-required JS-BEAUTIFY-required
 	for ui in ui/*; do (cd $$ui; cargo +stable do fmt, tomlfmt); done
@@ -132,16 +135,26 @@ ui-gabbycat-lint: CARGO-required CLIPPY-required
 
 ui-start: ui-standard-start
 
-ui-standard-start: YARN-required WASM_PACK-required
-	(cd ui/standard; yarn -s; yarn start)
+ui-standard-start: CARGO-required YARN-required WASM_PACK-required
+	(cd ui/standard; yarn -s; rustup run stable yarn start)
 
-ui-gabbycat-start: YARN-required WASM_PACK-required
-	(cd ui/gabbycat; yarn -s; yarn start)
+ui-gabbycat-start: CARGO-required YARN-required WASM_PACK-required
+	(cd ui/gabbycat; yarn -s; rustup run stable yarn start)
+
+vm-gabbycat-start: vm-gabbycat-build
+	(cd ui/gabbycat; vagrant ssh -c "cd /vagrant && yarn start" &)
+	@sleep 60
+
+vm-gabbycat-stop: VAGRANT-required
+	(cd ui/gabbycat; vagrant halt)
+
+vm-gabbycat-destroy: VAGRANT-required
+	(cd ui/gabbycat; vagrant destroy)
 
 ui-deploy: ui-standard-deploy
 
-ui-standard-deploy: YARN-required WASM_PACK-required WASM-OPT-recommended
-	(cd ui/standard; yarn -s; yarn deploy)
+ui-standard-deploy: CARGO-required YARN-required WASM_PACK-required WASM-OPT-recommended
+	(cd ui/standard; yarn -s; rustup run stable yarn deploy)
 	@for file in ui/standard/target/deploy/*.wasm; \
 		do \
 			echo "Optimizing wasm to save space, size shown before and after:"; \
@@ -152,21 +165,21 @@ ui-standard-deploy: YARN-required WASM_PACK-required WASM-OPT-recommended
 
 ui-update: ui-standard-update ui-gabbycat-update
 
-ui-standard-update:
+ui-standard-update: CARGO-required YARN-required
 	(cd ui/standard; cargo +stable update)
 	-(cd ui/standard; yarn -s; yarn -s upgrade --latest)
 
-ui-gabbycat-update:
+ui-gabbycat-update: CARGO-required YARN-required
 	(cd ui/gabbycat; cargo +stable update)
 	-(cd ui/gabbycat; yarn -s; yarn -s upgrade --latest)
 
 ui-clean: ui-standard-clean ui-gabbycat-clean
 
-ui-standard-clean:
+ui-standard-clean: CARGO-required
 	(cd ui/standard; cargo +stable clean && rm -f Cargo.lock)
 	(cd ui/standard; rm -rf pkg node_modules yarn.lock)
 
-ui-gabbycat-clean:
+ui-gabbycat-clean: CARGO-required
 	(cd ui/gabbycat; cargo +stable clean && rm -f Cargo.lock)
 	(cd ui/gabbycat; rm -rf pkg node_modules yarn.lock .vagrant)
 
@@ -255,4 +268,12 @@ WASM-OPT-recommended:
 		echo "It is recommended to install wasm-opt from binaryen:"; \
 		echo "https://github.com/WebAssembly/binaryen"; \
 		echo ""; \
+	)
+
+VAGRANT-required:
+	@which vagrant > /dev/null || ( \
+		echo "Vagrant needs to be installed."; \
+		echo "https://www.vagrantup.com/downloads.html"; \
+		echo ""; \
+		false; \
 	)

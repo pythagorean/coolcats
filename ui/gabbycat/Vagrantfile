@@ -5,9 +5,8 @@ ENV["PORT"] ||= "8000"
 
 $provision = <<SCRIPT
 
-# Upgrade to latest packages
+# Update our package database
 sudo apt-get update
-sudo apt-get upgrade -y
 
 cd /vagrant # This is where the host folder/repo is mounted
 
@@ -65,12 +64,17 @@ Vagrant.configure("2") do |config|
   # Automatically rsync transfer to running Vagrant when updates made locally
   config.trigger.after :up do |trigger|
     trigger.info = "start rsync auto"
-    trigger.run = {inline: "bash -c 'vagrant rsync-auto &'"}
+    trigger.ruby do |env,machine|
+      system "pkill -f 'vagrant rsync-auto'"
+      system "vagrant rsync-auto &"
+    end
   end
 
   config.trigger.before :halt do |trigger|
     trigger.info = "stop rsync auto"
-    trigger.run = {inline: "pkill -f 'vagrant rsync-auto'"}
+    trigger.ruby do |env,machine|
+      system "pkill -f 'vagrant rsync-auto'"
+    end
   end
 
   # This uses the vagrant-hostsupdater plugin, and lets you
