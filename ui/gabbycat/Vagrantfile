@@ -1,7 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-ENV["PORT"] ||= "3000"
+ENV["PORT"] ||= "8000"
 
 $provision = <<SCRIPT
 
@@ -85,8 +85,8 @@ Vagrant.configure("2") do |config|
     config.hostsupdater.remove_on_suspend = false
   end
 
-  # Otherwise, you can access the site at http://localhost:3000
-  config.vm.network :forwarded_port, guest: 3000, host: 3000
+  # Otherwise, you can access the site at http://localhost:8000
+  config.vm.network :forwarded_port, guest: 8000, host: 8000
 
   # Full provisioning script, only runs on first 'vagrant up' or with 'vagrant provision'
   config.vm.provision :shell, inline: $provision, privileged: false
