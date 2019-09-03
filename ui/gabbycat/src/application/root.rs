@@ -1,6 +1,8 @@
-use fluent::{FluentBundle, FluentResource};
-use unic_langid::langid;
+use std::str::FromStr;
+use strum_macros::{EnumString, IntoStaticStr};
 use yew::prelude::*;
+
+use super::{interfaces::home::Home, router};
 
 pub struct Root;
 
@@ -19,28 +21,28 @@ impl Component for Root {
     }
 }
 
+#[derive(EnumString, IntoStaticStr)]
+enum Route {
+    #[strum(serialize = "/")]
+    Site,
+    #[strum(serialize = "/home")]
+    Home,
+}
+
 impl Renderable<Root> for Root {
     fn view(&self) -> Html<Self> {
-        let ftl_string = "hello-world = Hello, world!".to_string();
-        let res = FluentResource::try_new(ftl_string).expect("Failed to parse an FTL string.");
-
-        let langid_en = langid!("en-US");
-        let mut bundle = FluentBundle::new(&[langid_en]);
-
-        bundle
-            .add_resource(&res)
-            .expect("Failed to add FTL resources to the bundle.");
-
-        let msg = bundle
-            .get_message("hello-world")
-            .expect("Message doesn't exist.");
-        let pattern = msg.value.expect("Message has no value.");
-
-        let mut errors = vec![];
-        let value = bundle.format_pattern(&pattern, None, &mut errors);
-
-        html! {
-            <p>{value}</p>
+        let (route, _) = router::get();
+        match Route::from_str(&route) {
+            Ok(Route::Site) => {
+                router::set(Route::Home.into(), "");
+                self.view()
+            }
+            Ok(Route::Home) => html! {
+                <Home />
+            },
+            Err(_) => html! {
+                <h1>{"404"}</h1>
+            },
         }
     }
 }
