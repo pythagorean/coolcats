@@ -31,7 +31,7 @@ update-cli: CARGO-required RUST_NIGHTLY-required
 update-conductor: CARGO-required RUST_NIGHTLY-required
 	cargo +$(RUST_NIGHTLY) install holochain --force --git https://github.com/holochain/holochain-rust.git
 
-clean: dna-clean ui-clean
+clean: dna-clean ui-clean presenter-clean
 
 build: dna-build ui-build
 
@@ -83,7 +83,9 @@ dna-clean:
 	(cd test; rm -rf node_modules package-lock.json)
 	find . -name *.dna.json -exec rm {} +
 
-presenter-start: ui-deploy
+presenter-start: presenter-start-standard
+
+presenter-start-standard: ui-deploy-standard
 	@echo "Compressing files to reduce bandwidth"; \
 		(cd ui/standard/target/deploy; gzip -9v *.wasm *.js)
 	(cd presenter; cargo +stable build --release)
@@ -99,23 +101,39 @@ presenter-start: ui-deploy
 presenter-stop:
 	killall presenter
 
-ui: ui-build
+presenter-stop-standard: presenter-stop
 
-ui-build: YARN-required WASM_PACK-required
-	(cd ui/standard; yarn -s; yarn build)
+presenter-clean:
+	(cd presenter; cargo +stable clean && rm -f Cargo.lock)
+	(cd presenter; rm -rf pkg node_modules yarn.lock)
+
+ui: ui-standard
+
+ui-standard: ui-build-standard
+
+ui-build: ui-build-standard
+
+ui-build-standard: YARN-required WASM_PACK-required
+	(cd ui/standard; yarn -s; rustup run stable yarn build)
 
 ui-fmt: CARGO-DO-required RUST-FMT-required CARGO-TOMLFMT-required JS-BEAUTIFY-required
-	(cd ui/standard; cargo +stable do fmt, tomlfmt)
+	for ui in ui/*; do (cd $$ui; cargo +stable do fmt, tomlfmt); done
 	for js in ui/*/*.js; do js-beautify -r -s 2 -n $$js || true; done
 
-ui-lint: CARGO-required CLIPPY-required
+ui-lint: ui-lint-standard
+
+ui-lint-standard: CARGO-required CLIPPY-required
 	(cd ui/standard; cargo +stable clippy)
 
-ui-start: YARN-required WASM_PACK-required
-	(cd ui/standard; yarn -s; yarn start)
+ui-start: ui-start-standard
 
-ui-deploy: YARN-required WASM_PACK-required WASM-OPT-recommended
-	(cd ui/standard; yarn -s; yarn deploy)
+ui-start-standard: CARGO-required YARN-required WASM_PACK-required
+	(cd ui/standard; yarn -s; rustup run stable yarn start)
+
+ui-deploy: ui-deploy-standard
+
+ui-deploy-standard: CARGO-required YARN-required WASM_PACK-required WASM-OPT-recommended
+	(cd ui/standard; yarn -s; rustup run stable yarn deploy)
 	@for file in ui/standard/target/deploy/*.wasm; \
 		do \
 			echo "Optimizing wasm to save space, size shown before and after:"; \
@@ -124,11 +142,15 @@ ui-deploy: YARN-required WASM_PACK-required WASM-OPT-recommended
 			wc -c $$file; \
 		done
 
-ui-update:
+ui-update: ui-update-standard
+
+ui-update-standard: CARGO-required YARN-required
 	(cd ui/standard; cargo +stable update)
 	-(cd ui/standard; yarn -s; yarn -s upgrade --latest)
 
-ui-clean:
+ui-clean: ui-clean-standard
+
+ui-clean-standard: CARGO-required
 	(cd ui/standard; cargo +stable clean && rm -f Cargo.lock)
 	(cd ui/standard; rm -rf pkg node_modules yarn.lock)
 
