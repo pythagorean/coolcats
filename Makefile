@@ -84,9 +84,9 @@ dna-clean:
 	(cd test; rm -rf node_modules package-lock.json)
 	find . -name *.dna.json -exec rm {} +
 
-presenter-start: presenter-standard-start
+presenter-start: presenter-start-standard
 
-presenter-standard-start: ui-standard-deploy
+presenter-start-standard: ui-deploy-standard
 	@echo "Compressing files to reduce bandwidth"; \
 		(cd ui/target/deploy; gzip -9v *.wasm *.js)
 	(cd presenter; cargo +stable build --release)
@@ -99,61 +99,80 @@ presenter-standard-start: ui-standard-deploy
 	@echo "Presenter started. Run 'make presenter-stop' to stop process."
 	@sleep 1
 
+presenter-start-gabbycat: ui-deploy-gabbycat
+	@echo "Compressing files to reduce bandwidth"; \
+		(cd ui/gabbycat/target/deploy; gzip -9v *.wasm *.js)
+	(cd presenter; cargo +stable build --release)
+	@strip presenter/target/release/presenter
+	@echo ""
+	@echo "Files and file sizes to be served:"
+	@wc -c ui/gabbycat/target/deploy/*
+	@echo ""
+	presenter/target/release/presenter ui/gabbycat/target/deploy &
+	@echo "Presenter started. Run 'make presenter-stop' to stop process."
+	@sleep 1
+
 presenter-stop:
 	killall presenter
 
-presenter-standard-stop: presenter-stop
+presenter-stop-standard: presenter-stop
+
+presenter-stop-gabbycat: presenter-stop
+
+presenter-clean:
+	(cd presenter; cargo +stable clean && rm -f Cargo.lock)
+	(cd presenter; rm -rf pkg node_modules yarn.lock)
 
 ui: ui-standard ui-gabbycat
 
-ui-standard: ui-standard-build
+ui-standard: ui-build-standard
 
-ui-gabbycat: ui-gabbycat-build
+ui-gabbycat: ui-build-gabbycat
 
-ui-build: ui-standard-build ui-gabbycat-build
+ui-build: ui-build-standard ui-build-gabbycat
 
-ui-standard-build: YARN-required WASM_PACK-required
+ui-build-standard: YARN-required WASM_PACK-required
 	(cd ui/standard; yarn -s; rustup run stable yarn build)
 
-ui-gabbycat-build: YARN-required WASM_PACK-required
+ui-build-gabbycat: YARN-required WASM_PACK-required
 	(cd ui/gabbycat; yarn -s; rustup run stable yarn build)
 
-vm-gabbycat-build: VAGRANT-required
+vm-build-gabbycat: VAGRANT-required
 	(cd ui/gabbycat; vagrant up)
 
 ui-fmt: CARGO-DO-required RUST-FMT-required CARGO-TOMLFMT-required JS-BEAUTIFY-required
 	for ui in ui/*; do (cd $$ui; cargo +stable do fmt, tomlfmt); done
 	for js in ui/*/*.js; do js-beautify -r -s 2 -n $$js || true; done
 
-ui-lint: ui-standard-lint ui-gabbycat-lint
+ui-lint: ui-lint-standard ui-lint-gabbycat
 
-ui-standard-lint: CARGO-required CLIPPY-required
+ui-lint-standard: CARGO-required CLIPPY-required
 	(cd ui/standard; cargo +stable clippy)
 
-ui-gabbycat-lint: CARGO-required CLIPPY-required
+ui-lint-gabbycat: CARGO-required CLIPPY-required
 	(cd ui/gabbycat; cargo +stable clippy)
 
-ui-start: ui-standard-start
+ui-start: ui-start-standard
 
-ui-standard-start: CARGO-required YARN-required WASM_PACK-required
+ui-start-standard: CARGO-required YARN-required WASM_PACK-required
 	(cd ui/standard; yarn -s; rustup run stable yarn start)
 
-ui-gabbycat-start: CARGO-required YARN-required WASM_PACK-required
+ui-start-gabbycat: CARGO-required YARN-required WASM_PACK-required
 	(cd ui/gabbycat; yarn -s; rustup run stable yarn start)
 
-vm-gabbycat-start: vm-gabbycat-build
+vm-start-gabbycat: vm-build-gabbycat
 	(cd ui/gabbycat; vagrant ssh -c "cd /vagrant && yarn start" &)
 	@sleep 60
 
-vm-gabbycat-stop: VAGRANT-required
+vm-stop-gabbycat: VAGRANT-required
 	(cd ui/gabbycat; vagrant halt)
 
-vm-gabbycat-destroy: VAGRANT-required
+vm-clean-gabbycat: VAGRANT-required
 	(cd ui/gabbycat; vagrant destroy)
 
-ui-deploy: ui-standard-deploy
+ui-deploy: ui-deploy-standard
 
-ui-standard-deploy: CARGO-required YARN-required WASM_PACK-required WASM-OPT-recommended
+ui-deploy-standard: CARGO-required YARN-required WASM_PACK-required WASM-OPT-recommended
 	(cd ui/standard; yarn -s; rustup run stable yarn deploy)
 	@for file in ui/standard/target/deploy/*.wasm; \
 		do \
@@ -163,23 +182,33 @@ ui-standard-deploy: CARGO-required YARN-required WASM_PACK-required WASM-OPT-rec
 			wc -c $$file; \
 		done
 
-ui-update: ui-standard-update ui-gabbycat-update
+ui-deploy-gabbycat: CARGO-required YARN-required WASM_PACK-required WASM-OPT-recommended
+	(cd ui/gabbycat; yarn -s; rustup run stable yarn run webpack -p --mode production)
+	@for file in ui/gabbycat/target/deploy/*.wasm; \
+		do \
+			echo "Optimizing wasm to save space, size shown before and after:"; \
+			wc -c $$file; \
+			wasm-opt -Os -o $$file.new $$file && mv -f $$file.new $$file; \
+			wc -c $$file; \
+		done
 
-ui-standard-update: CARGO-required YARN-required
+ui-update: ui-update-standard ui-update-gabbycat
+
+ui-update-standard: CARGO-required YARN-required
 	(cd ui/standard; cargo +stable update)
 	-(cd ui/standard; yarn -s; yarn -s upgrade --latest)
 
-ui-gabbycat-update: CARGO-required YARN-required
+ui-update-gabbycat: CARGO-required YARN-required
 	(cd ui/gabbycat; cargo +stable update)
 	-(cd ui/gabbycat; yarn -s; yarn -s upgrade --latest)
 
-ui-clean: ui-standard-clean ui-gabbycat-clean
+ui-clean: ui-clean-standard ui-clean-gabbycat
 
-ui-standard-clean: CARGO-required
+ui-clean-standard: CARGO-required
 	(cd ui/standard; cargo +stable clean && rm -f Cargo.lock)
 	(cd ui/standard; rm -rf pkg node_modules yarn.lock)
 
-ui-gabbycat-clean: CARGO-required
+ui-clean-gabbycat: CARGO-required
 	(cd ui/gabbycat; cargo +stable clean && rm -f Cargo.lock)
 	(cd ui/gabbycat; rm -rf pkg node_modules yarn.lock .vagrant)
 
@@ -272,7 +301,7 @@ WASM-OPT-recommended:
 
 VAGRANT-required:
 	@which vagrant > /dev/null || ( \
-		echo "Vagrant needs to be installed."; \
+		echo "Vagrant needs to be installed:"; \
 		echo "https://www.vagrantup.com/downloads.html"; \
 		echo ""; \
 		false; \
