@@ -25,6 +25,7 @@ module.exports = createConfig([
   }),
   setOutput({
     path: distPath,
+    publicPath: '/',
     filename: 'gabbycat.js',
     webassemblyModuleFilename: 'gabbycat.wasm'
   }),
@@ -43,7 +44,7 @@ module.exports = createConfig([
       filename: 'index.html',
       title: 'gabbycat',
       appMountIds: ['application'],
-      scripts: ['gabbycat.js'],
+      scripts: ['/gabbycat.js'],
       chunks: []
     }),
     new HtmlBeautifyPlugin({
@@ -59,7 +60,8 @@ module.exports = createConfig([
     devServer({
       contentBase: distPath,
       host: '0.0.0.0',
-      port: 8000
+      port: 8000,
+      historyApiFallback: true
     })
   ])
 ])

@@ -1,12 +1,8 @@
 use stdweb::web::window;
 
 pub fn get() -> (String, String) {
-    let fragment = window().location().unwrap().hash().unwrap();
-    let mut route = if fragment.is_empty() {
-        "/"
-    } else {
-        &fragment[1..]
-    };
+    let pathname = window().location().unwrap().pathname().unwrap();
+    let mut route = pathname.as_str();
     let mut route_param = "";
     if route.len() > 1 {
         if let Some(n) = &route[1..].find('/') {
@@ -19,7 +15,5 @@ pub fn get() -> (String, String) {
 }
 
 pub fn set(route: &str, route_param: &str) {
-    js! {
-        window.location.hash = @{format!("{}/{}", route, route_param)}
-    }
+    window().history().push_state({}, "", Some(&format!("{}/{}", route, route_param)));
 }
