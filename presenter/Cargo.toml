@@ -10,4 +10,4 @@ panic = "abort"
 codegen-units = 1
 
 [dependencies]
-gotham = "0.4.0"
+rocket = "0.4.2"
