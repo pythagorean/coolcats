@@ -31,7 +31,7 @@ update-cli: CARGO-required RUST_NIGHTLY-required
 update-conductor: CARGO-required RUST_NIGHTLY-required
 	cargo +$(RUST_NIGHTLY) install holochain --force --git https://github.com/holochain/holochain-rust.git
 
-clean: dna-clean ui-clean presenter-clean
+clean: dna-clean ui-clean vm-clean presenter-clean
 
 build: dna-build ui-build
 
@@ -86,6 +86,8 @@ dna-clean:
 
 presenter-start: presenter-start-standard
 
+presenter-start-coolcats: presenter-start-standard
+
 presenter-start-standard: ui-deploy-standard
 	@echo "Compressing files to reduce bandwidth"; \
 		(cd ui/standard/target/deploy; gzip -9v *.wasm *.js)
@@ -115,6 +117,8 @@ presenter-start-gabbycat: ui-deploy-gabbycat
 presenter-stop:
 	killall presenter
 
+presenter-stop-coolcats: presenter-stop
+
 presenter-stop-standard: presenter-stop
 
 presenter-stop-gabbycat: presenter-stop
@@ -125,11 +129,15 @@ presenter-clean:
 
 ui: ui-standard ui-gabbycat
 
+ui-coolcats: ui-standard
+
 ui-standard: ui-build-standard
 
 ui-gabbycat: ui-build-gabbycat
 
 ui-build: ui-build-standard ui-build-gabbycat
+
+ui-build-coolcats: ui-build-standard
 
 ui-build-standard: YARN-required WASM_PACK-required
 	(cd ui/standard; yarn -s; rustup run stable yarn build)
@@ -146,6 +154,8 @@ ui-fmt: CARGO-DO-required RUST-FMT-required CARGO-TOMLFMT-required JS-BEAUTIFY-r
 
 ui-lint: ui-lint-standard ui-lint-gabbycat
 
+ui-lint-coolcats: ui-lint-standard
+
 ui-lint-standard: CARGO-required CLIPPY-required
 	(cd ui/standard; cargo +stable clippy)
 
@@ -153,6 +163,8 @@ ui-lint-gabbycat: CARGO-required CLIPPY-required
 	(cd ui/gabbycat; cargo +stable clippy)
 
 ui-start: ui-start-standard
+
+ui-start-coolcats: ui-start-standard
 
 ui-start-standard: CARGO-required YARN-required WASM_PACK-required
 	(cd ui/standard; yarn -s; rustup run stable yarn start)
@@ -167,10 +179,14 @@ vm-start-gabbycat: vm-build-gabbycat
 vm-stop-gabbycat: VAGRANT-required
 	(cd ui/gabbycat; vagrant halt)
 
+vm-clean: vm-clean-gabbycat
+
 vm-clean-gabbycat: VAGRANT-required
-	(cd ui/gabbycat; vagrant destroy)
+	(cd ui/gabbycat; vagrant destroy -f && rm -rf .vagrant)
 
 ui-deploy: ui-deploy-standard ui-deploy-gabbycat
+
+ui-deploy-coolcats: ui-deploy-standard
 
 ui-deploy-standard: CARGO-required YARN-required WASM_PACK-required WASM-OPT-recommended
 	(cd ui/standard; yarn -s; rustup run stable yarn deploy)
@@ -210,7 +226,7 @@ ui-clean-standard: CARGO-required
 
 ui-clean-gabbycat: CARGO-required
 	(cd ui/gabbycat; cargo +stable clean && rm -f Cargo.lock)
-	(cd ui/gabbycat; rm -rf pkg node_modules yarn.lock .vagrant)
+	(cd ui/gabbycat; rm -rf pkg node_modules yarn.lock)
 
 YARN-required:
 	@which yarn > /dev/null || ( \
