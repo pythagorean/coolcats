@@ -1,6 +1,6 @@
-use fluent::{FluentBundle, FluentResource};
-use unic_langid::langid;
 use yew::prelude::*;
+
+use super::locales::en::Ftl;
 
 pub struct Home;
 
@@ -21,23 +21,16 @@ impl Component for Home {
 
 impl Renderable<Home> for Home {
     fn view(&self) -> Html<Self> {
-        let ftl_string = "hello-world = Hello, world!".to_string();
-        let res = FluentResource::try_new(ftl_string).expect("Failed to parse an FTL string.");
+        let ftl = Ftl::new();
 
-        let langid_en = langid!("en-US");
-        let mut bundle = FluentBundle::new(&[langid_en]);
-
-        bundle
-            .add_resource(&res)
-            .expect("Failed to add FTL resources to the bundle.");
-
-        let msg = bundle
-            .get_message("hello-world")
+        let msg = ftl
+            .bundle
+            .get_message("compose_form-placeholder")
             .expect("Message doesn't exist.");
         let pattern = msg.value.expect("Message has no value.");
 
         let mut errors = vec![];
-        let value = bundle.format_pattern(&pattern, None, &mut errors);
+        let value = ftl.bundle.format_pattern(&pattern, None, &mut errors);
 
         html! {
             <p>{value}</p>

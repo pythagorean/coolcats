@@ -170,7 +170,7 @@ vm-stop-gabbycat: VAGRANT-required
 vm-clean-gabbycat: VAGRANT-required
 	(cd ui/gabbycat; vagrant destroy)
 
-ui-deploy: ui-deploy-standard
+ui-deploy: ui-deploy-standard ui-deploy-gabbycat
 
 ui-deploy-standard: CARGO-required YARN-required WASM_PACK-required WASM-OPT-recommended
 	(cd ui/standard; yarn -s; rustup run stable yarn deploy)

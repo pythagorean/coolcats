@@ -93,9 +93,9 @@ struct Encoder<R> {
 
 impl<'r, R: Responder<'r>> Responder<'r> for Encoder<R> {
     #[inline(always)]
-    fn respond_to(self, req: &Request) -> response::Result<'r> {
+    fn respond_to(self, request: &Request) -> response::Result<'r> {
         let mut response = Response::build()
-            .merge(self.responder.respond_to(req)?)
+            .merge(self.responder.respond_to(request)?)
             .header(self.content_type)
             .finalize();
         if self.encoding_gzip {

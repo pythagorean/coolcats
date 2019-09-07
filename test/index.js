@@ -578,6 +578,6 @@ runtests.includes('follows') && diorama2.registerScenario('follows', async (s, t
   }
 })
 
-diorama3.run()
-diorama2.run()
+//diorama3.run()
+//diorama2.run()
 diorama1.run()

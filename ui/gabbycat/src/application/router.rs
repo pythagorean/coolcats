@@ -15,5 +15,7 @@ pub fn get() -> (String, String) {
 }
 
 pub fn set(route: &str, route_param: &str) {
-    window().history().push_state({}, "", Some(&format!("{}/{}", route, route_param)));
+    window()
+        .history()
+        .push_state((), "", Some(&format!("{}/{}", route, route_param)));
 }
