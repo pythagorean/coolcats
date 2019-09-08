@@ -13,6 +13,7 @@ opt-level = 's'
 
 [dependencies]
 fluent = "0.7.1"
+serde = { version = "1.0.100", features = ["derive"] }
 stdweb = "0.4.18"
 strum = "0.15.0"
 strum_macros = "0.15.0"

@@ -1,4 +1,5 @@
 pub mod interfaces;
+pub mod resources;
 pub mod root;
 pub mod router;
 
