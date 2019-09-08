@@ -1,6 +1,6 @@
-use yew::prelude::*;
-
+use lazy_static::lazy_static;
 use std::collections::HashMap;
+use yew::prelude::*;
 
 use crate::application::resources;
 
@@ -18,12 +18,11 @@ impl Component for Home {
     type Properties = ();
 
     fn create(_: Self::Properties, mut link: ComponentLink<Self>) -> Self {
-        let resources = resources::Worker::bridge(link.send_back(Msg::Resources));
         let mut component = Self {
-            resources,
+            resources: resources::Worker::bridge(link.send_back(Msg::Resources)),
             locale_values: HashMap::new(),
         };
-        component.initialize();
+        component.request_locale_values();
         component
     }
 
@@ -40,22 +39,26 @@ impl Component for Home {
 }
 
 impl Home {
-    fn initialize(&mut self) {
+    fn request_locale_values(&mut self) {
         self.resources.send(resources::Request::LocaleValues(vec![
             "compose_form-placeholder".into(),
         ]));
+    }
+
+    fn get_locale_value(&self, message_id: &str) -> &String {
+        lazy_static! {
+            static ref EMPTY: String = String::new();
+        }
+        self.locale_values.get(message_id).unwrap_or(&EMPTY)
     }
 }
 
 impl Renderable<Home> for Home {
     fn view(&self) -> Html<Self> {
-        let empty = String::new();
-        let value = self
-            .locale_values
-            .get("compose_form-placeholder")
-            .unwrap_or(&empty);
+        let locale_value = |message_id| self.get_locale_value(message_id);
+
         html! {
-            <p>{value}</p>
+            <p>{locale_value("compose_form-placeholder")}</p>
         }
     }
 }
