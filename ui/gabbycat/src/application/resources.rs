@@ -1,6 +1,7 @@
 use yew::worker::*;
 
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 mod locales;
 use locales::{en, Locale};
@@ -21,7 +22,7 @@ impl Transferable for Request {}
 
 #[derive(Serialize, Deserialize)]
 pub enum Response {
-    LocaleValues(Vec<String>),
+    LocaleValues(HashMap<String, String>),
 }
 
 impl Transferable for Response {}
@@ -42,9 +43,14 @@ impl Agent for Worker {
     fn handle(&mut self, msg: Self::Input, who: HandlerId) {
         match msg {
             Request::LocaleValues(message_ids) => {
-                let values: Vec<String> = message_ids
+                let values: HashMap<String, String> = message_ids
                     .iter()
-                    .map(|message_id| self.locale.get_value(message_id).to_string())
+                    .map(|message_id| {
+                        (
+                            message_id.into(),
+                            self.locale.get_value(message_id).to_string(),
+                        )
+                    })
                     .collect();
                 self.link.response(who, Response::LocaleValues(values));
             }

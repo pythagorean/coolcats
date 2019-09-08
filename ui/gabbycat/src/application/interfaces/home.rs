@@ -1,10 +1,12 @@
 use yew::prelude::*;
 
+use std::collections::HashMap;
+
 use crate::application::resources;
 
 pub struct Home {
     resources: Box<dyn Bridge<resources::Worker>>,
-    values: Vec<String>,
+    locale_values: HashMap<String, String>,
 }
 
 pub enum Msg {
@@ -19,7 +21,7 @@ impl Component for Home {
         let resources = resources::Worker::bridge(link.send_back(Msg::Resources));
         let mut component = Self {
             resources,
-            values: Vec::new(),
+            locale_values: HashMap::new(),
         };
         component.initialize();
         component
@@ -28,9 +30,9 @@ impl Component for Home {
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
             Msg::Resources(response) => match response {
-                resources::Response::LocaleValues(values) => {
-                    self.values = values;
-                    return true;
+                resources::Response::LocaleValues(locale_values) => {
+                    self.locale_values = locale_values;
+                    true
                 }
             },
         }
@@ -47,8 +49,13 @@ impl Home {
 
 impl Renderable<Home> for Home {
     fn view(&self) -> Html<Self> {
+        let empty = String::new();
+        let value = self
+            .locale_values
+            .get("compose_form-placeholder")
+            .unwrap_or(&empty);
         html! {
-            <p>{format!("{:?}", self.values)}</p>
+            <p>{value}</p>
         }
     }
 }
