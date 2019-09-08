@@ -1,12 +1,10 @@
 use fluent::{FluentBundle, FluentResource};
 use unic_langid::langid;
 
-pub struct Ftl {
-    pub bundle: FluentBundle<FluentResource>,
-}
+pub struct Locale;
 
-impl Ftl {
-    pub fn new() -> Self {
+impl Locale {
+    pub fn initialize() -> super::Locale {
         let langid_en = langid!("en-US");
         let mut bundle = FluentBundle::new(&[langid_en]);
         bundle
@@ -15,6 +13,6 @@ impl Ftl {
                     .expect("Failed to parse an FTL string."),
             )
             .expect("Failed to add FTL resources to the bundle.");
-        Ftl { bundle }
+        super::Locale { bundle }
     }
 }

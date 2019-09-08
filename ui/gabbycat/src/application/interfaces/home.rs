@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use super::locales::en::Ftl;
+use super::locales::en;
 
 pub struct Home;
 
@@ -21,16 +21,9 @@ impl Component for Home {
 
 impl Renderable<Home> for Home {
     fn view(&self) -> Html<Self> {
-        let ftl = Ftl::new();
+        let locale = en::Locale::initialize();
 
-        let msg = ftl
-            .bundle
-            .get_message("compose_form-placeholder")
-            .expect("Message doesn't exist.");
-        let pattern = msg.value.expect("Message has no value.");
-
-        let mut errors = vec![];
-        let value = ftl.bundle.format_pattern(&pattern, None, &mut errors);
+        let value = locale.get_value("compose_form-placeholder");
 
         html! {
             <p>{value}</p>
