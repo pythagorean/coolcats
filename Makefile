@@ -181,8 +181,8 @@ vm-stop-gabbycat: VAGRANT-required
 
 vm-clean: vm-clean-gabbycat
 
-vm-clean-gabbycat: VAGRANT-required
-	(cd ui/gabbycat; vagrant destroy -f && rm -rf .vagrant)
+vm-clean-gabbycat:
+	-(cd ui/gabbycat; vagrant destroy -f && rm -rf .vagrant)
 
 ui-deploy: ui-deploy-standard ui-deploy-gabbycat
 

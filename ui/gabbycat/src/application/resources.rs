@@ -14,14 +14,14 @@ pub enum Msg {}
 
 #[derive(Serialize, Deserialize)]
 pub enum Request {
-    LocaleText(String),
+    LocaleValues(Vec<String>),
 }
 
 impl Transferable for Request {}
 
 #[derive(Serialize, Deserialize)]
 pub enum Response {
-    LocaleText(String),
+    LocaleValues(Vec<String>),
 }
 
 impl Transferable for Response {}
@@ -41,9 +41,12 @@ impl Agent for Worker {
 
     fn handle(&mut self, msg: Self::Input, who: HandlerId) {
         match msg {
-            Request::LocaleText(message_id) => {
-                let value = self.locale.get_value(&message_id);
-                self.link.response(who, Response::LocaleText(value.into()));
+            Request::LocaleValues(message_ids) => {
+                let values: Vec<String> = message_ids
+                    .iter()
+                    .map(|message_id| self.locale.get_value(message_id).to_string())
+                    .collect();
+                self.link.response(who, Response::LocaleValues(values));
             }
         }
     }
