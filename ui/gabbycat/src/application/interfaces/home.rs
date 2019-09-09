@@ -2,7 +2,9 @@ use lazy_static::lazy_static;
 use std::collections::HashMap;
 use yew::prelude::*;
 
-use crate::application::resources;
+use crate::application::{interfaces::UsesLocaleValues, resources};
+
+use_locale_values!["compose_form-placeholder"];
 
 pub struct Home {
     resources: Box<dyn Bridge<resources::Worker>>,
@@ -38,11 +40,10 @@ impl Component for Home {
     }
 }
 
-impl Home {
+impl UsesLocaleValues for Home {
     fn request_locale_values(&mut self) {
-        self.resources.send(resources::Request::LocaleValues(vec![
-            "compose_form-placeholder".into(),
-        ]));
+        self.resources
+            .send(resources::Request::LocaleValues(using_locale_values()));
     }
 
     fn get_locale_value(&self, message_id: &str) -> &String {
