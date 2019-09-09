@@ -2,8 +2,9 @@ use lazy_static::*;
 use std::collections::HashMap;
 use yew::prelude::*;
 
-use crate::application::resources;
+use super::components::autosuggest_textarea::AutosuggestTextarea;
 use super::UsesLocaleValues;
+use crate::application::resources;
 
 use_locale_values!["compose_form-placeholder"];
 
@@ -15,9 +16,10 @@ pub struct Home {
 impl Renderable<Home> for Home {
     fn view(&self) -> Html<Self> {
         let locale_value = |message_id| self.get_locale_value(message_id);
+        let placeholder = locale_value("compose_form-placeholder");
 
         html! {
-            <p>{locale_value("compose_form-placeholder")}</p>
+            <AutosuggestTextarea placeholder = placeholder/>
         }
     }
 }
@@ -59,7 +61,7 @@ impl UsesLocaleValues for Home {
 
     fn get_locale_value(&self, message_id: &str) -> &String {
         lazy_static! {
-            static ref EMPTY: String = String::new();
+            static ref EMPTY: String = String::from("EMPTY");
         }
         self.locale_values.get(message_id).unwrap_or(&EMPTY)
     }

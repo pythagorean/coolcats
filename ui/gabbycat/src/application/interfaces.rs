@@ -18,4 +18,5 @@ macro_rules! use_locale_values {
     };
 }
 
+pub mod components;
 pub mod home;
