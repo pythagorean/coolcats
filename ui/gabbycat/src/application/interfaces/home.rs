@@ -1,14 +1,25 @@
-use lazy_static::lazy_static;
+use lazy_static::*;
 use std::collections::HashMap;
 use yew::prelude::*;
 
-use crate::application::{interfaces::UsesLocaleValues, resources};
+use crate::application::resources;
+use super::UsesLocaleValues;
 
 use_locale_values!["compose_form-placeholder"];
 
 pub struct Home {
     resources: Box<dyn Bridge<resources::Worker>>,
     locale_values: HashMap<String, String>,
+}
+
+impl Renderable<Home> for Home {
+    fn view(&self) -> Html<Self> {
+        let locale_value = |message_id| self.get_locale_value(message_id);
+
+        html! {
+            <p>{locale_value("compose_form-placeholder")}</p>
+        }
+    }
 }
 
 pub enum Msg {
@@ -51,15 +62,5 @@ impl UsesLocaleValues for Home {
             static ref EMPTY: String = String::new();
         }
         self.locale_values.get(message_id).unwrap_or(&EMPTY)
-    }
-}
-
-impl Renderable<Home> for Home {
-    fn view(&self) -> Html<Self> {
-        let locale_value = |message_id| self.get_locale_value(message_id);
-
-        html! {
-            <p>{locale_value("compose_form-placeholder")}</p>
-        }
     }
 }
