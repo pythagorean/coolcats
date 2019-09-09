@@ -1,0 +1,23 @@
+input[type='text'],
+textarea {
+	&.standard {
+		box-sizing: border-box;
+		padding: 7px 10px;
+		border: 1px solid;
+		border-radius: 4px;
+		@include font-size(16);
+		@include line-height(18);
+		color: $gab-brand-default;
+		border-color: $gab-placeholder-accent;
+		background: $gab-background-container;
+		@include input-placeholder($gab-placeholder-accent);
+		body.theme-gabsocial-light & {
+			color: $gab-placeholder-accent;
+			border-color: $gab-secondary-text;
+			background: $gab-background-base-light;	
+			@include input-placeholder($gab-secondary-text);
+		}
+		&:focus {outline: none;}
+	}
+}
+textarea.standard {resize: vertical;}
