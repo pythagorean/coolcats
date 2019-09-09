@@ -3,6 +3,11 @@ const {
   entryPoint,
   resolve,
   setOutput,
+  typescript,
+  match,
+  css,
+  sass,
+  file,
   addPlugins,
   env,
   devServer
@@ -19,7 +24,7 @@ const path = require('path');
 const distPath = path.resolve(__dirname, "target/deploy");
 
 module.exports = createConfig([
-  entryPoint('./bootstrap.js'),
+  entryPoint(['./bootstrap.js', './src/runtime.ts']),
   resolve({
     extensions: ['.wasm']
   }),
@@ -29,6 +34,27 @@ module.exports = createConfig([
     filename: 'gabbycat.js',
     webassemblyModuleFilename: 'gabbycat.wasm'
   }),
+  typescript(),
+  match('*.scss', [
+    css({
+      options: {
+        styleLoader: true
+      }
+    }),
+    sass()
+  ]),
+  match(['*.png', '*.svg'], [
+    file({
+      name: '[name].[ext]',
+      outputPath: 'images/'
+    })
+  ]),
+  match(['*.eot', '*.ttf', '*.woff', '*.woff2'], [
+    file({
+      name: '[name].[ext]',
+      outputPath: 'fonts/'
+    })
+  ]),
   addPlugins([
     new CleanWebpackPlugin({
       verbose: true,

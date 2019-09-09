@@ -6,21 +6,6 @@ use super::{interfaces::home::Home, router};
 
 pub struct Root;
 
-pub enum Msg {}
-
-impl Component for Root {
-    type Message = Msg;
-    type Properties = ();
-
-    fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
-        Root {}
-    }
-
-    fn update(&mut self, _msg: Self::Message) -> ShouldRender {
-        false
-    }
-}
-
 #[derive(EnumString, IntoStaticStr)]
 enum Route {
     #[strum(serialize = "/")]
@@ -44,5 +29,20 @@ impl Renderable<Root> for Root {
                 <h1>{"404"}</h1>
             },
         }
+    }
+}
+
+pub enum Msg {}
+
+impl Component for Root {
+    type Message = Msg;
+    type Properties = ();
+
+    fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
+        Root {}
+    }
+
+    fn update(&mut self, _msg: Self::Message) -> ShouldRender {
+        false
     }
 }

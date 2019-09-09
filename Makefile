@@ -108,7 +108,7 @@ presenter-start-gabbycat: ui-deploy-gabbycat
 	@strip presenter/target/release/presenter
 	@echo ""
 	@echo "Files and file sizes to be served:"
-	@wc -c ui/gabbycat/target/deploy/*
+	@du -b ui/gabbycat/target/deploy/*
 	@echo ""
 	presenter/target/release/presenter ui/gabbycat/target/deploy &
 	@sleep 1
@@ -122,6 +122,9 @@ presenter-stop-coolcats: presenter-stop
 presenter-stop-standard: presenter-stop
 
 presenter-stop-gabbycat: presenter-stop
+
+presenter-update: CARGO-required RUST_NIGHTLY-required
+	(cd presenter; cargo +$(RUST_NIGHTLY) update)
 
 presenter-clean:
 	(cd presenter; cargo +stable clean && rm -f Cargo.lock)

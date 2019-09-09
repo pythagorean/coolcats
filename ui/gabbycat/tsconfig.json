@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "outDir": "./target/",
+    "noImplicitAny": true,
+    "module": "es6",
+    "target": "es5",
+    "lib": ["es6", "dom"],
+    "allowJs": true,
+    "skipLibCheck": true
+  }
+}

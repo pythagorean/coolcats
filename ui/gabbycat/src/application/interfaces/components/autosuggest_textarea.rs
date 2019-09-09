@@ -9,7 +9,14 @@ impl Renderable<AutosuggestTextarea> for AutosuggestTextarea {
         let placeholder = &self.placeholder;
 
         html! {
-            <p>{placeholder}</p>
+            <div class="compose-form__autosuggest-wrapper", key="compose-form__autosuggest-wrapper">
+                <div class="autosuggest-textarea">
+                    <label>
+                        <span /*style="display: none;"*/>{placeholder}</span>
+                        //<Textarea placeholder = placeholder/>
+                    </label>
+                </div>
+            </div>
         }
     }
 }
