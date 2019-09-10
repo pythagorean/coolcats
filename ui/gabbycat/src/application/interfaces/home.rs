@@ -61,7 +61,7 @@ impl UsesLocaleValues for Home {
 
     fn get_locale_value(&self, message_id: &str) -> &String {
         lazy_static! {
-            static ref EMPTY: String = String::from("EMPTY");
+            static ref EMPTY: String = String::new();
         }
         self.locale_values.get(message_id).unwrap_or(&EMPTY)
     }

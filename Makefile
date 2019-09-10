@@ -102,14 +102,11 @@ presenter-start-standard: ui-deploy-standard
 	@echo "Presenter started. Run 'make presenter-stop' to stop process."
 
 presenter-start-gabbycat: ui-deploy-gabbycat
-	@echo "Compressing files to reduce bandwidth"; \
-		(cd ui/gabbycat/target/deploy; gzip -9v *.wasm *.js)
+	@echo "Compressing files to reduce bandwidth:"
+	@(cd ui/gabbycat/target/deploy; gzip -9 *.wasm *.js fonts/* images/*.svg)
+	@wc -c ui/gabbycat/target/deploy/*.gz
 	(cd presenter; cargo +$(RUST_NIGHTLY) build --release)
 	@strip presenter/target/release/presenter
-	@echo ""
-	@echo "Files and file sizes to be served:"
-	@du -b ui/gabbycat/target/deploy/*
-	@echo ""
 	presenter/target/release/presenter ui/gabbycat/target/deploy &
 	@sleep 1
 	@echo "Presenter started. Run 'make presenter-stop' to stop process."

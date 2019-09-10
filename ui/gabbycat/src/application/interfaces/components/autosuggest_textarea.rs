@@ -1,5 +1,7 @@
 use yew::prelude::*;
 
+use super::textarea_autosize::TextareaAutosize as Textarea;
+
 pub struct AutosuggestTextarea {
     placeholder: String,
 }
@@ -12,8 +14,12 @@ impl Renderable<AutosuggestTextarea> for AutosuggestTextarea {
             <div class="compose-form__autosuggest-wrapper", key="compose-form__autosuggest-wrapper">
                 <div class="autosuggest-textarea">
                     <label>
-                        <span /*style="display: none;"*/>{placeholder}</span>
-                        //<Textarea placeholder = placeholder/>
+                        <span style="display: none;">{placeholder}</span>
+                        <Textarea
+                            class = "autosuggest-textarea__textarea",
+                            placeholder = placeholder,
+                            aria_autocomplete = "list"
+                        />
                     </label>
                 </div>
             </div>
@@ -25,7 +31,6 @@ pub enum Msg {}
 
 #[derive(PartialEq, Properties)]
 pub struct Props {
-    #[props(required)]
     pub placeholder: String,
 }
 
