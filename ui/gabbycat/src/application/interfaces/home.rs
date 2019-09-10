@@ -58,6 +58,7 @@ impl Component for Home {
                     self.locale_values = locale_values;
                     true
                 }
+                context::Response::StateValues(_) => false,
             },
         }
     }
@@ -66,7 +67,7 @@ impl Component for Home {
 impl UsesLocaleValues for Home {
     fn request_locale_values(&mut self) {
         self.context
-            .send(context::Request::LocaleValues(using_locale_values()));
+            .send(context::Request::GetLocaleValues(using_locale_values()));
     }
 
     fn get_locale_value(&self, message_id: &str) -> &String {
