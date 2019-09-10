@@ -32,7 +32,7 @@ impl Renderable<App> for App {
                 <div class="modal_backdrop">
                     <div class="modal_style">
                         <div align="center">
-                            <p class="h1">{ "Welcome to Coolcats2!" }</p>
+                            <p class="h1">{ "Welcome to Coolcats!" }</p>
                         </div>
                         <Settings counter = self.counter/>
                     </div>
@@ -86,7 +86,7 @@ impl Renderable<App> for App {
                                         {"Follow People"}
                                     </a>
                                     <div id="banner">
-                                        <a href="/">{"Coolcats2 (Clutter)"}</a>
+                                        <a href="/">{"Coolcats (Clutter)"}</a>
                                         <div class="subtitle">{"can haz herd cats?"}</div>
                                     </div>
                                     <div id="content">

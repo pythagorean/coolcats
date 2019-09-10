@@ -1,12 +1,10 @@
 use yew::prelude::*;
 
-use crate::{
-    utils::Dict,
-    application::{
-        Action,
-        context::{self, ContextAgent},
-        state::State,
-    },
+use coolcats_utils::Dict;
+use crate::application::{
+    Action,
+    context::{self, ContextAgent},
+    state::State,
 };
 
 interface_getstates!("handles", "handle", "follows");

@@ -43,12 +43,13 @@ conductor-start: dna ui-deploy HOLOCHAIN_CONDUCTOR-required
 	@mkdir -p /tmp/n3h/1
 	holochain -c conductor/conductor-config-agent1.toml > /tmp/dna-testnet.log 2>&1 &
 	@( tail -f /tmp/dna-testnet.log & ) | grep -q p2p:
-	@mkdir -p /tmp/n3h/2
-	holochain -c conductor/conductor-config-agent2.toml > /tmp/dna-testnet2.log 2>&1 &
-	@( tail -f /tmp/dna-testnet2.log & ) | grep -q p2p:
-	@mkdir -p /tmp/n3h/3
-	holochain -c conductor/conductor-config-agent3.toml > /tmp/dna-testnet3.log 2>&1 &
-	@( tail -f /tmp/dna-testnet3.log & ) | grep -q p2p:
+	# Disabling multiuser testing until lib3h updates are working
+	@#@mkdir -p /tmp/n3h/2
+	@#holochain -c conductor/conductor-config-agent2.toml > /tmp/dna-testnet2.log 2>&1 &
+	@#@( tail -f /tmp/dna-testnet2.log & ) | grep -q p2p:
+	@#@mkdir -p /tmp/n3h/3
+	@#holochain -c conductor/conductor-config-agent3.toml > /tmp/dna-testnet3.log 2>&1 &
+	@#@( tail -f /tmp/dna-testnet3.log & ) | grep -q p2p:
 	@echo Conductor started. Logfiles in /tmp. Run \'make stop\' to stop processes.
 
 conductor-stop:
@@ -87,14 +88,14 @@ presenter-start: presenter-start-standard
 
 presenter-start-standard: ui-deploy-standard
 	@echo "Compressing files to reduce bandwidth"; \
-		(cd ui/standard/target/deploy; gzip -9v *.wasm *.js)
+		(cd ui/target/deploy; gzip -9v *.wasm *.js)
 	(cd presenter; cargo +stable build --release)
 	@strip presenter/target/release/presenter
 	@echo ""
 	@echo "Files and file sizes to be served:"
-	@wc -c ui/standard/target/deploy/*
+	@wc -c ui/target/deploy/*
 	@echo ""
-	presenter/target/release/presenter ui/standard/target/deploy &
+	presenter/target/release/presenter ui/target/deploy &
 	@echo "Presenter started. Run 'make presenter-stop' to stop process."
 	@sleep 1
 
@@ -134,7 +135,7 @@ ui-deploy: ui-deploy-standard
 
 ui-deploy-standard: CARGO-required YARN-required WASM_PACK-required WASM-OPT-recommended
 	(cd ui/standard; yarn -s; rustup run stable yarn deploy)
-	@for file in ui/standard/target/deploy/*.wasm; \
+	@for file in ui/target/deploy/*.wasm; \
 		do \
 			echo "Optimizing wasm to save space, size shown before and after:"; \
 			wc -c $$file; \
@@ -151,7 +152,7 @@ ui-update-standard: CARGO-required YARN-required
 ui-clean: ui-clean-standard
 
 ui-clean-standard: CARGO-required
-	(cd ui/standard; cargo +stable clean && rm -f Cargo.lock)
+	(cd ui; cargo +stable clean && rm -f Cargo.lock)
 	(cd ui/standard; rm -rf pkg node_modules yarn.lock)
 
 YARN-required:

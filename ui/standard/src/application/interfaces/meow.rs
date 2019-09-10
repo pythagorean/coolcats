@@ -1,7 +1,8 @@
 use stdweb::web::Date;
 use yew::prelude::*;
 
-use crate::{utils::Dict, application::interfaces::faves::Faves};
+use coolcats_utils::Dict;
+use crate::application::interfaces::faves::Faves;
 
 pub struct Meow {
     counter: u32,

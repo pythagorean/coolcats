@@ -1,4 +1,4 @@
-use crate::utils::{DictValue, DictItem, DictList};
+use coolcats_utils::{DictValue, DictItem, DictList};
 
 #[derive(PartialEq, Clone)]
 pub enum Args {

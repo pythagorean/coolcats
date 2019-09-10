@@ -1,8 +1,8 @@
 use yew::prelude::*;
-
 use serde::Deserialize;
 
-use crate::{application::ToApplication, utils::DictItem};
+use coolcats_utils::DictItem;
+use crate::{application::ToApplication};
 
 use super::{
     websocket::{WebSocketService, WebSocketStatus},

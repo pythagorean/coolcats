@@ -1,0 +1,9 @@
+[package]
+name = "coolcats-utils"
+version = "0.2.0"
+authors = ["Michael Goldman <mike.goldman@allstreets.org>"]
+edition = "2018"
+
+[dependencies]
+lazy_static = "1.4.0"
+serde = { version = "1.0.100", features = ["derive"] }

@@ -1,7 +1,7 @@
+use lazy_static::*;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::collections::HashSet;
-
-use serde::{Serialize, Deserialize};
 
 pub type DictKey = String;
 

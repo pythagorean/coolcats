@@ -9,7 +9,6 @@ extern crate lazy_static;
 
 mod holoclient;
 mod application;
-mod utils;
 mod model;
 
 use wasm_bindgen::prelude::*;

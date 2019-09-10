@@ -9,13 +9,10 @@ use yew::{
     prelude::*,
     services::{ConsoleService, DialogService, IntervalService, Task},
 };
-
 use yew_router::{routes, Route, RouterAgent};
 
-use crate::{
-    utils::{Dict, DictItem},
-    holoclient::ToHoloclient,
-};
+use coolcats_utils::{Dict, DictItem};
+use crate::holoclient::ToHoloclient;
 
 use super::{
     context::{self, ContextAgent},
@@ -515,12 +512,12 @@ impl Root {
             self.state.subset(&["app_properties", "handle", "first_name", "profile_pic"]);
         window()
             .local_storage()
-            .insert("coolcats2_state", &serde_json::to_string(&substate).unwrap())
+            .insert("coolcats_state", &serde_json::to_string(&substate).unwrap())
             .unwrap();
     }
 
     fn load_profile(&mut self) {
-        if let Some(state) = window().local_storage().get("coolcats2_state") {
+        if let Some(state) = window().local_storage().get("coolcats_state") {
             let substate: State = serde_json::from_str(&state).unwrap();
             self.state.merge(&substate);
         }

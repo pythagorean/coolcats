@@ -8,8 +8,8 @@ keystore_file = "conductor/agent2.keystore"
 # -----------  DNA  -----------
 [[dnas]]
 id = "coolcats_dna"
-file = "dist/coolcats2.dna.json"
-hash = "QmNhzHhnJPamSSCXJRFYM2HtK7vzLFoDjG9drW9bQDuEGz"
+file = "dist/coolcats.dna.json"
+hash = "QmSWPkxapsvSJKZMtagXdxBsPEi7Lb48PwA9Aya5E7DLh8"
 
 [[instances]]
 id = "coolcats_instance2"
@@ -28,12 +28,12 @@ id = "coolcats_instance2"
 
 # -----------  UI  -----------
 [[ui_bundles]]
-id = "coolcats2_ui"
+id = "coolcats_ui2"
 root_dir = "ui/target/deploy"
 
 [[ui_interfaces]]
 id = "ui-interface2"
-bundle = "coolcats2_ui"
+bundle = "coolcats_ui2"
 port = 8001
 dna_interface = "websocket_interface2"
 

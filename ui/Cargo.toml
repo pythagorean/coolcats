@@ -1,0 +1,6 @@
+[workspace]
+members = ["standard", "utils"]
+
+[profile.release]
+codegen-units = 1
+opt-level = 's'

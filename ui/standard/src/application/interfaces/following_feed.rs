@@ -4,14 +4,12 @@ use yew::{
     services::{IntervalService, Task},
 };
 
-use crate::{
-    utils::Dict,
-    application::{
-        Action,
-        context::{self, ContextAgent},
-        state::State,
-        interfaces::meow::Meow,
-    },
+use coolcats_utils::Dict;
+use crate::application::{
+    Action,
+    context::{self, ContextAgent},
+    state::State,
+    interfaces::meow::Meow,
 };
 
 interface_getstates!("connected", "handles", "handle", "follows", "posts");
