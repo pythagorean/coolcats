@@ -1,10 +1,8 @@
-use yew::worker::*;
-
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use yew::worker::*;
 
-mod locales;
-use locales::{en, Locale};
+use super::resources::locales::{en, Locale};
 
 pub struct Worker {
     link: AgentLink<Worker>,

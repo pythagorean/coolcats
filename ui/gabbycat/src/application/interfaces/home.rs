@@ -4,12 +4,12 @@ use yew::prelude::*;
 
 use super::components::{autosuggest_textarea::AutosuggestTextarea, upload_form::UploadForm};
 use super::UsesLocaleValues;
-use crate::application::resources;
+use crate::application::context;
 
 use_locale_values!["compose_form-placeholder"];
 
 pub struct Home {
-    resources: Box<dyn Bridge<resources::Worker>>,
+    context: Box<dyn Bridge<context::Worker>>,
     locale_values: HashMap<String, String>,
 }
 
@@ -35,7 +35,7 @@ impl Renderable<Home> for Home {
 }
 
 pub enum Msg {
-    Resources(resources::Response),
+    Context(context::Response),
 }
 
 impl Component for Home {
@@ -44,7 +44,7 @@ impl Component for Home {
 
     fn create(_: Self::Properties, mut link: ComponentLink<Self>) -> Self {
         let mut component = Self {
-            resources: resources::Worker::bridge(link.send_back(Msg::Resources)),
+            context: context::Worker::bridge(link.send_back(Msg::Context)),
             locale_values: HashMap::new(),
         };
         component.request_locale_values();
@@ -53,8 +53,8 @@ impl Component for Home {
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Msg::Resources(response) => match response {
-                resources::Response::LocaleValues(locale_values) => {
+            Msg::Context(response) => match response {
+                context::Response::LocaleValues(locale_values) => {
                     self.locale_values = locale_values;
                     true
                 }
@@ -65,8 +65,8 @@ impl Component for Home {
 
 impl UsesLocaleValues for Home {
     fn request_locale_values(&mut self) {
-        self.resources
-            .send(resources::Request::LocaleValues(using_locale_values()));
+        self.context
+            .send(context::Request::LocaleValues(using_locale_values()));
     }
 
     fn get_locale_value(&self, message_id: &str) -> &String {

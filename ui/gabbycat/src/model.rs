@@ -19,7 +19,7 @@ impl Component for Model {
     type Properties = ();
 
     fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
-        Model {}
+        Self
     }
 
     fn update(&mut self, _msg: Self::Message) -> ShouldRender {

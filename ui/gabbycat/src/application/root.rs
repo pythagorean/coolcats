@@ -39,7 +39,7 @@ impl Component for Root {
     type Properties = ();
 
     fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
-        Root {}
+        Self
     }
 
     fn update(&mut self, _msg: Self::Message) -> ShouldRender {
