@@ -2,7 +2,7 @@ use lazy_static::*;
 use std::collections::HashMap;
 use yew::prelude::*;
 
-use super::components::autosuggest_textarea::AutosuggestTextarea;
+use super::components::{autosuggest_textarea::AutosuggestTextarea, upload_form::UploadForm};
 use super::UsesLocaleValues;
 use crate::application::resources;
 
@@ -17,9 +17,19 @@ impl Renderable<Home> for Home {
     fn view(&self) -> Html<Self> {
         let locale_value = |message_id| self.get_locale_value(message_id);
         let placeholder = locale_value("compose_form-placeholder");
+        let condensed = false;
+        let edit = false;
 
         html! {
-            <AutosuggestTextarea placeholder = placeholder/>
+            <div class="compose-form__autosuggest-wrapper", key="compose-form__autosuggest-wrapper">
+                <AutosuggestTextarea placeholder = placeholder/>
+                {if !condensed { html! {
+                    <div class = "compose-form__modifiers">
+                        <UploadForm />
+                        {if !edit { html! {/*<PollForm />*/}} else { html! {} }}
+                    </div>
+                }} else { html! {} }}
+            </div>
         }
     }
 }

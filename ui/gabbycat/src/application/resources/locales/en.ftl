@@ -1,3 +1,4 @@
+# https://projectfluent.org/fluent/guide/
 account-add_or_remove_from_list = Add or Remove from lists
 account-badges-bot = Bot
 account-block = Block @{name}
