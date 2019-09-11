@@ -148,6 +148,9 @@ ui-build-gabbycat: YARN-required WASM_PACK-required
 vm-build-gabbycat: VAGRANT-required
 	(cd ui/gabbycat; vagrant up)
 
+docker-build-gabbycat: DOCKER-required
+	(cd ui/gabbycat; docker build -t gabbycat .)
+
 ui-fmt: ui-fmt-standard ui-fmt-gabbycat
 
 ui-fmt-coolcats: ui-fmt-standard
@@ -184,13 +187,24 @@ vm-start-gabbycat: vm-build-gabbycat
 	(cd ui/gabbycat; vagrant ssh -c "cd /vagrant && yarn start" &)
 	@sleep 60
 
+docker-start-gabbycat: docker-build-gabbycat
+	(cd ui/gabbycat; docker run -p 8000:8000 -d -P gabbycat)
+
 vm-stop-gabbycat: VAGRANT-required
 	(cd ui/gabbycat; vagrant halt)
+
+docker-stop-gabbycat: DOCKER-required
+	(cd ui/gabbycat; \
+		docker stop `docker ps -a -q --filter ancestor=gabbycat` && \
+		docker rm `docker ps -a -q --filter ancestor=gabbycat`)
 
 vm-clean: vm-clean-gabbycat
 
 vm-clean-gabbycat:
 	-(cd ui/gabbycat; vagrant destroy -f && rm -rf .vagrant)
+
+docker-clean-gabbycat: docker-stop-gabbycat
+	(cd ui/gabbycat; docker rmi gabbycat)
 
 ui-deploy: ui-deploy-standard ui-deploy-gabbycat
 
@@ -327,6 +341,14 @@ VAGRANT-required:
 	@which vagrant > /dev/null || ( \
 		echo "Vagrant needs to be installed:"; \
 		echo "https://www.vagrantup.com/downloads.html"; \
+		echo ""; \
+		false; \
+	)
+
+DOCKER-required:
+	@which docker > /dev/null || ( \
+		echo "Docker needs to be installed:"; \
+		echo "https://www.docker.com/products/docker-desktop"; \
 		echo ""; \
 		false; \
 	)
