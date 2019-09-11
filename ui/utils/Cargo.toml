@@ -6,4 +6,4 @@ edition = "2018"
 
 [dependencies]
 lazy_static = "1.4.0"
-serde = { version = "1.0.100", features = ["derive"] }
+serde = "1.0.100"

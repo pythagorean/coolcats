@@ -229,7 +229,7 @@ ui-update-gabbycat: CARGO-required YARN-required
 ui-clean: ui-clean-standard ui-clean-gabbycat
 
 ui-clean-standard: CARGO-required
-	(cd ui/standard; cargo +stable clean && rm -f Cargo.lock)
+	(cd ui; cargo +stable clean && rm -f Cargo.lock)
 	(cd ui/standard; rm -rf pkg node_modules yarn.lock)
 
 ui-clean-gabbycat: CARGO-required
