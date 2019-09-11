@@ -53,10 +53,7 @@ impl Agent for Worker {
                 let values: HashMap<String, String> = message_ids
                     .iter()
                     .map(|message_id| {
-                        (
-                            message_id.into(),
-                            self.locale.get_value(message_id).to_string(),
-                        )
+                        (message_id.into(), self.locale.get_value(message_id).to_string())
                     })
                     .collect();
                 self.link.response(who, Response::LocaleValues(values));

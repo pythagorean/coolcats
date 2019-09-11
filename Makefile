@@ -90,14 +90,14 @@ presenter-start-coolcats: presenter-start-standard
 
 presenter-start-standard: ui-deploy-standard
 	@echo "Compressing files to reduce bandwidth"; \
-		(cd ui/standard/target/deploy; gzip -9v *.wasm *.js)
+		(cd ui/target/deploy; gzip -9v *.wasm *.js)
 	(cd presenter; cargo +$(RUST_NIGHTLY) build --release)
 	@strip presenter/target/release/presenter
 	@echo ""
 	@echo "Files and file sizes to be served:"
 	@wc -c ui/target/deploy/*
 	@echo ""
-	presenter/target/release/presenter ui/standard/target/deploy &
+	presenter/target/release/presenter ui/target/deploy &
 	@sleep 1
 	@echo "Presenter started. Run 'make presenter-stop' to stop process."
 
@@ -148,9 +148,17 @@ ui-build-gabbycat: YARN-required WASM_PACK-required
 vm-build-gabbycat: VAGRANT-required
 	(cd ui/gabbycat; vagrant up)
 
-ui-fmt: CARGO-DO-required RUST-FMT-required CARGO-TOMLFMT-required JS-BEAUTIFY-required
-	for ui in ui/*; do (cd $$ui; cargo +stable do fmt, tomlfmt); done
-	for js in ui/*/*.js; do js-beautify -r -s 2 -n $$js || true; done
+ui-fmt: ui-fmt-standard ui-fmt-gabbycat
+
+ui-fmt-coolcats: ui-fmt-standard
+
+ui-fmt-standard: CARGO-DO-required RUST-FMT-required CARGO-TOMLFMT-required JS-BEAUTIFY-required
+	(cd ui; cargo +stable do fmt, tomlfmt)
+	for js in ui/standard/*.js; do js-beautify -r -s 2 -n $$js || true; done
+
+ui-fmt-gabbycat: CARGO-DO-required RUST-FMT-required CARGO-TOMLFMT-required JS-BEAUTIFY-required
+	(cd ui/gabbycat; cargo +stable do fmt, tomlfmt)
+	for js in ui/gabbycat/*.js; do js-beautify -r -s 2 -n $$js || true; done
 
 ui-lint: ui-lint-standard ui-lint-gabbycat
 
@@ -190,7 +198,7 @@ ui-deploy-coolcats: ui-deploy-standard
 
 ui-deploy-standard: CARGO-required YARN-required WASM_PACK-required WASM-OPT-recommended
 	(cd ui/standard; yarn -s; rustup run stable yarn deploy)
-	@for file in ui/standard/target/deploy/*.wasm; \
+	@for file in ui/target/deploy/*.wasm; \
 		do \
 			echo "Optimizing wasm to save space, size shown before and after:"; \
 			wc -c $$file; \

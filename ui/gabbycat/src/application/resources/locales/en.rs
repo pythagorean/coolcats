@@ -13,6 +13,8 @@ impl Locale {
                     .expect("Failed to parse an FTL string."),
             )
             .expect("Failed to add FTL resources to the bundle.");
-        super::Locale { bundle }
+        super::Locale {
+            bundle,
+        }
     }
 }

@@ -1,4 +1,5 @@
 [workspace]
+exclude = ["gabbycat"]
 members = ["standard", "utils"]
 
 [profile.release]
