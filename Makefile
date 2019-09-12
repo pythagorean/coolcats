@@ -31,7 +31,7 @@ update-cli: CARGO-required RUST_NIGHTLY-required
 update-conductor: CARGO-required RUST_NIGHTLY-required
 	cargo +$(RUST_NIGHTLY) install holochain --force --git https://github.com/holochain/holochain-rust.git
 
-clean: dna-clean ui-clean vm-clean presenter-clean
+clean: dna-clean ui-clean vm-clean docker-clean presenter-clean
 
 build: dna-build ui-build
 
@@ -103,11 +103,11 @@ presenter-start-standard: ui-deploy-standard
 
 presenter-start-gabbycat: ui-deploy-gabbycat
 	@echo "Compressing files to reduce bandwidth:"
-	@(cd ui/gabbycat/target/deploy; gzip -9 *.wasm *.js fonts/* images/*.svg)
-	@wc -c ui/gabbycat/target/deploy/*.gz
+	@(cd ui/target/deploy; gzip -9 *.wasm *.js fonts/* images/*.svg)
+	@wc -c ui/target/deploy/*.gz
 	(cd presenter; cargo +$(RUST_NIGHTLY) build --release)
 	@strip presenter/target/release/presenter
-	presenter/target/release/presenter ui/gabbycat/target/deploy &
+	presenter/target/release/presenter ui/target/deploy &
 	@sleep 1
 	@echo "Presenter started. Run 'make presenter-stop' to stop process."
 
@@ -184,7 +184,7 @@ ui-start-gabbycat: CARGO-required YARN-required WASM_PACK-required
 	(cd ui/gabbycat; yarn -s; rustup run stable yarn start)
 
 vm-start-gabbycat: vm-build-gabbycat
-	(cd ui/gabbycat; vagrant ssh -c "cd /vagrant && yarn start" &)
+	(cd ui/gabbycat; vagrant ssh -c "cd /vagrant/gabbycat && yarn start" &)
 	@sleep 60
 
 docker-start-gabbycat: docker-build-gabbycat
@@ -195,34 +195,33 @@ vm-stop-gabbycat: VAGRANT-required
 
 docker-stop-gabbycat: DOCKER-required
 	(cd ui/gabbycat; \
-		docker stop `docker ps -a -q --filter ancestor=gabbycat` && \
-		docker rm `docker ps -a -q --filter ancestor=gabbycat`)
+		docker stop `docker ps -a -q --filter ancestor=gabbycat` || true; \
+		docker rm `docker ps -a -q --filter ancestor=gabbycat` || true)
 
 vm-clean: vm-clean-gabbycat
 
 vm-clean-gabbycat:
 	-(cd ui/gabbycat; vagrant destroy -f && rm -rf .vagrant)
 
-docker-clean-gabbycat: docker-stop-gabbycat
-	(cd ui/gabbycat; docker rmi gabbycat)
+docker-clean: docker-clean-gabbycat
 
-ui-deploy: ui-deploy-standard ui-deploy-gabbycat
+docker-clean-gabbycat: docker-stop-gabbycat
+	-(cd ui/gabbycat; docker rmi gabbycat)
+
+ui-deploy: ui-deploy-standard
 
 ui-deploy-coolcats: ui-deploy-standard
 
 ui-deploy-standard: CARGO-required YARN-required WASM_PACK-required WASM-OPT-recommended
 	(cd ui/standard; yarn -s; rustup run stable yarn deploy)
-	@for file in ui/target/deploy/*.wasm; \
-		do \
-			echo "Optimizing wasm to save space, size shown before and after:"; \
-			wc -c $$file; \
-			wasm-opt -Os -o $$file.new $$file && mv -f $$file.new $$file; \
-			wc -c $$file; \
-		done
+	make ui-optimize-deployment
 
 ui-deploy-gabbycat: CARGO-required YARN-required WASM_PACK-required WASM-OPT-recommended
 	(cd ui/gabbycat; yarn -s; rustup run stable yarn run webpack -p --mode production)
-	@for file in ui/gabbycat/target/deploy/*.wasm; \
+	make ui-optimize-deployment
+
+ui-optimize-deployment: WASM-OPT-recommended
+	@for file in ui/target/deploy/*.wasm; \
 		do \
 			echo "Optimizing wasm to save space, size shown before and after:"; \
 			wc -c $$file; \
@@ -241,13 +240,12 @@ ui-update-gabbycat: CARGO-required YARN-required
 	-(cd ui/gabbycat; yarn -s; yarn -s upgrade --latest)
 
 ui-clean: ui-clean-standard ui-clean-gabbycat
+	(cd ui; cargo +stable clean && rm -f Cargo.lock)
 
 ui-clean-standard: CARGO-required
-	(cd ui; cargo +stable clean && rm -f Cargo.lock)
 	(cd ui/standard; rm -rf pkg node_modules yarn.lock)
 
 ui-clean-gabbycat: CARGO-required
-	(cd ui/gabbycat; cargo +stable clean && rm -f Cargo.lock)
 	(cd ui/gabbycat; rm -rf pkg node_modules yarn.lock)
 
 YARN-required:

@@ -8,7 +8,8 @@ $provision = <<SCRIPT
 # Update our package database
 sudo apt-get update
 
-cd /vagrant # This is where the host folder/repo is mounted
+cd /vagrant/gabbycat # This is where the host folder/repo is mounted
+sudo chown vagrant.vagrant /vagrant # So we can create other dirs
 
 # Add the yarn repo + yarn repo keys
 curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
@@ -57,7 +58,7 @@ Vagrant.configure("2") do |config|
   end
 
   # Use rsync for Rust not to have errors building things with vboxsf
-  config.vm.synced_folder ".", "/vagrant", type: "rsync",
+  config.vm.synced_folder ".", "/vagrant/gabbycat", type: "rsync",
     rsync__exclude: [".git/", "node_modules/", "pkg/", "target/", "yarn.lock", "Cargo.lock"]
 
   # Automatically rsync transfer to running Vagrant when updates made locally
@@ -99,7 +100,7 @@ Vagrant.configure("2") do |config|
     trigger.info = "Vagrant is up"
     trigger.ruby do |env,machine|
       puts 'To start server'
-      puts '  $ vagrant ssh -c "cd /vagrant && yarn start"'
+      puts '  $ vagrant ssh -c "cd /vagrant/gabbycat && yarn start"'
     end
   end
 

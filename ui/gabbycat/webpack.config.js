@@ -21,7 +21,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlBeautifyPlugin = require('html-beautify-webpack-plugin');
 
 const path = require('path');
-const distPath = path.resolve(__dirname, "target/deploy");
+const distPath = path.resolve(__dirname, "../target/deploy");
 
 module.exports = createConfig([
   entryPoint(['./bootstrap.js', './src/runtime.ts']),
@@ -57,8 +57,10 @@ module.exports = createConfig([
   ]),
   addPlugins([
     new CleanWebpackPlugin({
+      dry: false,
       verbose: true,
       cleanOnceBeforeBuildPatterns: [distPath],
+      dangerouslyAllowCleanPatternsOutsideProject: true,
     }),
     new WasmPackPlugin({
       crateDirectory: '.',

@@ -23,8 +23,10 @@ RUN apt-get install -y \
 
 # Drop to user privileges now that system is updated
 RUN useradd -ms /bin/bash docker
+RUN mkdir -p /home/docker/gabbycat
+RUN chown -R docker /home/docker
+WORKDIR /home/docker/gabbycat
 USER docker
-WORKDIR /home/docker
 
 # Install Rust + wasm-pack
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh /dev/stdin -y

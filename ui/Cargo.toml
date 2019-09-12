@@ -1,6 +1,5 @@
 [workspace]
-exclude = ["gabbycat"]
-members = ["standard", "utils"]
+members = ["gabbycat", "standard", "utils"]
 
 [profile.release]
 codegen-units = 1
