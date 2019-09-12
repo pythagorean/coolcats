@@ -1,15 +1,16 @@
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+
+use coolcats_utils::Dict;
 
 #[derive(Serialize, Deserialize)]
-pub struct State(HashMap<String, String>);
+pub struct State(Dict);
 
 impl State {
     pub fn initialize() -> Self {
-        Self(HashMap::new())
+        Self(Dict::new())
     }
 
-    pub fn substate(&self, _keys: &[&str]) -> Self {
-        Self(HashMap::new())
+    pub fn substate(&self, keys: &[&str]) -> Self {
+        Self(self.0.subset(keys))
     }
 }

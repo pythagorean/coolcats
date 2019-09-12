@@ -61,6 +61,8 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder ".", "/vagrant/gabbycat", type: "rsync",
     rsync__exclude: [".git/", "node_modules/", "pkg/", "target/", "yarn.lock", "Cargo.lock"]
 
+  config.vm.synced_folder "../utils", "/vagrant/utils", type: "rsync"
+
   # Automatically rsync transfer to running Vagrant when updates made locally
   config.trigger.after :up do |trigger|
     trigger.info = "start rsync auto"

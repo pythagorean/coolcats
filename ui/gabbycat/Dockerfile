@@ -1,5 +1,4 @@
 FROM ubuntu:bionic
-EXPOSE 8000
 
 # Update our package database and add installation prerequisites
 RUN apt-get update && apt-get install -y \
@@ -22,10 +21,9 @@ RUN apt-get install -y \
   && apt-get clean
 
 # Drop to user privileges now that system is updated
-RUN useradd -ms /bin/bash docker
-RUN mkdir -p /home/docker/gabbycat
-RUN chown -R docker /home/docker
-WORKDIR /home/docker/gabbycat
+RUN useradd -ms /bin/bash docker \
+  && mkdir -p /home/docker/gabbycat \
+  && chown -R docker /home/docker
 USER docker
 
 # Install Rust + wasm-pack
@@ -34,6 +32,9 @@ ENV PATH="/home/docker/.cargo/bin:${PATH}"
 RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
 # Copy the local files
+WORKDIR /home/docker
+COPY ./tmp/utils/ ./utils/
+WORKDIR /home/docker/gabbycat
 COPY Cargo.toml bootstrap.js package.json tsconfig.json webpack.config.js ./
 COPY ./src/ ./src/
 
@@ -43,5 +44,6 @@ RUN yarn install
 # Build gabbycat
 RUN yarn build
 
+# Prepared for docker run
 ENTRYPOINT yarn start
-RUN echo "To start server:" && echo "  $ docker run -p 8000:8000 -P gabbycat"
+EXPOSE 8000

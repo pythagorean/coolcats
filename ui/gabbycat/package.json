@@ -2,7 +2,9 @@
   "private": true,
   "scripts": {
     "build": "webpack -d --mode development",
-    "start": "webpack-dev-server -d --mode development --watch"
+    "start": "webpack-dev-server -d --mode development --watch",
+    "docker-build": "mkdir -p tmp && cp -r ../utils tmp && docker build -t gabbycat . && rm -rf tmp/utils",
+    "docker-run": "docker run -p 8000:8000 -d -P gabbycat"
   },
   "devDependencies": {
     "@wasm-tool/wasm-pack-plugin": "^1.0.1",

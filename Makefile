@@ -149,7 +149,7 @@ vm-build-gabbycat: VAGRANT-required
 	(cd ui/gabbycat; vagrant up)
 
 docker-build-gabbycat: DOCKER-required
-	(cd ui/gabbycat; docker build -t gabbycat .)
+	(cd ui/gabbycat; yarn docker-build)
 
 ui-fmt: ui-fmt-standard ui-fmt-gabbycat
 
@@ -188,7 +188,7 @@ vm-start-gabbycat: vm-build-gabbycat
 	@sleep 60
 
 docker-start-gabbycat: docker-build-gabbycat
-	(cd ui/gabbycat; docker run -p 8000:8000 -d -P gabbycat)
+	(cd ui/gabbycat; yarn docker-run)
 
 vm-stop-gabbycat: VAGRANT-required
 	(cd ui/gabbycat; vagrant halt)
@@ -246,7 +246,7 @@ ui-clean-standard: CARGO-required
 	(cd ui/standard; rm -rf pkg node_modules yarn.lock)
 
 ui-clean-gabbycat: CARGO-required
-	(cd ui/gabbycat; rm -rf pkg node_modules yarn.lock)
+	(cd ui/gabbycat; rm -rf pkg node_modules yarn.lock tmp)
 
 YARN-required:
 	@which yarn > /dev/null || ( \
