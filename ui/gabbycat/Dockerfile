@@ -45,5 +45,5 @@ RUN yarn install
 RUN yarn build
 
 # Prepared for docker run
-ENTRYPOINT yarn start
 EXPOSE 8000
+ENTRYPOINT yarn start

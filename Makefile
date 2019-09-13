@@ -1,7 +1,7 @@
 HC_VERSION = 0.0.29-alpha2
 RUST_NIGHTLY = nightly-2019-07-14
 
-all: dna ui
+default: dna ui
 
 fmt: dna-fmt ui-fmt
 
@@ -84,15 +84,19 @@ dna-clean:
 	(cd test; rm -rf node_modules package-lock.json)
 	find . -name *.dna.json -exec rm {} +
 
+presenter: presenter-build
+
+presenter-build: CARGO-required RUST_NIGHTLY-required
+	(cd presenter; cargo +$(RUST_NIGHTLY) build --release)
+	@strip presenter/target/release/presenter
+
 presenter-start: presenter-start-standard
 
 presenter-start-coolcats: presenter-start-standard
 
-presenter-start-standard: ui-deploy-standard
+presenter-start-standard: presenter ui-deploy-standard
 	@echo "Compressing files to reduce bandwidth"; \
 		(cd ui/target/deploy; gzip -9v *.wasm *.js)
-	(cd presenter; cargo +$(RUST_NIGHTLY) build --release)
-	@strip presenter/target/release/presenter
 	@echo ""
 	@echo "Files and file sizes to be served:"
 	@wc -c ui/target/deploy/*
@@ -101,12 +105,10 @@ presenter-start-standard: ui-deploy-standard
 	@sleep 1
 	@echo "Presenter started. Run 'make presenter-stop' to stop process."
 
-presenter-start-gabbycat: ui-deploy-gabbycat
+presenter-start-gabbycat: presenter ui-deploy-gabbycat
 	@echo "Compressing files to reduce bandwidth:"
-	@(cd ui/target/deploy; gzip -9 *.wasm *.js fonts/* images/*.svg)
+	@(cd ui/target/deploy; gzip -9 *.wasm *.js fonts/* */*.svg)
 	@wc -c ui/target/deploy/*.gz
-	(cd presenter; cargo +$(RUST_NIGHTLY) build --release)
-	@strip presenter/target/release/presenter
 	presenter/target/release/presenter ui/target/deploy &
 	@sleep 1
 	@echo "Presenter started. Run 'make presenter-stop' to stop process."

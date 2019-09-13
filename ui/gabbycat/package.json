@@ -3,7 +3,7 @@
   "scripts": {
     "build": "webpack -d --mode development",
     "start": "webpack-dev-server -d --mode development --watch",
-    "docker-build": "mkdir -p tmp && cp -r ../utils tmp && docker build -t gabbycat . && rm -rf tmp/utils",
+    "docker-build": "mkdir -p tmp && rm -rf tmp/utils && cp -r ../utils tmp && docker build -t gabbycat .; rm -rf tmp/utils",
     "docker-run": "docker run -p 8000:8000 -d -P gabbycat"
   },
   "devDependencies": {
@@ -17,5 +17,8 @@
     "webpack-blocks": "^2.0.1",
     "webpack-cli": "^3.3.8",
     "webpack-dev-server": "^3.8.0"
+  },
+  "dependencies": {
+    "text-encoder-lite": "^2.0.0"
   }
 }
