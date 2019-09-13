@@ -17,6 +17,11 @@ impl Renderable<Home> for Home {
     fn view(&self) -> Html<Self> {
         let locale_value = |message_id| self.get_locale_value(message_id);
         let placeholder = locale_value("compose_form-placeholder");
+
+        if placeholder.is_empty() {
+            return html! {};
+        }
+
         let condensed = false;
         let edit = false;
 
@@ -58,7 +63,7 @@ impl Component for Home {
                     self.locale_values = locale_values;
                     true
                 }
-                context::Response::StateValues(_) => false,
+                context::Response::Substate(_) => false,
             },
         }
     }

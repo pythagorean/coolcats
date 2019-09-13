@@ -1,32 +1,43 @@
 use yew::prelude::*;
 
 use crate::application::{context, interfaces::UsesStateValues, state::State};
-use super::upload_progress::UploadProgress;
 
-use_state_values!("media_attachments");
+use_state_values!("is_uploading", "progress");
 
-pub struct UploadForm {
+pub struct UploadProgress {
     context: Box<dyn Bridge<context::Worker>>,
     substate: State,
 }
 
-impl Renderable<UploadForm> for UploadForm {
+impl Renderable<UploadProgress> for UploadProgress {
     fn view(&self) -> Html<Self> {
-        let media_ids = self.substate.strings("media_attachments");
+        let active = self.substate.bool("is_uploading");
+
+        if !active {
+            return html! {};
+        }
+
+        let progress = self.substate.integer("progress");
 
         html! {
-            <div class = "compose-form__upload-wrapper">
-                <UploadProgress />
-
-                <div class = "compose-form__uploads-wrapper">
-                    /*
-                    {mediaIds.map(id => (
-                      <UploadContainer id={id} key={id} />
-                    ))}
-                    */
+            <div class = "upload-progress">
+                <div class = "upload-progress__icon">
+                    /*<Icon id="upload" />*/
                 </div>
 
-                {if !media_ids.is_empty() { html! {/*<SensitiveButton />*/}} else { html! {} }}
+                <div class = "upload-progress__message">
+                    /*<FormattedMessage id = "upload-progress.label", default_message = "Uploading..." />*/
+
+                    <div class = "upload-progress__backdrop">
+                        /*
+                        <Motion defaultStyle={{ width: 0 }} style={{ width: spring(progress) }}>
+                          {({ width }) =>
+                            <div className='upload-progress__tracker' style={{ width: `${width}%` }} />
+                          }
+                        </Motion>
+                        */
+                    </div>
+                </div>
             </div>
         }
     }
@@ -36,7 +47,7 @@ pub enum Msg {
     Context(context::Response),
 }
 
-impl Component for UploadForm {
+impl Component for UploadProgress {
     type Message = Msg;
     type Properties = ();
 
@@ -62,7 +73,7 @@ impl Component for UploadForm {
     }
 }
 
-impl UsesStateValues for UploadForm {
+impl UsesStateValues for UploadProgress {
     fn request_state_values(&mut self) {
         self.context.send(context::Request::GetSubstate(using_state_values()));
     }

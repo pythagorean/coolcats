@@ -158,20 +158,20 @@ impl Dict {
         self.insert(key, DictValue::Strings(value));
     }
 
-    //pub fn integer(&self, key: &str) -> Option<i32> {
-    //    match self.get(key) {
-    //        DictValue::Integer(value) => Some(value),
-    //        DictValue::Undefined => None,
-    //        _ => panic! {
-    //            "Dict::integer called on non-integer key"
-    //        }
-    //    }
-    //}
+    pub fn integer(&self, key: &str) -> Option<i32> {
+        match self.get(key) {
+            None => None,
+            Some(DictValue::Integer(value)) => Some(*value),
+            _ => panic! {
+                "Dict::integer called on non-integer key"
+            },
+        }
+    }
 
-    //pub fn set_integer(&mut self, key: DictKey, value: integer) {
-    //    self.integer(&key); // force panic if key exists and is not integer
-    //    self.insert(key, DictValue::Integer(value));
-    //}
+    pub fn set_integer(&mut self, key: DictKey, value: i32) {
+        self.integer(&key); // force panic if key exists and is not integer
+        self.insert(key, DictValue::Integer(value));
+    }
 
     pub fn bool(&self, key: &str) -> Option<bool> {
         match self.get(key) {

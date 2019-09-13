@@ -18,7 +18,7 @@ pub enum Msg {}
 #[derive(Serialize, Deserialize)]
 pub enum Request {
     GetLocaleValues(Vec<String>),
-    GetStateValues(Vec<String>),
+    GetSubstate(Vec<String>),
 }
 
 impl Transferable for Request {}
@@ -26,7 +26,7 @@ impl Transferable for Request {}
 #[derive(Serialize, Deserialize)]
 pub enum Response {
     LocaleValues(HashMap<String, String>),
-    StateValues(State),
+    Substate(State),
 }
 
 impl Transferable for Response {}
@@ -58,10 +58,10 @@ impl Agent for Worker {
                     .collect();
                 self.link.response(who, Response::LocaleValues(values));
             }
-            Request::GetStateValues(keys) => {
+            Request::GetSubstate(keys) => {
                 let keys: Vec<_> = keys.iter().map(String::as_str).collect();
                 let values = self.state.substate(keys.as_slice());
-                self.link.response(who, Response::StateValues(values));
+                self.link.response(who, Response::Substate(values));
             }
         }
     }
