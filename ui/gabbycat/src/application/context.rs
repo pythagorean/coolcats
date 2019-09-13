@@ -41,7 +41,7 @@ impl Agent for Worker {
         Self {
             link,
             locale: en::Locale::initialize(),
-            state: State::initialize(),
+            state: Default::default(),
         }
     }
 
