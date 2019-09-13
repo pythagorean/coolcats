@@ -10,6 +10,7 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 coolcats-utils = { path = "../utils" }
 fluent = "0.7.1"
+gabbycat-macros = { path = "macros" }
 lazy_static = "1.4.0"
 serde = { version = "1.0.100", features = ["derive"] }
 stdweb = "0.4.18"

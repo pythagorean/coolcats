@@ -1,6 +1,7 @@
 use yew::prelude::*;
 
-use crate::application::{context, interfaces::UsesStateValues, state::State};
+use crate::application::{context, state::State};
+use gabbycat_macros::{UsesStateValues, use_state_values};
 
 use_state_values!("is_uploading", "progress");
 
@@ -14,7 +15,7 @@ impl Renderable<UploadProgress> for UploadProgress {
         if !self.substate.set() {
             return html! {};
         }
-        
+
         let active = self.substate.bool("is_uploading");
 
         if !active {

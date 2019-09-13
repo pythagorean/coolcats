@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use yew::prelude::*;
 
 use super::components::{autosuggest_textarea::AutosuggestTextarea, upload_form::UploadForm};
-use super::UsesLocaleValues;
+use gabbycat_macros::{UsesLocaleValues, use_locale_values};
 use crate::application::context;
 
 use_locale_values!["compose_form-placeholder"];

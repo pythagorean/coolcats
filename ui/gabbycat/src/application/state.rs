@@ -6,7 +6,7 @@ use coolcats_utils::Dict;
 enum Status {
     Unset,
     State,
-    Substate
+    Substate,
 }
 
 #[derive(Serialize, Deserialize)]

@@ -1,6 +1,7 @@
 use yew::prelude::*;
 
-use crate::application::{context, interfaces::UsesStateValues, state::State};
+use crate::application::{context, state::State};
+use gabbycat_macros::{UsesStateValues, use_state_values};
 use super::upload_progress::UploadProgress;
 
 use_state_values!("media_attachments");
