@@ -31,7 +31,7 @@ impl Default for State {
 impl State {
     pub fn unset() -> Self {
         Self {
-            status: Status::State,
+            status: Status::Unset,
             dict: Dict::new(),
         }
     }
