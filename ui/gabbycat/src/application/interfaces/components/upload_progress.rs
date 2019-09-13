@@ -11,6 +11,10 @@ pub struct UploadProgress {
 
 impl Renderable<UploadProgress> for UploadProgress {
     fn view(&self) -> Html<Self> {
+        if !self.substate.set() {
+            return html! {};
+        }
+        
         let active = self.substate.bool("is_uploading");
 
         if !active {
