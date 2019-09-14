@@ -6,6 +6,7 @@ use super::upload_progress::UploadProgress;
 
 use_state_values!("media_attachments");
 
+#[derive(UsesStateValues)]
 pub struct UploadForm {
     context: Box<dyn Bridge<context::Worker>>,
     substate: State,
@@ -60,11 +61,5 @@ impl Component for UploadForm {
                 context::Response::LocaleValues(_) => false,
             },
         }
-    }
-}
-
-impl UsesStateValues for UploadForm {
-    fn request_state_values(&mut self) {
-        self.context.send(context::Request::GetSubstate(using_state_values()));
     }
 }

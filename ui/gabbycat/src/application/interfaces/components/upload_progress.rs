@@ -5,6 +5,7 @@ use gabbycat_macros::{UsesStateValues, use_state_values};
 
 use_state_values!("is_uploading", "progress");
 
+#[derive(UsesStateValues)]
 pub struct UploadProgress {
     context: Box<dyn Bridge<context::Worker>>,
     substate: State,
@@ -75,11 +76,5 @@ impl Component for UploadProgress {
                 context::Response::LocaleValues(_) => false,
             },
         }
-    }
-}
-
-impl UsesStateValues for UploadProgress {
-    fn request_state_values(&mut self) {
-        self.context.send(context::Request::GetSubstate(using_state_values()));
     }
 }
