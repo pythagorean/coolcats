@@ -2,7 +2,7 @@ use yew::prelude::*;
 
 use crate::application::{context, state::State};
 use gabbycat_macros::{UsesStateValues, use_state_values};
-use super::upload_progress::UploadProgress;
+use super::{sensitive_button::SensitiveButton, upload_progress::UploadProgress};
 
 use_state_values!("media_attachments");
 
@@ -28,7 +28,7 @@ impl Renderable<UploadForm> for UploadForm {
                     */
                 </div>
 
-                {if !media_ids.is_empty() { html! {/*<SensitiveButton />*/}} else { html! {} }}
+                {if !media_ids.is_empty() { html! {<SensitiveButton />}} else { html! {} }}
             </div>
         }
     }

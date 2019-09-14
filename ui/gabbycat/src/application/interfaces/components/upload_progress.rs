@@ -23,7 +23,7 @@ impl Renderable<UploadProgress> for UploadProgress {
             return html! {};
         }
 
-        let progress = self.substate.integer("progress");
+        let _progress = self.substate.integer("progress");
 
         html! {
             <div class = "upload-progress">

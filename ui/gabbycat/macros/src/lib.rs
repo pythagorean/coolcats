@@ -1,9 +1,13 @@
+// For now variadic functions use macro_rules and boilerplate uses derive
+
 pub use gabbycat_macros_derive::*;
 
 pub trait UsesLocaleValues {
     fn request_locale_values(&mut self);
     fn get_locale_value(&self, message_id: &str) -> &String;
 }
+
+pub trait LocaleComponent {}
 
 #[macro_export]
 macro_rules! use_locale_values {
