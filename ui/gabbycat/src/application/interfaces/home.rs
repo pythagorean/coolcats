@@ -8,6 +8,7 @@ use crate::application::context;
 
 use_locale_values!["compose_form-placeholder"];
 
+#[derive(UsesLocaleValues)]
 pub struct Home {
     context: Box<dyn Bridge<context::Worker>>,
     locale_values: HashMap<String, String>,
@@ -66,18 +67,5 @@ impl Component for Home {
                 context::Response::Substate(_) => false,
             },
         }
-    }
-}
-
-impl UsesLocaleValues for Home {
-    fn request_locale_values(&mut self) {
-        self.context.send(context::Request::GetLocaleValues(using_locale_values()));
-    }
-
-    fn get_locale_value(&self, message_id: &str) -> &String {
-        lazy_static! {
-            static ref EMPTY: String = String::new();
-        }
-        self.locale_values.get(message_id).unwrap_or(&EMPTY)
     }
 }

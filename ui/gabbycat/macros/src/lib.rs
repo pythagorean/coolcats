@@ -1,3 +1,5 @@
+pub use gabbycat_macros_derive::*;
+
 pub trait UsesLocaleValues {
     fn request_locale_values(&mut self);
     fn get_locale_value(&self, message_id: &str) -> &String;
