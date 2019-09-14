@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use yew::prelude::*;
 
 use gabbycat_macros::{LocaleComponent, UsesLocaleValues, use_locale_values};
-use crate::application::context;
+use crate::application::{context, utils::class_names};
 
 use_locale_values!["compose_form-sensitive-marked", "compose_form-sensitive-unmarked"];
 
@@ -18,19 +18,32 @@ impl Renderable<SensitiveButton> for SensitiveButton {
         let marked = locale_value("compose_form-sensitive-marked");
         let unmarked = locale_value("compose_form-sensitive-unmarked");
 
-        let active = true;
+        let active = false;
         let disabled = false;
-        let title = if active { marked } else { unmarked };
+        let title = if active {
+            marked
+        } else {
+            unmarked
+        };
 
         html! {
             <div class = "compose-form__sensitive-button">
-                <label /*class = {classNames('icon-button', { active })}*/ title = title>
+                <label class = {class_names(&[("icon-button", active)])}, title = title>
                     <input
                         name = "mark-sensitive",
                         type = "checkbox",
                         checked = active,
                         disabled = disabled
                     />
+
+                    <span class = {class_names(&[("checkbox", active)])} />
+
+                    /*
+                    <FormattedMessage
+                        id = "compose_form-sensitive-hide",
+                        default_message = "Mark media as sensitive"
+                    />
+                    */
                 </label>
             </div>
         }
