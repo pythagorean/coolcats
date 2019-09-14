@@ -46,3 +46,23 @@ macro_rules! use_state_values {
         }
     };
 }
+
+#[macro_export]
+macro_rules! class_names {
+    ($($x: expr),+) => {
+        {
+            let mut vec: Vec<&str> = {
+                let mut names = Vec::new();
+                $(
+                    let (name, show) = $x;
+                    if show {
+                        names.push(name);
+                    }
+                )+
+                names
+            };
+            let result: String = vec.join(" ").into();
+            result
+        }
+    };
+}
