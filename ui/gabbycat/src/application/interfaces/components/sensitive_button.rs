@@ -20,15 +20,13 @@ impl Renderable<SensitiveButton> for SensitiveButton {
 
         let active = false;
         let disabled = false;
-        let title = if active {
-            marked
-        } else {
-            unmarked
-        };
 
         html! {
             <div class = "compose-form__sensitive-button">
-                <label class = {class_names!(("icon-button", active))}, title = title>
+                <label
+                    class = {class_names!("icon_button", active)},
+                    title = {if active { marked } else { unmarked }}
+                >
                     <input
                         name = "mark-sensitive",
                         type = "checkbox",
@@ -36,7 +34,7 @@ impl Renderable<SensitiveButton> for SensitiveButton {
                         disabled = disabled
                     />
 
-                    <span class = {class_names!(("checkbox", active))} />
+                    <span class = {class_names!("checkbox", active)} />
 
                     /*
                     <FormattedMessage
