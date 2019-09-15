@@ -3,6 +3,7 @@ use yew::prelude::*;
 
 use gabbycat_macros::{LocaleComponent, UsesLocaleValues, use_locale_values, class_names};
 use crate::application::context;
+use super::formatted_message::FormattedMessage;
 
 use_locale_values!["compose_form-sensitive-marked", "compose_form-sensitive-unmarked"];
 
@@ -36,12 +37,10 @@ impl Renderable<SensitiveButton> for SensitiveButton {
 
                     <span class = {class_names!("checkbox", active)} />
 
-                    /*
                     <FormattedMessage
                         id = "compose_form-sensitive-hide",
                         default_message = "Mark media as sensitive"
                     />
-                    */
                 </label>
             </div>
         }
