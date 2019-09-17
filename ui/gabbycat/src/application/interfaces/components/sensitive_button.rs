@@ -19,7 +19,7 @@ impl Renderable<SensitiveButton> for SensitiveButton {
         let marked = locale_value("compose_form-sensitive-marked");
         let unmarked = locale_value("compose_form-sensitive-unmarked");
 
-        let active = false;
+        let active = true;
         let disabled = false;
 
         html! {
