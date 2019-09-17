@@ -1,5 +1,3 @@
-// For now variadic functions use macro_rules and boilerplate uses derive
-
 extern crate proc_macro;
 mod locales;
 mod state;
@@ -10,6 +8,11 @@ use crate::proc_macro::TokenStream;
 pub fn uses_locale_values_derive(input: TokenStream) -> TokenStream {
     let ast = syn::parse(input).unwrap();
     locales::impl_uses_locale_values(&ast)
+}
+
+#[proc_macro]
+pub fn component_locale_update(_: TokenStream) -> TokenStream {
+    locales::impl_component_locale_update()
 }
 
 #[proc_macro_derive(LocaleComponent)]

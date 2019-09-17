@@ -5,8 +5,8 @@ pub fn impl_uses_locale_values(ast: &syn::DeriveInput) -> TokenStream {
     let name = &ast.ident;
     let gen = quote! {
         impl UsesLocaleValues for #name {
-            fn request_locale_values(&mut self) {
-                self.context.send(context::Request::GetLocaleValues(using_locale_values()));
+            fn request_locale_values(&mut self, using_locale_values: Vec<String>) {
+                self.context.send(context::Request::GetLocaleValues(using_locale_values));
             }
 
             fn get_locale_value(&self, message_id: &str) -> &String {
@@ -21,8 +21,31 @@ pub fn impl_uses_locale_values(ast: &syn::DeriveInput) -> TokenStream {
     gen.into()
 }
 
+macro_rules! quote_component_locale_update {
+    () => {
+        quote! {
+            fn update(&mut self, msg: Self::Message) -> ShouldRender {
+                match msg {
+                    Msg::Context(response) => match response {
+                        context::Response::LocaleValues(locale_values) => {
+                            self.locale_values = locale_values;
+                            true
+                        }
+                        context::Response::Substate(_) => false,
+                    },
+                }
+            }
+        }
+    };
+}
+
+pub fn impl_component_locale_update() -> TokenStream {
+    quote_component_locale_update!().into()
+}
+
 pub fn impl_locale_component(ast: &syn::DeriveInput) -> TokenStream {
     let name = &ast.ident;
+    let component_locale_update = quote_component_locale_update!();
     let gen = quote! {
         pub enum Msg {
             Context(context::Response),
@@ -37,21 +60,11 @@ pub fn impl_locale_component(ast: &syn::DeriveInput) -> TokenStream {
                     context: context::Worker::bridge(link.send_back(Msg::Context)),
                     locale_values: HashMap::new(),
                 };
-                component.request_locale_values();
+                component.request_locale_values(using_locale_values());
                 component
             }
 
-            fn update(&mut self, msg: Self::Message) -> ShouldRender {
-                match msg {
-                    Msg::Context(response) => match response {
-                        context::Response::LocaleValues(locale_values) => {
-                            self.locale_values = locale_values;
-                            true
-                        }
-                        context::Response::Substate(_) => false,
-                    },
-                }
-            }
+            #component_locale_update
         }
     };
     gen.into()
