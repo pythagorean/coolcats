@@ -1,11 +1,11 @@
 use yew::prelude::*;
 
 use crate::application::{context, state::State};
-use gabbycat_macros::{UsesStateValues, use_state_values};
+use gabbycat_macros::{StateComponent, UsesStateValues, use_state_values};
 
 use_state_values!("is_uploading", "progress");
 
-#[derive(UsesStateValues)]
+#[derive(UsesStateValues, StateComponent)]
 pub struct UploadProgress {
     context: Box<dyn Bridge<context::Worker>>,
     substate: State,
@@ -45,36 +45,6 @@ impl Renderable<UploadProgress> for UploadProgress {
                     </div>
                 </div>
             </div>
-        }
-    }
-}
-
-pub enum Msg {
-    Context(context::Response),
-}
-
-impl Component for UploadProgress {
-    type Message = Msg;
-    type Properties = ();
-
-    fn create(_: Self::Properties, mut link: ComponentLink<Self>) -> Self {
-        let mut component = Self {
-            context: context::Worker::bridge(link.send_back(Msg::Context)),
-            substate: State::unset(),
-        };
-        component.request_state_values();
-        component
-    }
-
-    fn update(&mut self, msg: Self::Message) -> ShouldRender {
-        match msg {
-            Msg::Context(response) => match response {
-                context::Response::Substate(substate) => {
-                    self.substate = substate;
-                    true
-                }
-                context::Response::LocaleValues(_) => false,
-            },
         }
     }
 }

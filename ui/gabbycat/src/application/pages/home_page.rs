@@ -31,7 +31,7 @@ impl Renderable<HomePage> for HomePage {
                                 <div class = "timeline-compose-block__avatar">
                                     //<Avatar account={account} size={46} />
                                 </div>
-                                <ComposeForm />//should_condense = {true}, auto_focus = {false} />
+                                <ComposeForm should_condense = true, auto_focus = false />
                             </div>
 
                             //{children}

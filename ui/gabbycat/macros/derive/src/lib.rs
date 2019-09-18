@@ -1,6 +1,7 @@
 extern crate proc_macro;
 mod locales;
 mod state;
+mod props;
 
 use crate::proc_macro::TokenStream;
 
@@ -36,4 +37,10 @@ pub fn component_state_update(_: TokenStream) -> TokenStream {
 pub fn state_component_derive(input: TokenStream) -> TokenStream {
     let ast = syn::parse(input).unwrap();
     state::impl_state_component(&ast)
+}
+
+#[proc_macro_derive(PropsComponent)]
+pub fn props_component_derive(input: TokenStream) -> TokenStream {
+    let ast = syn::parse(input).unwrap();
+    props::impl_props_component(&ast)
 }
