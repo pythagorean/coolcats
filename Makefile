@@ -1,4 +1,4 @@
-HC_VERSION = 0.0.29-alpha2
+HC_VERSION = 0.0.30-alpha6
 RUST_NIGHTLY = nightly-2019-07-14
 
 default: dna ui
@@ -26,10 +26,10 @@ update: dna-update ui-update CARGO-UPDATE-required
 	cargo install-update -a
 
 update-cli: CARGO-required RUST_NIGHTLY-required
-	cargo +$(RUST_NIGHTLY) install hc --force --git https://github.com/holochain/holochain-rust.git
+	cargo +$(RUST_NIGHTLY) install hc --force --git https://github.com/holochain/holochain-rust.git --tag v$(HC_VERSION)
 
 update-conductor: CARGO-required RUST_NIGHTLY-required
-	cargo +$(RUST_NIGHTLY) install holochain --force --git https://github.com/holochain/holochain-rust.git
+	cargo +$(RUST_NIGHTLY) install holochain --force --git https://github.com/holochain/holochain-rust.git --tag v$(HC_VERSION)
 
 clean: dna-clean ui-clean vm-clean docker-clean presenter-clean
 
