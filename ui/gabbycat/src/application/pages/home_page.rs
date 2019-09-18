@@ -2,7 +2,11 @@ use yew::prelude::*;
 
 use crate::application::features::{
     compose::compose_form::ComposeForm,
-    ui::{user_panel::UserPanel, promo_panel::PromoPanel, link_footer::LinkFooter},
+    groups::sidebar_panel::GroupSidebarPanel,
+    ui::{
+        user_panel::UserPanel, promo_panel::PromoPanel, link_footer::LinkFooter,
+        who_to_follow_panel::WhoToFollowPanel,
+    },
 };
 
 pub struct HomePage;
@@ -36,8 +40,8 @@ impl Renderable<HomePage> for HomePage {
 
                     <div class = "columns-area__panels__pane columns-area__panels__pane--right">
                         <div class = "columns-area__panels__pane__inner">
-                            //<GroupSidebarPanel />
-                            //<WhoToFollowPanel />
+                            <GroupSidebarPanel />
+                            <WhoToFollowPanel />
                         </div>
                     </div>
                 </div>

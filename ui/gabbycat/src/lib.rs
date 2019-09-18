@@ -1,3 +1,4 @@
+#![recursion_limit = "134"]
 use stdweb::web::{document, IParentNode};
 use wasm_bindgen::prelude::*;
 use yew::{html::Scope, prelude::App};
