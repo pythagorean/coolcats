@@ -2,8 +2,7 @@ use std::collections::HashMap;
 use yew::prelude::*;
 
 use gabbycat_macros::{LocaleComponent, UsesLocaleValues, use_locale_values, class_names};
-use crate::application::context;
-use super::formatted_message::FormattedMessage;
+use crate::application::{components::formatted_message::FormattedMessage, context};
 
 use_locale_values!["compose_form-sensitive-marked", "compose_form-sensitive-unmarked"];
 

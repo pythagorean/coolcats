@@ -2,28 +2,28 @@ use std::str::FromStr;
 use strum_macros::{EnumString, IntoStaticStr};
 use yew::prelude::*;
 
-use super::{interfaces::home::Home, router};
+use super::{pages::home_page::HomePage, router};
 
 pub struct Root;
 
 #[derive(EnumString, IntoStaticStr)]
 enum Route {
     #[strum(serialize = "/")]
-    Site,
+    SiteRoot,
     #[strum(serialize = "/home")]
-    Home,
+    HomePage,
 }
 
 impl Renderable<Root> for Root {
     fn view(&self) -> Html<Self> {
         let (route, _) = router::get();
         match Route::from_str(&route) {
-            Ok(Route::Site) => {
-                router::set(Route::Home.into(), "");
+            Ok(Route::SiteRoot) => {
+                router::set(Route::HomePage.into(), "");
                 self.view()
             }
-            Ok(Route::Home) => html! {
-                <Home />
+            Ok(Route::HomePage) => html! {
+                <HomePage />
             },
             Err(_) => html! {
                 <h1>{"404"}</h1>
