@@ -27,7 +27,7 @@ impl Renderable<Home> for Home {
 
         html! {
             <div class="compose-form__autosuggest-wrapper", key="compose-form__autosuggest-wrapper">
-                <AutosuggestTextarea placeholder = placeholder/>
+                <AutosuggestTextarea placeholder = placeholder />
                 {if !condensed { html! {
                     <div class = "compose-form__modifiers">
                         <UploadForm />

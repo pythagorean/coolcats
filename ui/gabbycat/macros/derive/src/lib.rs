@@ -26,3 +26,14 @@ pub fn uses_state_values_derive(input: TokenStream) -> TokenStream {
     let ast = syn::parse(input).unwrap();
     state::impl_uses_state_values(&ast)
 }
+
+#[proc_macro]
+pub fn component_state_update(_: TokenStream) -> TokenStream {
+    state::impl_component_state_update()
+}
+
+#[proc_macro_derive(StateComponent)]
+pub fn state_component_derive(input: TokenStream) -> TokenStream {
+    let ast = syn::parse(input).unwrap();
+    state::impl_state_component(&ast)
+}

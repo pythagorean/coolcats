@@ -16,3 +16,5 @@ pub trait LocaleComponent {}
 pub trait UsesStateValues {
     fn request_state_values(&mut self);
 }
+
+pub trait StateComponent {}

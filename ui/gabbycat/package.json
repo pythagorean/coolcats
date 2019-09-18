@@ -15,8 +15,8 @@
     "html-webpack-template": "^6.2.0",
     "webpack": "^4.40.2",
     "webpack-blocks": "^2.0.1",
-    "webpack-cli": "^3.3.8",
-    "webpack-dev-server": "^3.8.0"
+    "webpack-cli": "^3.3.9",
+    "webpack-dev-server": "^3.8.1"
   },
   "dependencies": {
     "text-encoder-lite": "^2.0.0"
