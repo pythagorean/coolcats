@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use yew::prelude::*;
 
 use gabbycat_macros::{LocaleComponent, UsesLocaleValues, use_locale_values};
-use crate::application::{components::autosuggest_textarea::AutosuggestTextarea, context};
+use crate::application::{context, facilities::autosuggest_textarea::AutosuggestTextarea};
 use super::upload_form::UploadForm;
 
 use_locale_values!["compose_form-placeholder"];
