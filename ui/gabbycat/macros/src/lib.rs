@@ -11,10 +11,6 @@ pub trait UsesLocaleValues {
     fn get_locale_value(&self, message_id: &str) -> &String;
 }
 
-pub trait LocaleComponent {}
-
 pub trait UsesStateValues {
     fn request_state_values(&mut self);
 }
-
-pub trait StateComponent {}

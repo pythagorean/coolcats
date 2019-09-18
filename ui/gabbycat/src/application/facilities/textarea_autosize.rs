@@ -10,7 +10,7 @@ pub struct TextareaAutosize {
 
 impl Renderable<TextareaAutosize> for TextareaAutosize {
     fn view(&self) -> Html<Self> {
-        let class = &self.class;
+        let class = &self.class[..];
         let placeholder = &self.placeholder;
         let aria_autocomplete = &self.aria_autocomplete;
 
