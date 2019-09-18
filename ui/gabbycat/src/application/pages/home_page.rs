@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use crate::application::features::compose::compose_form::ComposeForm;
+use crate::application::features::{compose::compose_form::ComposeForm, ui::user_panel::UserPanel};
 
 pub struct HomePage;
 
@@ -12,7 +12,7 @@ impl Renderable<HomePage> for HomePage {
                     <div class = "columns-area__panels">
 
                         <div class = "columns-area__panels__pane columns-area__panels__pane--left">
-                            //<UserPanel />
+                            <UserPanel />
                             //<PromoPanel />
                             //<LinkFooter />
                         </div>
