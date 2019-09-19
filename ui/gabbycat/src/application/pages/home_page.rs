@@ -1,11 +1,14 @@
 use yew::prelude::*;
 
-use crate::application::features::{
-    compose::compose_form::ComposeForm,
-    groups::sidebar_panel::GroupSidebarPanel,
-    ui::{
-        user_panel::UserPanel, promo_panel::PromoPanel, link_footer::LinkFooter,
-        who_to_follow_panel::WhoToFollowPanel,
+use crate::application::{
+    facilities::avatar::Avatar,
+    features::{
+        compose::compose_form::ComposeForm,
+        groups::sidebar_panel::GroupSidebarPanel,
+        ui::{
+            user_panel::UserPanel, promo_panel::PromoPanel, link_footer::LinkFooter,
+            who_to_follow_panel::WhoToFollowPanel,
+        },
     },
 };
 
@@ -13,6 +16,8 @@ pub struct HomePage;
 
 impl Renderable<HomePage> for HomePage {
     fn view(&self) -> Html<Self> {
+        let account = "";
+
         html! {
             <div class = "page">
                 <div class = "page__columns">
@@ -29,7 +34,7 @@ impl Renderable<HomePage> for HomePage {
                         <div class = "columns-area columns-area--mobile">
                             <div class = "timeline-compose-block">
                                 <div class = "timeline-compose-block__avatar">
-                                    //<Avatar account={account} size={46} />
+                                    <Avatar account = account, size = 46 />
                                 </div>
                                 <ComposeForm should_condense = true, auto_focus = false />
                             </div>
