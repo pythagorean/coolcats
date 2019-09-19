@@ -6,7 +6,6 @@ use gabbycat_macros::PropsComponent;
 pub struct Props {
     #[props(required)]
     pub account: String,
-    #[props(required)]
     pub size: u32,
 }
 
