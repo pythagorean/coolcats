@@ -1,9 +1,6 @@
 use yew::prelude::*;
 
-use crate::application::facilities::{
-    avatar::Avatar,
-    formatted_message::FormattedMessage,
-};
+use crate::application::facilities::{avatar::Avatar, formatted_message::FormattedMessage};
 
 pub struct UserPanel;
 

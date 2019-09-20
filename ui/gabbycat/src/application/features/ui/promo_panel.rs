@@ -12,21 +12,21 @@ impl Renderable<PromoPanel> for PromoPanel {
                     <div class = "promo-panel-item">
                         <a class = "promo-panel-item__btn", href = "https://blog.gab.com">
                             //<Icon id='align-left' className='promo-panel-item__icon' fixedWidth />
-                            {"Gab News"}//<FormattedMessage id = "promo-gab_news", default_message = "Gab News" />
+                            <FormattedMessage id = "promo-gab_news", default_message = "Gab News" />
                         </a>
                     </div>
 
                     <div class = "promo-panel-item">
                         <a class = "promo-panel-item__btn", href = "https://blog.gab.com/support-gab">
                             //<Icon id='users' className='promo-panel-item__icon' fixedWidth />
-                            {"Affiliate Partners"}//<FormattedMessage id = "promo-partners", default_message = "Affiliate Partners" />
+                            <FormattedMessage id = "promo-partners", default_message = "Affiliate Partners" />
                         </a>
                     </div>
 
                     <div class = "promo-panel-item">
                         <a class = "promo-panel-item__btn", href = "https://apps.gab.com">
                             //<Icon id='th' className='promo-panel-item__icon' fixedWidth />
-                            {"Gab Apps"}//<FormattedMessage id = "promo-gab_apps", default_message = "Gab Apps" />
+                            <FormattedMessage id = "promo-gab_apps", default_message = "Gab Apps" />
                         </a>
                     </div>
                 </div>
