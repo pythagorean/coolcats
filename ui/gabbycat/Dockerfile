@@ -37,6 +37,7 @@ COPY ./tmp/utils/ ./utils/
 WORKDIR /home/docker/gabbycat
 COPY Cargo.toml bootstrap.js package.json tsconfig.json webpack.config.js ./
 COPY ./src/ ./src/
+COPY ./macros/ ./macros/
 
 # Install node modules
 RUN yarn install

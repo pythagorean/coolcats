@@ -17,7 +17,7 @@ impl Renderable<GroupSidebarPanel> for GroupSidebarPanel {
                     </span>
                 </div>
 
-                <div className = "wtf-panel__content">
+                <div class = "wtf-panel__content">
                     <div class = "group-sidebar-panel__items">
                         //{groupIds.slice(0, 10).map(groupId => <Item key={groupId} id={groupId} />)}
                         //{count > 10 && <Link className="group-sidebar-panel__items__show-all" to='/groups/browse/member'>{intl.formatMessage(messages.show_all)}</Link>}
