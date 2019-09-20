@@ -1,5 +1,6 @@
 use yew::prelude::*;
 
+use gabbycat_macros::ImplComponent;
 use crate::application::{
     facilities::avatar::Avatar,
     features::{
@@ -12,6 +13,7 @@ use crate::application::{
     },
 };
 
+#[derive(ImplComponent)]
 pub struct HomePage;
 
 impl Renderable<HomePage> for HomePage {
@@ -52,20 +54,5 @@ impl Renderable<HomePage> for HomePage {
                 </div>
             </div>
         }
-    }
-}
-
-pub enum Msg {}
-
-impl Component for HomePage {
-    type Message = Msg;
-    type Properties = ();
-
-    fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
-        Self
-    }
-
-    fn update(&mut self, _msg: Self::Message) -> ShouldRender {
-        false
     }
 }

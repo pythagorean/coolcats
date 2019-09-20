@@ -1,7 +1,9 @@
 use yew::prelude::*;
 
+use gabbycat_macros::ImplComponent;
 use crate::application::Application;
 
+#[derive(ImplComponent)]
 pub struct Model;
 
 impl Renderable<Model> for Model {
@@ -9,20 +11,5 @@ impl Renderable<Model> for Model {
         html! {
             <Application />
         }
-    }
-}
-
-pub enum Msg {}
-
-impl Component for Model {
-    type Message = Msg;
-    type Properties = ();
-
-    fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
-        Self
-    }
-
-    fn update(&mut self, _msg: Self::Message) -> ShouldRender {
-        false
     }
 }

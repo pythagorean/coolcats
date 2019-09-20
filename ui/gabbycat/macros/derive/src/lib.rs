@@ -44,3 +44,9 @@ pub fn props_component_derive(input: TokenStream) -> TokenStream {
     let ast = syn::parse(input).unwrap();
     props::impl_props_component(&ast)
 }
+
+#[proc_macro_derive(ImplComponent)]
+pub fn impl_component_derive(input: TokenStream) -> TokenStream {
+    let ast = syn::parse(input).unwrap();
+    props::impl_impl_component(&ast)
+}
