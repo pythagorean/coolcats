@@ -6,7 +6,6 @@ use gabbycat_macros::{PropsComponent, class_names};
 pub struct Props {
     #[props(required)]
     pub id: String,
-    #[props(required)]
     pub class: String,
     pub fixed_width: bool,
 }
@@ -20,7 +19,7 @@ impl Renderable<Icon> for Icon {
     fn view(&self) -> Html<Self> {
         let id = &self.props.id;
         let fixed_width = self.props.fixed_width;
-        let class = String::from("fa-")
+        let class_names = String::from("fa-")
             + id
             + " "
             + &class_names!("fa", "fa-fw" => fixed_width)
@@ -31,7 +30,7 @@ impl Renderable<Icon> for Icon {
             <i
                 role = "img",
                 alt = id,
-                class = class
+                class = class_names
             />
         }
     }
