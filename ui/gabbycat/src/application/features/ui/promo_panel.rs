@@ -1,7 +1,9 @@
 use yew::prelude::*;
 
+use gabbycat_macros::ImplComponent;
 use crate::application::facilities::{formatted_message::FormattedMessage, icon::Icon};
 
+#[derive(ImplComponent)]
 pub struct PromoPanel;
 
 impl Renderable<PromoPanel> for PromoPanel {
@@ -32,20 +34,5 @@ impl Renderable<PromoPanel> for PromoPanel {
                 </div>
             </div>
         }
-    }
-}
-
-pub enum Msg {}
-
-impl Component for PromoPanel {
-    type Message = Msg;
-    type Properties = ();
-
-    fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
-        Self
-    }
-
-    fn update(&mut self, _msg: Self::Message) -> ShouldRender {
-        false
     }
 }

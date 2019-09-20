@@ -1,7 +1,9 @@
 use yew::prelude::*;
 
+use gabbycat_macros::ImplComponent;
 use crate::application::facilities::formatted_message::FormattedMessage;
 
+#[derive(ImplComponent)]
 pub struct LinkFooter;
 
 impl Renderable<LinkFooter> for LinkFooter {
@@ -35,20 +37,5 @@ impl Renderable<LinkFooter> for LinkFooter {
                 <p>{"© 2019 Michael Goldman"}</p>
             </div>
         }
-    }
-}
-
-pub enum Msg {}
-
-impl Component for LinkFooter {
-    type Message = Msg;
-    type Properties = ();
-
-    fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
-        Self
-    }
-
-    fn update(&mut self, _msg: Self::Message) -> ShouldRender {
-        false
     }
 }

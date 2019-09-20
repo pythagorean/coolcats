@@ -2,8 +2,10 @@ use std::str::FromStr;
 use strum_macros::{EnumString, IntoStaticStr};
 use yew::prelude::*;
 
+use gabbycat_macros::ImplComponent;
 use super::{pages::home_page::HomePage, router};
 
+#[derive(ImplComponent)]
 pub struct Root;
 
 #[derive(EnumString, IntoStaticStr)]
@@ -29,20 +31,5 @@ impl Renderable<Root> for Root {
                 <h1>{"404"}</h1>
             },
         }
-    }
-}
-
-pub enum Msg {}
-
-impl Component for Root {
-    type Message = Msg;
-    type Properties = ();
-
-    fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
-        Self
-    }
-
-    fn update(&mut self, _msg: Self::Message) -> ShouldRender {
-        false
     }
 }
