@@ -19,7 +19,7 @@ use rocket::{
     Request,
 };
 
-const ADDR: &str = "127.0.0.1";
+const ADDR: &str = "0.0.0.0";
 const PORT: u16 = 8000;
 const INDEX: &str = "index.html";
 

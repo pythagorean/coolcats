@@ -3,7 +3,8 @@
   "scripts": {
     "build": "webpack -d --mode development",
     "start": "webpack-dev-server -d --mode development --watch",
-    "docker-build": "mkdir -p tmp && rm -rf tmp/utils && cp -r ../utils tmp && docker build -t gabbycat .; rm -rf tmp/utils && rmdir --ignore-fail-on-non-empty tmp",
+    "docker-tmp": "mkdir -p tmp && rm -rf tmp/utils tmp/presenter && cp -r ../utils tmp && mkdir tmp/presenter && cp -r ../../presenter/src tmp/presenter && cp ../../presenter/Cargo.toml tmp/presenter",
+    "docker-build": "yarn docker-tmp && docker build -t gabbycat .; rm -rf tmp/utils tmp/presenter && rmdir --ignore-fail-on-non-empty tmp",
     "docker-run": "docker run -p 8000:8000 -d -P gabbycat"
   },
   "devDependencies": {
