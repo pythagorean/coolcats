@@ -1,11 +1,11 @@
 FROM ubuntu:bionic
 
-# Update our package database and add installation prerequisites
+# Add installation prerequisites
 RUN apt-get update && apt-get install -y \
     curl \
     gnupg \
     software-properties-common \
-  && apt-get clean
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Add the yarn repo + yarn repo keys
 RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
@@ -15,10 +15,10 @@ RUN apt-add-repository 'deb https://dl.yarnpkg.com/debian/ stable main'
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
 
 # Add packages to build and run gabbycat
-RUN apt-get install -y \
+RUN apt-get update && apt-get install -y \
     gcc \
     yarn \
-  && apt-get clean
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Drop to user privileges now that system is updated
 RUN useradd -ms /bin/bash docker \
@@ -43,8 +43,8 @@ COPY ./macros/ ./macros/
 RUN yarn install
 
 # Build gabbycat
-RUN yarn build
+RUN yarn run webpack -p --mode production
 
 # Prepared for docker run
 EXPOSE 8000
-ENTRYPOINT yarn start
+ENTRYPOINT yarn run webpack-dev-server -p --mode production
