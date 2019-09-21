@@ -7,6 +7,10 @@ edition = "2018"
 [lib]
 crate-type = ["cdylib", "rlib"]
 
+[profile.release]
+codegen-units = 1
+opt-level = 's'
+
 [dependencies]
 coolcats-utils = { path = "../utils" }
 fluent = "0.7.1"
