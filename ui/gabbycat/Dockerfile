@@ -1,4 +1,4 @@
-FROM ubuntu:bionic
+FROM ubuntu:bionic AS builder
 
 # Add installation prerequisites
 RUN apt-get update && apt-get install -y \
@@ -41,7 +41,8 @@ COPY ./src/ ./src/
 COPY ./macros/ ./macros/
 
 # Install node modules and build gabbycat
-RUN yarn install && yarn run webpack -p --mode production
+RUN yarn install && yarn run webpack -p --mode production \
+  && cargo clean && rm -rf pkg node_modules yarn.lock
 
 # Install known good Rust nightly for presenter build
 RUN rustup toolchain install nightly-2019-07-14 && rustup default nightly-2019-07-14
@@ -52,9 +53,14 @@ COPY ./tmp/presenter/Cargo.toml ./
 COPY ./tmp/presenter/src/ ./src/
 
 # Build presenter
-RUN cargo install --path . && strip `which presenter`
+RUN cargo install --path . && cargo clean && strip `which presenter`
 
-# Prepared for docker run
+# Reduce our docker image to the built targets and prepare for docker run
+FROM ubuntu:bionic
+RUN useradd -ms /bin/bash docker
 WORKDIR /home/docker
+COPY --from=builder /home/docker/target/deploy/ ./deploy/
+COPY --from=builder /home/docker/.cargo/bin/presenter /usr/local/bin
+USER docker
 EXPOSE 8000
-ENTRYPOINT presenter target/deploy
+ENTRYPOINT presenter deploy
