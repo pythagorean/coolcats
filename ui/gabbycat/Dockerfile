@@ -1,4 +1,4 @@
-FROM ubuntu:bionic AS builder
+FROM ubuntu:bionic AS build
 
 # Add installation prerequisites
 RUN apt-get update && apt-get install -y \
@@ -14,9 +14,10 @@ RUN apt-add-repository 'deb https://dl.yarnpkg.com/debian/ stable main'
 # Add repo for NodeJS
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
 
-# Add packages to build and run gabbycat
+# Add packages to build gabbycat and presenter
 RUN apt-get update && apt-get install -y \
     gcc \
+    musl-tools \
     yarn \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -44,8 +45,9 @@ COPY ./macros/ ./macros/
 RUN yarn install && yarn run webpack -p --mode production \
   && cargo clean && rm -rf pkg node_modules yarn.lock
 
-# Install known good Rust nightly for presenter build
+# Install known good Rust nightly and static target for presenter build
 RUN rustup toolchain install nightly-2019-07-14 && rustup default nightly-2019-07-14
+RUN rustup target add x86_64-unknown-linux-musl
 
 # Copy the presenter files
 WORKDIR /home/docker/presenter
@@ -53,14 +55,12 @@ COPY ./tmp/presenter/Cargo.toml ./
 COPY ./tmp/presenter/src/ ./src/
 
 # Build presenter
-RUN cargo install --path . && cargo clean && strip `which presenter`
+RUN cargo install --target x86_64-unknown-linux-musl --path . && cargo clean
 
 # Reduce our docker image to the built targets and prepare for docker run
-FROM ubuntu:bionic
-RUN useradd -ms /bin/bash docker
-WORKDIR /home/docker
-COPY --from=builder /home/docker/target/deploy/ ./deploy/
-COPY --from=builder /home/docker/.cargo/bin/presenter /usr/local/bin
-USER docker
+FROM alpine:3.9
+COPY --from=build /home/docker/target/deploy/ ./deploy/
+COPY --from=build /home/docker/.cargo/bin/presenter ./
+USER 1000
 EXPOSE 8000
-ENTRYPOINT presenter deploy
+ENTRYPOINT ./presenter deploy
