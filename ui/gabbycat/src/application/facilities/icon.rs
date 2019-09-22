@@ -19,12 +19,12 @@ impl Renderable<Icon> for Icon {
     fn view(&self) -> Html<Self> {
         let id = &self.props.id;
         let fixed_width = self.props.fixed_width;
-        let class_names = String::from("fa-")
-            + id
-            + " "
-            + &class_names!("fa", "fa-fw" => fixed_width)
-            + " "
-            + &self.props.class;
+        let class_names = format!(
+            "fa-{} {} {}",
+            id,
+            class_names!("fa", "fa-fw" => fixed_width),
+            &self.props.class
+        );
 
         html! {
             <i
