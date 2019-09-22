@@ -71,7 +71,7 @@ module.exports = createConfig([
       template: require('html-webpack-template'),
       filename: 'index.html',
       title: 'gabbycat',
-      favicon: 'src/application/resources/images/favicon.ico',
+      favicon: 'public/favicon.png',
       appMountIds: ['application'],
       scripts: ['/gabbycat.js'],
       chunks: []
