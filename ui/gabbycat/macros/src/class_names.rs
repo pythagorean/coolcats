@@ -56,6 +56,13 @@ macro_rules! class_names {
     };
 
     (
+        $name1:literal => $test1:expr, $($testname2:expr),+
+    ) => {
+        [  class_names!($name1 => $test1),
+         $(class_names!($testname2),)+].join(" ")
+    };
+
+    (
         $($argv: tt),+
     ) => {
         [$(class_names!($argv),)+].join(" ")
