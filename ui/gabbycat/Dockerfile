@@ -43,25 +43,6 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh /dev/stdin -y
 ENV PATH="/home/docker/.cargo/bin:${PATH}"
 RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
-# Copy the gabbycat files
-WORKDIR /home/docker/utils
-COPY ./tmp/utils/ ./
-WORKDIR /home/docker/gabbycat
-COPY Cargo.toml bootstrap.js package.json tsconfig.json webpack.config.js ./
-COPY ./src/ ./src/
-COPY ./macros/ ./macros/
-
-# Install node modules and build gabbycat
-RUN yarn install && yarn run webpack -p --mode production \
-  && cargo clean && rm -rf pkg node_modules yarn.lock
-
-# Optimize the gabbycat deployment for size
-WORKDIR /home/docker/target/deploy
-RUN for file in *.wasm; do \
-    ~/wasm-opt -Os -o $file.new $file && mv -f $file.new $file; \
-  done; \
-  gzip -9 *.wasm *.js fonts/* */*.svg
-
 # Install known good Rust nightly and static target for presenter build
 RUN rustup toolchain install nightly-2019-07-14 \
   && rustup default nightly-2019-07-14 \
@@ -76,10 +57,30 @@ COPY ./tmp/presenter/src/ ./src/
 RUN cargo install --target x86_64-unknown-linux-musl --path . \
   && cargo clean && strip `which presenter`
 
+# Copy the gabbycat files
+WORKDIR /home/docker/utils
+COPY ./tmp/utils/ ./
+WORKDIR /home/docker/gabbycat
+COPY Cargo.toml bootstrap.js package.json tsconfig.json webpack.config.js ./
+COPY ./src/ ./src/
+COPY ./macros/ ./macros/
+COPY ./public/ ./public/
+
+# Install node modules and build gabbycat
+RUN yarn install && rustup run stable yarn run webpack -p --mode production \
+  && cargo clean && rm -rf pkg node_modules yarn.lock
+
+# Optimize the gabbycat deployment for size
+WORKDIR /home/docker/target/deploy
+RUN for file in *.wasm; do \
+    ~/wasm-opt -Os -o $file.new $file && mv -f $file.new $file; \
+  done; \
+  gzip -9 *.wasm *.js fonts/* */*.svg
+
 # Reduce our docker image to the built targets and prepare for docker run
-FROM alpine:3.9
+FROM scratch
 COPY --from=build /home/docker/target/deploy/ ./deploy/
 COPY --from=build /home/docker/.cargo/bin/presenter ./
 USER 1000
 EXPOSE 8000
-ENTRYPOINT ./presenter deploy
+ENTRYPOINT ["./presenter", "deploy"]
