@@ -2,7 +2,7 @@ mod class_names;
 mod locales;
 mod state;
 
-pub use gabbycat_macros_derive::*;
+pub use mammoth_macros_derive::*;
 
 // Derivable traits and their methods
 

@@ -1,7 +1,7 @@
 use yew::prelude::*;
 
 use crate::application::{context, state::State};
-use gabbycat_macros::{StateComponent, UsesStateValues, use_state_values};
+use mammoth_macros::{StateComponent, UsesStateValues, use_state_values};
 use super::{sensitive_button::SensitiveButton, upload::Upload, upload_progress::UploadProgress};
 
 use_state_values!("media_attachments");

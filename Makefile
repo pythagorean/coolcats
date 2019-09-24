@@ -90,11 +90,11 @@ presenter-build: CARGO-required RUST_NIGHTLY-required
 	(cd presenter; cargo +$(RUST_NIGHTLY) build --release)
 	@strip presenter/target/release/presenter
 
-presenter-start: presenter-start-standard
+presenter-start: presenter-start-clutter
 
-presenter-start-coolcats: presenter-start-standard
+presenter-start-coolcats: presenter-start-clutter
 
-presenter-start-standard: presenter ui-deploy-standard
+presenter-start-clutter: presenter ui-deploy-clutter
 	@echo "Compressing files to reduce bandwidth"; \
 		(cd ui/target/deploy; gzip -9v *.wasm *.js)
 	@echo ""
@@ -105,7 +105,7 @@ presenter-start-standard: presenter ui-deploy-standard
 	@sleep 1
 	@echo "Presenter started. Run 'make presenter-stop' to stop process."
 
-presenter-start-gabbycat: presenter ui-deploy-gabbycat
+presenter-start-mammoth: presenter ui-deploy-mammoth
 	@echo "Compressing files to reduce bandwidth:"
 	@(cd ui/target/deploy; gzip -9 *.wasm *.js fonts/* */*.svg)
 	@wc -c ui/target/deploy/*.gz
@@ -118,9 +118,9 @@ presenter-stop:
 
 presenter-stop-coolcats: presenter-stop
 
-presenter-stop-standard: presenter-stop
+presenter-stop-clutter: presenter-stop
 
-presenter-stop-gabbycat: presenter-stop
+presenter-stop-mammoth: presenter-stop
 
 presenter-update: CARGO-required RUST_NIGHTLY-required
 	(cd presenter; cargo +$(RUST_NIGHTLY) update)
@@ -129,97 +129,97 @@ presenter-clean:
 	(cd presenter; cargo +stable clean && rm -f Cargo.lock)
 	(cd presenter; rm -rf pkg node_modules yarn.lock)
 
-ui: ui-standard ui-gabbycat
+ui: ui-clutter ui-mammoth
 
-ui-coolcats: ui-standard
+ui-coolcats: ui-clutter
 
-ui-standard: ui-build-standard
+ui-clutter: ui-build-clutter
 
-ui-gabbycat: ui-build-gabbycat
+ui-mammoth: ui-build-mammoth
 
-ui-build: ui-build-standard ui-build-gabbycat
+ui-build: ui-build-clutter ui-build-mammoth
 
-ui-build-coolcats: ui-build-standard
+ui-build-coolcats: ui-build-clutter
 
-ui-build-standard: YARN-required WASM_PACK-required
-	(cd ui/standard; yarn -s; rustup run stable yarn build)
+ui-build-clutter: YARN-required WASM_PACK-required
+	(cd ui/clutter; yarn -s; rustup run stable yarn build)
 
-ui-build-gabbycat: YARN-required WASM_PACK-required
-	(cd ui/gabbycat; yarn -s; rustup run stable yarn build)
+ui-build-mammoth: YARN-required WASM_PACK-required
+	(cd ui/mammoth; yarn -s; rustup run stable yarn build)
 
-vm-build-gabbycat: VAGRANT-required
-	(cd ui/gabbycat; vagrant up)
+vm-build-mammoth: VAGRANT-required
+	(cd ui/mammoth; vagrant up)
 
-docker-build-gabbycat: DOCKER-required
-	(cd ui/gabbycat; yarn docker-build)
+docker-build-mammoth: DOCKER-required
+	(cd ui/mammoth; yarn docker-build)
 
-ui-fmt: ui-fmt-standard ui-fmt-gabbycat
+ui-fmt: ui-fmt-clutter ui-fmt-mammoth
 
-ui-fmt-coolcats: ui-fmt-standard
+ui-fmt-coolcats: ui-fmt-clutter
 
-ui-fmt-standard: CARGO-DO-required RUST-FMT-required CARGO-TOMLFMT-required JS-BEAUTIFY-required
+ui-fmt-clutter: CARGO-DO-required RUST-FMT-required CARGO-TOMLFMT-required JS-BEAUTIFY-required
 	(cd ui; cargo +stable do fmt, tomlfmt)
-	for js in ui/standard/*.js; do js-beautify -r -s 2 -n $$js || true; done
+	for js in ui/clutter/*.js; do js-beautify -r -s 2 -n $$js || true; done
 
-ui-fmt-gabbycat: CARGO-DO-required RUST-FMT-required CARGO-TOMLFMT-required JS-BEAUTIFY-required
-	(cd ui/gabbycat; cargo +stable do fmt, tomlfmt)
-	for js in ui/gabbycat/*.js; do js-beautify -r -s 2 -n $$js || true; done
+ui-fmt-mammoth: CARGO-DO-required RUST-FMT-required CARGO-TOMLFMT-required JS-BEAUTIFY-required
+	(cd ui/mammoth; cargo +stable do fmt, tomlfmt)
+	for js in ui/mammoth/*.js; do js-beautify -r -s 2 -n $$js || true; done
 
-ui-lint: ui-lint-standard ui-lint-gabbycat
+ui-lint: ui-lint-clutter ui-lint-mammoth
 
-ui-lint-coolcats: ui-lint-standard
+ui-lint-coolcats: ui-lint-clutter
 
-ui-lint-standard: CARGO-required CLIPPY-required
-	(cd ui/standard; cargo +stable clippy)
+ui-lint-clutter: CARGO-required CLIPPY-required
+	(cd ui/clutter; cargo +stable clippy)
 
-ui-lint-gabbycat: CARGO-required CLIPPY-required
-	(cd ui/gabbycat; cargo +stable clippy)
+ui-lint-mammoth: CARGO-required CLIPPY-required
+	(cd ui/mammoth; cargo +stable clippy)
 
-ui-start: ui-start-standard
+ui-start: ui-start-clutter
 
-ui-start-coolcats: ui-start-standard
+ui-start-coolcats: ui-start-clutter
 
-ui-start-standard: CARGO-required YARN-required WASM_PACK-required
-	(cd ui/standard; yarn -s; rustup run stable yarn start)
+ui-start-clutter: CARGO-required YARN-required WASM_PACK-required
+	(cd ui/clutter; yarn -s; rustup run stable yarn start)
 
-ui-start-gabbycat: CARGO-required YARN-required WASM_PACK-required
-	(cd ui/gabbycat; yarn -s; rustup run stable yarn start)
+ui-start-mammoth: CARGO-required YARN-required WASM_PACK-required
+	(cd ui/mammoth; yarn -s; rustup run stable yarn start)
 
-vm-start-gabbycat: vm-build-gabbycat
-	(cd ui/gabbycat; vagrant ssh -c "cd /vagrant/gabbycat && yarn start" &)
+vm-start-mammoth: vm-build-mammoth
+	(cd ui/mammoth; vagrant ssh -c "cd /vagrant/mammoth && yarn start" &)
 	@sleep 60
 
-docker-start-gabbycat: docker-build-gabbycat
-	(cd ui/gabbycat; yarn docker-run)
+docker-start-mammoth: docker-build-mammoth
+	(cd ui/mammoth; yarn docker-run)
 
-vm-stop-gabbycat: VAGRANT-required
-	(cd ui/gabbycat; vagrant halt)
+vm-stop-mammoth: VAGRANT-required
+	(cd ui/mammoth; vagrant halt)
 
-docker-stop-gabbycat: DOCKER-required
-	(cd ui/gabbycat; \
-		docker stop `docker ps -a -q --filter ancestor=gabbycat` || true; \
-		docker rm `docker ps -a -q --filter ancestor=gabbycat` || true)
+docker-stop-mammoth: DOCKER-required
+	(cd ui/mammoth; \
+		docker stop `docker ps -a -q --filter ancestor=mammoth` || true; \
+		docker rm `docker ps -a -q --filter ancestor=mammoth` || true)
 
-vm-clean: vm-clean-gabbycat
+vm-clean: vm-clean-mammoth
 
-vm-clean-gabbycat:
-	-(cd ui/gabbycat; vagrant destroy -f && rm -rf .vagrant)
+vm-clean-mammoth:
+	-(cd ui/mammoth; vagrant destroy -f && rm -rf .vagrant)
 
-docker-clean: docker-clean-gabbycat
+docker-clean: docker-clean-mammoth
 
-docker-clean-gabbycat: docker-stop-gabbycat
-	-(cd ui/gabbycat; docker rmi gabbycat)
+docker-clean-mammoth: docker-stop-mammoth
+	-(cd ui/mammoth; docker rmi mammoth)
 
-ui-deploy: ui-deploy-standard
+ui-deploy: ui-deploy-clutter
 
-ui-deploy-coolcats: ui-deploy-standard
+ui-deploy-coolcats: ui-deploy-clutter
 
-ui-deploy-standard: CARGO-required YARN-required WASM_PACK-required WASM-OPT-recommended
-	(cd ui/standard; yarn -s; rustup run stable yarn deploy)
+ui-deploy-clutter: CARGO-required YARN-required WASM_PACK-required WASM-OPT-recommended
+	(cd ui/clutter; yarn -s; rustup run stable yarn deploy)
 	make ui-optimize-deployment
 
-ui-deploy-gabbycat: CARGO-required YARN-required WASM_PACK-required WASM-OPT-recommended
-	(cd ui/gabbycat; yarn -s; rustup run stable yarn run webpack -p --mode production)
+ui-deploy-mammoth: CARGO-required YARN-required WASM_PACK-required WASM-OPT-recommended
+	(cd ui/mammoth; yarn -s; rustup run stable yarn run webpack -p --mode production)
 	make ui-optimize-deployment
 
 ui-optimize-deployment: WASM-OPT-recommended
@@ -231,24 +231,24 @@ ui-optimize-deployment: WASM-OPT-recommended
 			wc -c $$file; \
 		done
 
-ui-update: ui-update-standard ui-update-gabbycat
+ui-update: ui-update-clutter ui-update-mammoth
 
-ui-update-standard: CARGO-required YARN-required
-	(cd ui/standard; cargo +stable update)
-	-(cd ui/standard; yarn -s; yarn -s upgrade --latest)
+ui-update-clutter: CARGO-required YARN-required
+	(cd ui/clutter; cargo +stable update)
+	-(cd ui/clutter; yarn -s; yarn -s upgrade --latest)
 
-ui-update-gabbycat: CARGO-required YARN-required
-	(cd ui/gabbycat; cargo +stable update)
-	-(cd ui/gabbycat; yarn -s; yarn -s upgrade --latest)
+ui-update-mammoth: CARGO-required YARN-required
+	(cd ui/mammoth; cargo +stable update)
+	-(cd ui/mammoth; yarn -s; yarn -s upgrade --latest)
 
-ui-clean: ui-clean-standard ui-clean-gabbycat
+ui-clean: ui-clean-clutter ui-clean-mammoth
 	(cd ui; cargo +stable clean && rm -f Cargo.lock)
 
-ui-clean-standard: CARGO-required
-	(cd ui/standard; rm -rf pkg node_modules yarn.lock)
+ui-clean-clutter: CARGO-required
+	(cd ui/clutter; rm -rf pkg node_modules yarn.lock)
 
-ui-clean-gabbycat: CARGO-required
-	(cd ui/gabbycat; rm -rf pkg node_modules yarn.lock tmp)
+ui-clean-mammoth: CARGO-required
+	(cd ui/mammoth; rm -rf pkg node_modules yarn.lock tmp)
 
 YARN-required:
 	@which yarn > /dev/null || ( \

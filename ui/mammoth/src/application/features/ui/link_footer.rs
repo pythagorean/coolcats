@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use gabbycat_macros::ImplComponent;
+use mammoth_macros::ImplComponent;
 use crate::application::facilities::formatted_message::FormattedMessage;
 
 #[derive(ImplComponent)]
@@ -31,7 +31,7 @@ impl Renderable<LinkFooter> for LinkFooter {
                 <p>
                     <FormattedMessage
                         id = "getting_started-open_source_notice",
-                        default_message = "Gabbycat is open source software. You can contribute or report issues on our GitHub repository."
+                        default_message = "Mammoth is open source software. You can contribute or report issues on our GitHub repository."
                     />
                 </p>
                 <p>{"© 2019 Michael Goldman"}</p>

@@ -2,7 +2,7 @@ use std::str::FromStr;
 use strum_macros::{EnumString, IntoStaticStr};
 use yew::prelude::*;
 
-use gabbycat_macros::ImplComponent;
+use mammoth_macros::ImplComponent;
 use super::{pages::home_page::HomePage, router};
 
 #[derive(ImplComponent)]

@@ -3,7 +3,7 @@
 use std::collections::HashMap;
 use yew::prelude::*;
 
-use gabbycat_macros::{UsesLocaleValues, component_locale_update};
+use mammoth_macros::{UsesLocaleValues, component_locale_update};
 use crate::application::context;
 
 #[derive(PartialEq, Properties)]

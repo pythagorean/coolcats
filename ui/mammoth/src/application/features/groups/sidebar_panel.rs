@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use gabbycat_macros::ImplComponent;
+use mammoth_macros::ImplComponent;
 use crate::application::facilities::{formatted_message::FormattedMessage, icon::Icon};
 
 #[derive(ImplComponent)]

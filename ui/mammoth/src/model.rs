@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use gabbycat_macros::ImplComponent;
+use mammoth_macros::ImplComponent;
 use crate::application::Application;
 
 #[derive(ImplComponent)]

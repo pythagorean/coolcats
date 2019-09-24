@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use gabbycat_macros::ImplComponent;
+use mammoth_macros::ImplComponent;
 use crate::application::facilities::{avatar::Avatar, formatted_message::FormattedMessage};
 
 #[derive(ImplComponent)]
@@ -40,7 +40,7 @@ impl Renderable<UserPanel> for UserPanel {
                                 //<Link to={`/${account.get('acct')}`} title={intl.formatNumber(account.get('statuses_count'))}>
                                     <strong class = "user-panel-stats-item__value">/*{shortNumberFormat(account.get('statuses_count'))}*/</strong>
                                     <span class = "user-panel-stats-item__label">
-                                        <FormattedMessage /*class = "user-panel-stats-item__label",*/ id = "account-posts", default_message = "Gabs" />
+                                        <FormattedMessage /*class = "user-panel-stats-item__label",*/ id = "account-posts", default_message = "Toots" />
                                     </span>
                                 //</Link>
                             </div>

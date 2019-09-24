@@ -8,7 +8,7 @@ $provision = <<SCRIPT
 # Update our package database
 sudo apt-get update
 
-cd /vagrant/gabbycat # This is where the host folder/repo is mounted
+cd /vagrant/mammoth # This is where the host folder/repo is mounted
 sudo chown vagrant.vagrant /vagrant # So we can create other dirs
 
 # Add the yarn repo + yarn repo keys
@@ -18,7 +18,7 @@ sudo apt-add-repository 'deb https://dl.yarnpkg.com/debian/ stable main'
 # Add repo for NodeJS
 curl -sL https://deb.nodesource.com/setup_10.x | sudo bash -
 
-# Add packages to build and run gabbycat
+# Add packages to build and run mammoth
 sudo apt-get install -y \
   gcc \
   yarn
@@ -31,7 +31,7 @@ curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 # Install node modules
 yarn install
 
-# Build gabbycat
+# Build mammoth
 yarn build
 
 SCRIPT
@@ -41,7 +41,7 @@ Vagrant.configure("2") do |config|
   config.vm.box = "hashicorp/bionic64"
 
   config.vm.provider :virtualbox do |vb|
-    vb.name = "gabbycat"
+    vb.name = "mammoth"
     vb.customize ["modifyvm", :id, "--memory", 2048]
 
     # Disable VirtualBox DNS proxy to skip long-delay IPv6 resolutions.
@@ -58,7 +58,7 @@ Vagrant.configure("2") do |config|
   end
 
   # Use rsync for Rust not to have errors building things with vboxsf
-  config.vm.synced_folder ".", "/vagrant/gabbycat", type: "rsync",
+  config.vm.synced_folder ".", "/vagrant/mammoth", type: "rsync",
     rsync__exclude: [".git/", "node_modules/", "pkg/", "target/", "yarn.lock", "Cargo.lock"]
 
   config.vm.synced_folder "../utils", "/vagrant/utils", type: "rsync"
@@ -80,11 +80,11 @@ Vagrant.configure("2") do |config|
   end
 
   # This uses the vagrant-hostsupdater plugin, and lets you
-  # access the development site at http://gabbycat.local.
+  # access the development site at http://mammoth.local.
   #
   # To install:
   #   $ vagrant plugin install vagrant-hostsupdater
-  config.vm.hostname = "gabbycat.local"
+  config.vm.hostname = "mammoth.local"
 
   if defined?(VagrantPlugins::HostsUpdater)
     config.vm.network :private_network, ip: "192.168.42.42", nictype: "virtio"
@@ -102,7 +102,7 @@ Vagrant.configure("2") do |config|
     trigger.info = "Vagrant is up"
     trigger.ruby do |env,machine|
       puts 'To start server'
-      puts '  $ vagrant ssh -c "cd /vagrant/gabbycat && yarn start"'
+      puts '  $ vagrant ssh -c "cd /vagrant/mammoth && yarn start"'
     end
   end
 

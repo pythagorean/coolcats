@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use gabbycat_macros::{UsesStateValues, class_names, component_state_update, use_state_values};
+use mammoth_macros::{UsesStateValues, class_names, component_state_update, use_state_values};
 use crate::application::{context, state::State};
 
 use_state_values!("media_attachments");

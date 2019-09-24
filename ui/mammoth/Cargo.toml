@@ -1,5 +1,5 @@
 [package]
-name = "gabbycat"
+name = "mammoth"
 version = "0.1.0"
 authors = ["Michael Goldman <mike.goldman@allstreets.org>"]
 edition = "2018"
@@ -14,7 +14,7 @@ opt-level = 's'
 [dependencies]
 coolcats-utils = { path = "../utils" }
 fluent = "0.7.1"
-gabbycat-macros = { path = "macros" }
+mammoth-macros = { path = "macros" }
 lazy_static = "1.4.0"
 serde = { version = "1.0.101", features = ["derive"] }
 stdweb = "0.4.18"

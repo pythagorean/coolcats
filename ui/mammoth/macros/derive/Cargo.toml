@@ -1,5 +1,5 @@
 [package]
-name = "gabbycat-macros-derive"
+name = "mammoth-macros-derive"
 version = "0.1.0"
 authors = ["Michael Goldman <mike.goldman@allstreets.org>"]
 edition = "2018"

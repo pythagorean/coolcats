@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use gabbycat_macros::PropsComponent;
+use mammoth_macros::PropsComponent;
 use super::textarea_autosize::TextareaAutosize as Textarea;
 
 #[derive(PartialEq, Properties)]

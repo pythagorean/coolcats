@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use yew::prelude::*;
 
-use gabbycat_macros::{UsesLocaleValues, class_names, component_locale_update, use_locale_values};
+use mammoth_macros::{UsesLocaleValues, class_names, component_locale_update, use_locale_values};
 use crate::application::{context, facilities::autosuggest_textarea::AutosuggestTextarea};
 use super::upload_form::UploadForm;
 
