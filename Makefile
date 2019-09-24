@@ -90,7 +90,7 @@ presenter-build: CARGO-required RUST_NIGHTLY-required
 	(cd presenter; cargo +$(RUST_NIGHTLY) build --release)
 	@strip presenter/target/release/presenter
 
-presenter-start: presenter-start-clutter
+presenter-start: presenter-start-coolcats
 
 presenter-start-coolcats: presenter-start-clutter
 
@@ -121,6 +121,12 @@ presenter-stop-coolcats: presenter-stop
 presenter-stop-clutter: presenter-stop
 
 presenter-stop-wildcat: presenter-stop
+
+presenter-restart-coolcats: presenter-stop presenter-start-coolcats
+
+presenter-restart-clutter: presenter-stop presenter-start-clutter
+
+presenter-restart-wildcat: presenter-stop presenter-start-wildcat
 
 presenter-update: CARGO-required RUST_NIGHTLY-required
 	(cd presenter; cargo +$(RUST_NIGHTLY) update)
