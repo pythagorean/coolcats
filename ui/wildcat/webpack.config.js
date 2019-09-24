@@ -31,8 +31,8 @@ module.exports = createConfig([
   setOutput({
     path: distPath,
     publicPath: '/',
-    filename: 'mammoth.js',
-    webassemblyModuleFilename: 'mammoth.wasm'
+    filename: 'wildcat.js',
+    webassemblyModuleFilename: 'wildcat.wasm'
   }),
   typescript(),
   match('*.scss', [
@@ -70,10 +70,10 @@ module.exports = createConfig([
       inject: false,
       template: require('html-webpack-template'),
       filename: 'index.html',
-      title: 'mammoth',
+      title: 'wildcat',
       favicon: 'public/favicon.png',
       appMountIds: ['application'],
-      scripts: ['/mammoth.js'],
+      scripts: ['/wildcat.js'],
       chunks: []
     }),
     new HtmlBeautifyPlugin({

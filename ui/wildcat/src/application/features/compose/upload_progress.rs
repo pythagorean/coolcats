@@ -1,7 +1,7 @@
 use yew::prelude::*;
 
 use crate::application::{context, state::State};
-use mammoth_macros::{StateComponent, UsesStateValues, use_state_values};
+use wildcat_macros::{StateComponent, UsesStateValues, use_state_values};
 
 use_state_values!("is_uploading", "progress");
 

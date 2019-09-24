@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use mammoth_macros::ImplComponent;
+use wildcat_macros::ImplComponent;
 use crate::application::facilities::{formatted_message::FormattedMessage, icon::Icon};
 
 #[derive(ImplComponent)]
@@ -14,7 +14,7 @@ impl Renderable<PromoPanel> for PromoPanel {
                     <div class = "promo-panel-item">
                         <a class = "promo-panel-item__btn", href = "https://">
                             <Icon id = "align-left", class = "promo-panel-item__icon", fixed_width = true />
-                            <FormattedMessage id = "promo-mammoth_news", default_message = "Mammoth News" />
+                            <FormattedMessage id = "promo-wildcat_news", default_message = "Coolcats News" />
                         </a>
                     </div>
 
@@ -28,7 +28,7 @@ impl Renderable<PromoPanel> for PromoPanel {
                     <div class = "promo-panel-item">
                         <a class = "promo-panel-item__btn", href = "https://">
                             <Icon id="th" class = "promo-panel-item__icon", fixed_width = true />
-                            <FormattedMessage id = "promo-gab_apps", default_message = "Mammoth Apps" />
+                            <FormattedMessage id = "promo-gab_apps", default_message = "Coolcats Apps" />
                         </a>
                     </div>
                 </div>

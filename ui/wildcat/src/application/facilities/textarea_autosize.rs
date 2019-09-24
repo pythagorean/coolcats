@@ -2,7 +2,7 @@
 
 use yew::prelude::*;
 
-use mammoth_macros::PropsComponent;
+use wildcat_macros::PropsComponent;
 
 #[derive(PartialEq, Properties)]
 pub struct Props {

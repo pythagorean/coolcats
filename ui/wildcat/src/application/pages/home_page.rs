@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use mammoth_macros::ImplComponent;
+use wildcat_macros::ImplComponent;
 use crate::application::{
     facilities::avatar::Avatar,
     features::{

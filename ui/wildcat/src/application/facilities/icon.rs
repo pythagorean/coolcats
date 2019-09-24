@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use mammoth_macros::{PropsComponent, class_names};
+use wildcat_macros::{PropsComponent, class_names};
 
 #[derive(PartialEq, Properties)]
 pub struct Props {

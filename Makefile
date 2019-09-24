@@ -105,7 +105,7 @@ presenter-start-clutter: presenter ui-deploy-clutter
 	@sleep 1
 	@echo "Presenter started. Run 'make presenter-stop' to stop process."
 
-presenter-start-mammoth: presenter ui-deploy-mammoth
+presenter-start-wildcat: presenter ui-deploy-wildcat
 	@echo "Compressing files to reduce bandwidth:"
 	@(cd ui/target/deploy; gzip -9 *.wasm *.js fonts/* */*.svg)
 	@wc -c ui/target/deploy/*.gz
@@ -120,7 +120,7 @@ presenter-stop-coolcats: presenter-stop
 
 presenter-stop-clutter: presenter-stop
 
-presenter-stop-mammoth: presenter-stop
+presenter-stop-wildcat: presenter-stop
 
 presenter-update: CARGO-required RUST_NIGHTLY-required
 	(cd presenter; cargo +$(RUST_NIGHTLY) update)
@@ -129,31 +129,31 @@ presenter-clean:
 	(cd presenter; cargo +stable clean && rm -f Cargo.lock)
 	(cd presenter; rm -rf pkg node_modules yarn.lock)
 
-ui: ui-clutter ui-mammoth
+ui: ui-clutter ui-wildcat
 
 ui-coolcats: ui-clutter
 
 ui-clutter: ui-build-clutter
 
-ui-mammoth: ui-build-mammoth
+ui-wildcat: ui-build-wildcat
 
-ui-build: ui-build-clutter ui-build-mammoth
+ui-build: ui-build-clutter ui-build-wildcat
 
 ui-build-coolcats: ui-build-clutter
 
 ui-build-clutter: YARN-required WASM_PACK-required
 	(cd ui/clutter; yarn -s; rustup run stable yarn build)
 
-ui-build-mammoth: YARN-required WASM_PACK-required
-	(cd ui/mammoth; yarn -s; rustup run stable yarn build)
+ui-build-wildcat: YARN-required WASM_PACK-required
+	(cd ui/wildcat; yarn -s; rustup run stable yarn build)
 
-vm-build-mammoth: VAGRANT-required
-	(cd ui/mammoth; vagrant up)
+vm-build-wildcat: VAGRANT-required
+	(cd ui/wildcat; vagrant up)
 
-docker-build-mammoth: DOCKER-required
-	(cd ui/mammoth; yarn docker-build)
+docker-build-wildcat: DOCKER-required
+	(cd ui/wildcat; yarn docker-build)
 
-ui-fmt: ui-fmt-clutter ui-fmt-mammoth
+ui-fmt: ui-fmt-clutter ui-fmt-wildcat
 
 ui-fmt-coolcats: ui-fmt-clutter
 
@@ -161,19 +161,19 @@ ui-fmt-clutter: CARGO-DO-required RUST-FMT-required CARGO-TOMLFMT-required JS-BE
 	(cd ui; cargo +stable do fmt, tomlfmt)
 	for js in ui/clutter/*.js; do js-beautify -r -s 2 -n $$js || true; done
 
-ui-fmt-mammoth: CARGO-DO-required RUST-FMT-required CARGO-TOMLFMT-required JS-BEAUTIFY-required
-	(cd ui/mammoth; cargo +stable do fmt, tomlfmt)
-	for js in ui/mammoth/*.js; do js-beautify -r -s 2 -n $$js || true; done
+ui-fmt-wildcat: CARGO-DO-required RUST-FMT-required CARGO-TOMLFMT-required JS-BEAUTIFY-required
+	(cd ui/wildcat; cargo +stable do fmt, tomlfmt)
+	for js in ui/wildcat/*.js; do js-beautify -r -s 2 -n $$js || true; done
 
-ui-lint: ui-lint-clutter ui-lint-mammoth
+ui-lint: ui-lint-clutter ui-lint-wildcat
 
 ui-lint-coolcats: ui-lint-clutter
 
 ui-lint-clutter: CARGO-required CLIPPY-required
 	(cd ui/clutter; cargo +stable clippy)
 
-ui-lint-mammoth: CARGO-required CLIPPY-required
-	(cd ui/mammoth; cargo +stable clippy)
+ui-lint-wildcat: CARGO-required CLIPPY-required
+	(cd ui/wildcat; cargo +stable clippy)
 
 ui-start: ui-start-clutter
 
@@ -182,33 +182,33 @@ ui-start-coolcats: ui-start-clutter
 ui-start-clutter: CARGO-required YARN-required WASM_PACK-required
 	(cd ui/clutter; yarn -s; rustup run stable yarn start)
 
-ui-start-mammoth: CARGO-required YARN-required WASM_PACK-required
-	(cd ui/mammoth; yarn -s; rustup run stable yarn start)
+ui-start-wildcat: CARGO-required YARN-required WASM_PACK-required
+	(cd ui/wildcat; yarn -s; rustup run stable yarn start)
 
-vm-start-mammoth: vm-build-mammoth
-	(cd ui/mammoth; vagrant ssh -c "cd /vagrant/mammoth && yarn start" &)
+vm-start-wildcat: vm-build-wildcat
+	(cd ui/wildcat; vagrant ssh -c "cd /vagrant/wildcat && yarn start" &)
 	@sleep 60
 
-docker-start-mammoth: docker-build-mammoth
-	(cd ui/mammoth; yarn docker-run)
+docker-start-wildcat: docker-build-wildcat
+	(cd ui/wildcat; yarn docker-run)
 
-vm-stop-mammoth: VAGRANT-required
-	(cd ui/mammoth; vagrant halt)
+vm-stop-wildcat: VAGRANT-required
+	(cd ui/wildcat; vagrant halt)
 
-docker-stop-mammoth: DOCKER-required
-	(cd ui/mammoth; \
-		docker stop `docker ps -a -q --filter ancestor=mammoth` || true; \
-		docker rm `docker ps -a -q --filter ancestor=mammoth` || true)
+docker-stop-wildcat: DOCKER-required
+	(cd ui/wildcat; \
+		docker stop `docker ps -a -q --filter ancestor=wildcat` || true; \
+		docker rm `docker ps -a -q --filter ancestor=wildcat` || true)
 
-vm-clean: vm-clean-mammoth
+vm-clean: vm-clean-wildcat
 
-vm-clean-mammoth:
-	-(cd ui/mammoth; vagrant destroy -f && rm -rf .vagrant)
+vm-clean-wildcat:
+	-(cd ui/wildcat; vagrant destroy -f && rm -rf .vagrant)
 
-docker-clean: docker-clean-mammoth
+docker-clean: docker-clean-wildcat
 
-docker-clean-mammoth: docker-stop-mammoth
-	-(cd ui/mammoth; docker rmi mammoth)
+docker-clean-wildcat: docker-stop-wildcat
+	-(cd ui/wildcat; docker rmi wildcat)
 
 ui-deploy: ui-deploy-clutter
 
@@ -218,8 +218,8 @@ ui-deploy-clutter: CARGO-required YARN-required WASM_PACK-required WASM-OPT-reco
 	(cd ui/clutter; yarn -s; rustup run stable yarn deploy)
 	make ui-optimize-deployment
 
-ui-deploy-mammoth: CARGO-required YARN-required WASM_PACK-required WASM-OPT-recommended
-	(cd ui/mammoth; yarn -s; rustup run stable yarn run webpack -p --mode production)
+ui-deploy-wildcat: CARGO-required YARN-required WASM_PACK-required WASM-OPT-recommended
+	(cd ui/wildcat; yarn -s; rustup run stable yarn run webpack -p --mode production)
 	make ui-optimize-deployment
 
 ui-optimize-deployment: WASM-OPT-recommended
@@ -231,24 +231,24 @@ ui-optimize-deployment: WASM-OPT-recommended
 			wc -c $$file; \
 		done
 
-ui-update: ui-update-clutter ui-update-mammoth
+ui-update: ui-update-clutter ui-update-wildcat
 
 ui-update-clutter: CARGO-required YARN-required
 	(cd ui/clutter; cargo +stable update)
 	-(cd ui/clutter; yarn -s; yarn -s upgrade --latest)
 
-ui-update-mammoth: CARGO-required YARN-required
-	(cd ui/mammoth; cargo +stable update)
-	-(cd ui/mammoth; yarn -s; yarn -s upgrade --latest)
+ui-update-wildcat: CARGO-required YARN-required
+	(cd ui/wildcat; cargo +stable update)
+	-(cd ui/wildcat; yarn -s; yarn -s upgrade --latest)
 
-ui-clean: ui-clean-clutter ui-clean-mammoth
+ui-clean: ui-clean-clutter ui-clean-wildcat
 	(cd ui; cargo +stable clean && rm -f Cargo.lock)
 
 ui-clean-clutter: CARGO-required
 	(cd ui/clutter; rm -rf pkg node_modules yarn.lock)
 
-ui-clean-mammoth: CARGO-required
-	(cd ui/mammoth; rm -rf pkg node_modules yarn.lock tmp)
+ui-clean-wildcat: CARGO-required
+	(cd ui/wildcat; rm -rf pkg node_modules yarn.lock tmp)
 
 YARN-required:
 	@which yarn > /dev/null || ( \

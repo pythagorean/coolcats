@@ -1,8 +1,8 @@
 [package]
-name = "mammoth-macros"
+name = "wildcat-macros"
 version = "0.1.0"
 authors = ["Michael Goldman <mike.goldman@allstreets.org>"]
 edition = "2018"
 
 [dependencies]
-mammoth-macros-derive = { path = "derive" }
+wildcat-macros-derive = { path = "derive" }

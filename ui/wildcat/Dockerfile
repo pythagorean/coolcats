@@ -14,7 +14,7 @@ RUN apt-add-repository 'deb https://dl.yarnpkg.com/debian/ stable main'
 # Add repo for NodeJS
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
 
-# Add packages to build and optimize mammoth and presenter
+# Add packages to build and optimize wildcat and presenter
 RUN apt-get update && apt-get install -y \
     cmake \
     g++ \
@@ -27,7 +27,7 @@ RUN apt-get update && apt-get install -y \
 
 # Drop to user privileges now that system is updated
 RUN useradd -ms /bin/bash docker \
-  && mkdir -p /home/docker/mammoth \
+  && mkdir -p /home/docker/wildcat \
   && mkdir -p /home/docker/presenter \
   && chown -R docker /home/docker
 USER docker
@@ -57,20 +57,20 @@ COPY ./tmp/presenter/src/ ./src/
 RUN cargo install --target x86_64-unknown-linux-musl --path . \
   && cargo clean && strip `which presenter`
 
-# Copy the mammoth files
+# Copy the wildcat files
 WORKDIR /home/docker/utils
 COPY ./tmp/utils/ ./
-WORKDIR /home/docker/mammoth
+WORKDIR /home/docker/wildcat
 COPY Cargo.toml bootstrap.js package.json tsconfig.json webpack.config.js ./
 COPY ./src/ ./src/
 COPY ./macros/ ./macros/
 COPY ./public/ ./public/
 
-# Install node modules and build mammoth
+# Install node modules and build wildcat
 RUN yarn install && rustup run stable yarn run webpack -p --mode production \
   && cargo clean && rm -rf pkg node_modules yarn.lock
 
-# Optimize the mammoth deployment for size
+# Optimize the wildcat deployment for size
 WORKDIR /home/docker/target/deploy
 RUN for file in *.wasm; do \
     ~/wasm-opt -Os -o $file.new $file && mv -f $file.new $file; \
@@ -80,7 +80,7 @@ RUN for file in *.wasm; do \
 # Reduce our docker image to the built targets and prepare for docker run
 FROM scratch
 COPY --from=build /home/docker/.cargo/bin/presenter /presenting
-COPY --from=build /home/docker/target/deploy/ /mammoth/
+COPY --from=build /home/docker/target/deploy/ /wildcat/
 USER 1000
 EXPOSE 8000
-ENTRYPOINT ["/presenting", "/mammoth"]
+ENTRYPOINT ["/presenting", "/wildcat"]
