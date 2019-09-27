@@ -1,5 +1,5 @@
 [workspace]
-members = ["clutter", "wildcat", "utils"]
+members = ["housecat", "wildcat", "utils"]
 
 [profile.release]
 codegen-units = 1

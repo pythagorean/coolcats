@@ -92,9 +92,9 @@ presenter-build: CARGO-required RUST_NIGHTLY-required
 
 presenter-start: presenter-start-coolcats
 
-presenter-start-coolcats: presenter-start-clutter
+presenter-start-coolcats: presenter-start-housecat
 
-presenter-start-clutter: presenter ui-deploy-clutter
+presenter-start-housecat: presenter ui-deploy-housecat
 	@echo "Compressing files to reduce bandwidth"; \
 		(cd ui/target/deploy; gzip -9v *.wasm *.js)
 	@echo ""
@@ -118,13 +118,13 @@ presenter-stop:
 
 presenter-stop-coolcats: presenter-stop
 
-presenter-stop-clutter: presenter-stop
+presenter-stop-housecat: presenter-stop
 
 presenter-stop-wildcat: presenter-stop
 
 presenter-restart-coolcats: presenter-stop presenter-start-coolcats
 
-presenter-restart-clutter: presenter-stop presenter-start-clutter
+presenter-restart-housecat: presenter-stop presenter-start-housecat
 
 presenter-restart-wildcat: presenter-stop presenter-start-wildcat
 
@@ -135,20 +135,20 @@ presenter-clean:
 	(cd presenter; cargo +stable clean && rm -f Cargo.lock)
 	(cd presenter; rm -rf pkg node_modules yarn.lock)
 
-ui: ui-clutter ui-wildcat
+ui: ui-housecat ui-wildcat
 
-ui-coolcats: ui-clutter
+ui-coolcats: ui-housecat
 
-ui-clutter: ui-build-clutter
+ui-housecat: ui-build-housecat
 
 ui-wildcat: ui-build-wildcat
 
-ui-build: ui-build-clutter ui-build-wildcat
+ui-build: ui-build-housecat ui-build-wildcat
 
-ui-build-coolcats: ui-build-clutter
+ui-build-coolcats: ui-build-housecat
 
-ui-build-clutter: YARN-required WASM_PACK-required
-	(cd ui/clutter; yarn -s; rustup run stable yarn build)
+ui-build-housecat: YARN-required WASM_PACK-required
+	(cd ui/housecat; yarn -s; rustup run stable yarn build)
 
 ui-build-wildcat: YARN-required WASM_PACK-required
 	(cd ui/wildcat; yarn -s; rustup run stable yarn build)
@@ -159,34 +159,34 @@ vm-build-wildcat: VAGRANT-required
 docker-build-wildcat: DOCKER-required
 	(cd ui/wildcat; yarn docker-build)
 
-ui-fmt: ui-fmt-clutter ui-fmt-wildcat
+ui-fmt: ui-fmt-housecat ui-fmt-wildcat
 
-ui-fmt-coolcats: ui-fmt-clutter
+ui-fmt-coolcats: ui-fmt-housecat
 
-ui-fmt-clutter: CARGO-DO-required RUST-FMT-required CARGO-TOMLFMT-required JS-BEAUTIFY-required
+ui-fmt-housecat: CARGO-DO-required RUST-FMT-required CARGO-TOMLFMT-required JS-BEAUTIFY-required
 	(cd ui; cargo +stable do fmt, tomlfmt)
-	for js in ui/clutter/*.js; do js-beautify -r -s 2 -n $$js || true; done
+	for js in ui/housecat/*.js; do js-beautify -r -s 2 -n $$js || true; done
 
 ui-fmt-wildcat: CARGO-DO-required RUST-FMT-required CARGO-TOMLFMT-required JS-BEAUTIFY-required
 	(cd ui/wildcat; cargo +stable do fmt, tomlfmt)
 	for js in ui/wildcat/*.js; do js-beautify -r -s 2 -n $$js || true; done
 
-ui-lint: ui-lint-clutter ui-lint-wildcat
+ui-lint: ui-lint-housecat ui-lint-wildcat
 
-ui-lint-coolcats: ui-lint-clutter
+ui-lint-coolcats: ui-lint-housecat
 
-ui-lint-clutter: CARGO-required CLIPPY-required
-	(cd ui/clutter; cargo +stable clippy)
+ui-lint-housecat: CARGO-required CLIPPY-required
+	(cd ui/housecat; cargo +stable clippy)
 
 ui-lint-wildcat: CARGO-required CLIPPY-required
 	(cd ui/wildcat; cargo +stable clippy)
 
-ui-start: ui-start-clutter
+ui-start: ui-start-housecat
 
-ui-start-coolcats: ui-start-clutter
+ui-start-coolcats: ui-start-housecat
 
-ui-start-clutter: CARGO-required YARN-required WASM_PACK-required
-	(cd ui/clutter; yarn -s; rustup run stable yarn start)
+ui-start-housecat: CARGO-required YARN-required WASM_PACK-required
+	(cd ui/housecat; yarn -s; rustup run stable yarn start)
 
 ui-start-wildcat: CARGO-required YARN-required WASM_PACK-required
 	(cd ui/wildcat; yarn -s; rustup run stable yarn start)
@@ -216,12 +216,12 @@ docker-clean: docker-clean-wildcat
 docker-clean-wildcat: docker-stop-wildcat
 	-(cd ui/wildcat; docker rmi wildcat)
 
-ui-deploy: ui-deploy-clutter
+ui-deploy: ui-deploy-housecat
 
-ui-deploy-coolcats: ui-deploy-clutter
+ui-deploy-coolcats: ui-deploy-housecat
 
-ui-deploy-clutter: CARGO-required YARN-required WASM_PACK-required WASM-OPT-recommended
-	(cd ui/clutter; yarn -s; rustup run stable yarn deploy)
+ui-deploy-housecat: CARGO-required YARN-required WASM_PACK-required WASM-OPT-recommended
+	(cd ui/housecat; yarn -s; rustup run stable yarn deploy)
 	make ui-optimize-deployment
 
 ui-deploy-wildcat: CARGO-required YARN-required WASM_PACK-required WASM-OPT-recommended
@@ -237,21 +237,21 @@ ui-optimize-deployment: WASM-OPT-recommended
 			wc -c $$file; \
 		done
 
-ui-update: ui-update-clutter ui-update-wildcat
+ui-update: ui-update-housecat ui-update-wildcat
 
-ui-update-clutter: CARGO-required YARN-required
-	(cd ui/clutter; cargo +stable update)
-	-(cd ui/clutter; yarn -s; yarn -s upgrade --latest)
+ui-update-housecat: CARGO-required YARN-required
+	(cd ui/housecat; cargo +stable update)
+	-(cd ui/housecat; yarn -s; yarn -s upgrade --latest)
 
 ui-update-wildcat: CARGO-required YARN-required
 	(cd ui/wildcat; cargo +stable update)
 	-(cd ui/wildcat; yarn -s; yarn -s upgrade --latest)
 
-ui-clean: ui-clean-clutter ui-clean-wildcat
+ui-clean: ui-clean-housecat ui-clean-wildcat
 	(cd ui; cargo +stable clean && rm -f Cargo.lock)
 
-ui-clean-clutter: CARGO-required
-	(cd ui/clutter; rm -rf pkg node_modules yarn.lock)
+ui-clean-housecat: CARGO-required
+	(cd ui/housecat; rm -rf pkg node_modules yarn.lock)
 
 ui-clean-wildcat: CARGO-required
 	(cd ui/wildcat; rm -rf pkg node_modules yarn.lock tmp)

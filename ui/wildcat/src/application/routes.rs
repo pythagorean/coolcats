@@ -6,7 +6,7 @@ use wildcat_macros::ImplComponent;
 use super::{pages::home_page::HomePage, router};
 
 #[derive(ImplComponent)]
-pub struct Root;
+pub struct Routes;
 
 #[derive(EnumString, IntoStaticStr)]
 enum Route {
@@ -16,7 +16,7 @@ enum Route {
     HomePage,
 }
 
-impl Renderable<Root> for Root {
+impl Renderable<Routes> for Routes {
     fn view(&self) -> Html<Self> {
         let (route, _) = router::get();
         match Route::from_str(&route) {
