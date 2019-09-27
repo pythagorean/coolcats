@@ -1,9 +1,7 @@
 use yew::{prelude::*, html::Scope};
 
-use crate::{
-    holoclient::{self, Holoclient, ToHoloclient},
-    application::{self, Application, ToApplication},
-};
+use coolcats_holoclient::{self as holoclient, Holoclient, ToHoloclient, ToApplication};
+use crate::application::{self, Application};
 
 pub enum ModelType {
     Holoclient,

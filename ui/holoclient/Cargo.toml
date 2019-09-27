@@ -1,22 +1,12 @@
 [package]
-name = "coolcats-ui"
+name = "coolcats-holoclient"
 version = "0.2.0"
 authors = ["Michael Goldman <mike.goldman@allstreets.org>"]
 edition = "2018"
 
-[lib]
-crate-type = ["cdylib", "rlib"]
-
 [dependencies]
-coolcats-holoclient = { path = "../holoclient" }
 coolcats-utils = { path = "../utils" }
 json = "0.11.15"
-lazy_static = "1.4.0"
 serde = { version = "1.0.101", features = ["derive"] }
-serde_json = "1.0.40"
 stdweb = "0.4.18"
-strum = "0.15.0"
-strum_macros = "0.15.0"
-wasm-bindgen = "=0.2.42"
 yew = "0.8.0"
-yew-router = "0.4.0"

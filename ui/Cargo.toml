@@ -1,5 +1,5 @@
 [workspace]
-members = ["housecat", "wildcat", "utils"]
+members = ["housecat", "wildcat", "holoclient", "utils"]
 
 [profile.release]
 codegen-units = 1

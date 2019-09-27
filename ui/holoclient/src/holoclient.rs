@@ -2,7 +2,6 @@ use yew::prelude::*;
 use serde::Deserialize;
 
 use coolcats_utils::DictItem;
-use crate::{application::ToApplication};
 
 use super::{
     websocket::{WebSocketService, WebSocketStatus},
@@ -19,6 +18,13 @@ pub struct Holoclient {
 #[derive(Deserialize, Debug)]
 pub struct WsResponse {
     value: String,
+}
+
+#[derive(PartialEq, Clone, Debug)]
+pub enum ToApplication {
+    None,
+    Initialize,
+    Redux(String, String, String),
 }
 
 pub enum WsAction {

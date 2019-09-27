@@ -12,13 +12,12 @@ use yew::{
 use yew_router::{routes, Route, RouterAgent};
 
 use coolcats_utils::{Dict, DictItem};
-use crate::holoclient::ToHoloclient;
+use coolcats_holoclient::{ToHoloclient, ToApplication};
 
 use super::{
     context::{self, ContextAgent},
     state::State,
     interfaces::{app::App, edit_profile::EditProfile, follow::Follow},
-    ToApplication,
 };
 
 // defines RouterTarget:
@@ -42,15 +41,8 @@ pub struct Root {
     interval_job: Option<Box<dyn Task>>,
 }
 
-#[derive(PartialEq, Clone, Debug)]
-pub enum ToRoot {
-    None,
-    Initialize,
-    Redux(String, String, String),
-}
-
 #[derive(PartialEq, Clone)]
-pub struct Params(pub ToRoot);
+pub struct Params(pub ToApplication);
 
 #[derive(Serialize, Deserialize)]
 pub enum Action {
