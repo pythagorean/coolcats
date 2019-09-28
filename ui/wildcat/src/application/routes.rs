@@ -2,8 +2,9 @@ use std::str::FromStr;
 use strum_macros::{EnumString, IntoStaticStr};
 use yew::prelude::*;
 
+use coolcats_utils::router;
 use wildcat_macros::ImplComponent;
-use super::{pages::home_page::HomePage, router};
+use super::pages::home_page::HomePage;
 
 #[derive(ImplComponent)]
 pub struct Routes;
