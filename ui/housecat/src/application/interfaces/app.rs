@@ -1,6 +1,6 @@
-use stdweb::web::window;
 use yew::prelude::*;
 
+use coolcats_utils::router;
 use crate::application::{
     Action,
     context::{self, ContextAgent},
@@ -39,20 +39,7 @@ impl Renderable<App> for App {
                 </div>
             }
         } else {
-            let fragment = window().location().unwrap().hash().unwrap();
-            let mut route = if fragment.is_empty() {
-                "/"
-            } else {
-                &fragment[1..]
-            };
-            let mut route_param = "";
-            if route.len() > 1 {
-                if let Some(n) = &route[1..].find('/') {
-                    let (r, p) = route.split_at(n + 1);
-                    route = r;
-                    route_param = &p[1..];
-                }
-            }
+            let (route, route_param) = router::get();
 
             html! {
                 <div class="container">
@@ -90,7 +77,7 @@ impl Renderable<App> for App {
                                         <div class="subtitle">{"can haz herd cats?"}</div>
                                     </div>
                                     <div id="content">
-                                        {match route {
+                                        {match route.as_str() {
                                             "/" => html! {<NewMeow counter = self.counter/>},
                                             "/meow" => html! {
                                                 <FindMeow
@@ -144,7 +131,7 @@ impl Renderable<App> for App {
                         <div class="row">
                             <div class="contentcontainer", id="feedContent">
                                 <div>
-                                    {match route {
+                                    {match route.as_str() {
                                         "/" => html! {<FollowingFeed counter = self.counter/>},
                                         "/u" => html! {
                                             <UserFeed

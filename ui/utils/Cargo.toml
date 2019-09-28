@@ -6,4 +6,5 @@ edition = "2018"
 
 [dependencies]
 lazy_static = "1.4.0"
-serde = "1.0.100"
+serde = "1.0.101"
+stdweb = "0.4.18"
