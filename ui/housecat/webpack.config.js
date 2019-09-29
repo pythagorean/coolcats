@@ -29,8 +29,8 @@ module.exports = createConfig([
   }),
   setOutput({
     path: distPath,
-    filename: 'coolcats-ui.js',
-    webassemblyModuleFilename: 'coolcats-ui.wasm'
+    filename: 'housecat-ui.js',
+    webassemblyModuleFilename: 'housecat-ui.wasm'
   }),
   typescript(),
   css({
@@ -71,7 +71,7 @@ module.exports = createConfig([
       }],
       favicon: 'src/application/interfaces/images/favicon.png',
       appMountIds: ['holoclient', 'application'],
-      scripts: ['coolcats-ui.js'],
+      scripts: ['housecat-ui.js'],
       chunks: [],
     }),
     new HtmlBeautifyPlugin({

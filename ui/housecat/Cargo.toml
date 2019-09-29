@@ -1,5 +1,5 @@
 [package]
-name = "coolcats-ui"
+name = "housecat-ui"
 version = "0.2.0"
 authors = ["Michael Goldman <mike.goldman@allstreets.org>"]
 edition = "2018"
@@ -15,8 +15,7 @@ lazy_static = "1.4.0"
 serde = { version = "1.0.101", features = ["derive"] }
 serde_json = "1.0.40"
 stdweb = "0.4.18"
-strum = "0.15.0"
-strum_macros = "0.15.0"
+strum = "0.16.0"
+strum_macros = "0.16.0"
 wasm-bindgen = "=0.2.42"
-yew = "0.8.0"
-yew-router = "0.4.0"
+yew = "0.9.0"

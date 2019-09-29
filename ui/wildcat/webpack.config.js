@@ -31,8 +31,8 @@ module.exports = createConfig([
   setOutput({
     path: distPath,
     publicPath: '/',
-    filename: 'wildcat.js',
-    webassemblyModuleFilename: 'wildcat.wasm'
+    filename: 'wildcat-ui.js',
+    webassemblyModuleFilename: 'wildcat-ui.wasm'
   }),
   typescript(),
   match('*.scss', [
@@ -70,10 +70,10 @@ module.exports = createConfig([
       inject: false,
       template: require('html-webpack-template'),
       filename: 'index.html',
-      title: 'wildcat',
+      title: 'wildcat-ui',
       favicon: 'public/favicon.png',
       appMountIds: ['application'],
-      scripts: ['/wildcat.js'],
+      scripts: ['/wildcat-ui.js'],
       chunks: []
     }),
     new HtmlBeautifyPlugin({

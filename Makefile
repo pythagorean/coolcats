@@ -84,6 +84,14 @@ dna-clean:
 	(cd test; rm -rf node_modules package-lock.json)
 	find . -name *.dna.json -exec rm {} +
 
+present: present-coolcats
+
+present-coolcats: present-housecat
+
+present-housecat: presenter-start dna-start presenter-stop
+
+present-wildcat: presenter-start-wildcat dna-start presenter-stop
+
 presenter: presenter-build
 
 presenter-build: CARGO-required RUST_NIGHTLY-required

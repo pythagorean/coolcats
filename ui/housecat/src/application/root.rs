@@ -9,10 +9,9 @@ use yew::{
     prelude::*,
     services::{ConsoleService, DialogService, IntervalService, Task},
 };
-use yew_router::{routes, Route, RouterAgent};
 
-use coolcats_utils::{Dict, DictItem};
 use coolcats_holoclient::{ToHoloclient, ToApplication};
+use coolcats_utils::{Dict, DictItem, router::{self, Router, Route}};
 
 use super::{
     context::{self, ContextAgent},
@@ -20,13 +19,18 @@ use super::{
     interfaces::{app::App, edit_profile::EditProfile, follow::Follow},
 };
 
-// defines RouterTarget:
-routes! {
-    App => "/",
-    EditProfile => "/editProfile",
-    Follow => "/follow",
-    Meow => "/meow",
-    Error => "/error",
+#[derive(EnumString, IntoStaticStr)]
+pub enum RouterTarget {
+    #[strum(serialize = "/")]
+    App,
+    #[strum(serialize = "/editProfile")]
+    EditProfile,
+    #[strum(serialize = "/follow")]
+    Follow,
+    #[strum(serialize = "/meow")]
+    Meow,
+    #[strum(serialize = "/error")]
+    Error,
 }
 
 pub struct Root {
@@ -34,7 +38,7 @@ pub struct Root {
     state: State,
     conductor: String,
     child: RouterTarget,
-    router: Box<dyn Bridge<RouterAgent<()>>>,
+    router: Box<dyn Bridge<Router<()>>>,
     context: Box<dyn Bridge<ContextAgent>>,
     link: ComponentLink<Root>,
     interval: IntervalService,
@@ -116,7 +120,7 @@ impl Component for Root {
     type Properties = Props;
 
     fn create(props: Self::Properties, mut link: ComponentLink<Self>) -> Self {
-        let router = RouterAgent::bridge(link.send_back(Msg::Route));
+        let router = Router::bridge(link.send_back(Msg::Route));
         let context = ContextAgent::bridge(link.send_back(Msg::ContextMsg));
         let mut root = Self {
             callback: props.callback,
@@ -141,12 +145,13 @@ impl Component for Root {
             }
 
             Msg::Route(route) => {
-                self.child = route.into();
+                self.child = RouterTarget::from_str(&route.route).unwrap_or(RouterTarget::Error);
                 return true;
             }
 
             Msg::ChangeRoute(target) => {
-                self.router.send(yew_router::Request::ChangeRoute(target.into()));
+                let route: Route<()> = Route::set("/#", target.into());
+                self.router.send(router::Request::ChangeRoute(route));
             }
 
             Msg::ContextMsg(response) => {

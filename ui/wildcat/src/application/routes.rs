@@ -2,7 +2,7 @@ use std::str::FromStr;
 use strum_macros::{EnumString, IntoStaticStr};
 use yew::prelude::*;
 
-use coolcats_utils::router;
+use coolcats_utils::router::RouteService;
 use wildcat_macros::ImplComponent;
 use super::pages::home_page::HomePage;
 
@@ -19,10 +19,11 @@ enum Route {
 
 impl Renderable<Routes> for Routes {
     fn view(&self) -> Html<Self> {
-        let (route, _) = router::get();
+        let route_service: RouteService<()> = RouteService::new();
+        let (route, _) = route_service.get_route_and_param();
         match Route::from_str(&route) {
             Ok(Route::SiteRoot) => {
-                router::set(Route::HomePage.into(), "");
+                route_service.set_route(Route::HomePage.into(), ());
                 self.view()
             }
             Ok(Route::HomePage) => html! {

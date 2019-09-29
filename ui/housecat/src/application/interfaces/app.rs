@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use coolcats_utils::router;
+use coolcats_utils::router::RouteService;
 use crate::application::{
     Action,
     context::{self, ContextAgent},
@@ -39,7 +39,8 @@ impl Renderable<App> for App {
                 </div>
             }
         } else {
-            let (route, route_param) = router::get();
+            let route_service: RouteService<()> = RouteService::new();
+            let (route, route_param) = route_service.get_route_and_param();
 
             html! {
                 <div class="container">
