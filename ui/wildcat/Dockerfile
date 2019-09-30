@@ -62,6 +62,8 @@ WORKDIR /home/docker/shared
 COPY ./tmp/shared/ ./
 WORKDIR /home/docker/wildcat
 COPY Cargo.toml bootstrap.js package.json tsconfig.json webpack.config.js ./
+RUN (echo "[profile.release]"; echo "codegen-units = 1"; echo "opt-level = 's'") \
+  >> Cargo.toml
 COPY ./src/ ./src/
 COPY ./macros/ ./macros/
 COPY ./public/ ./public/
