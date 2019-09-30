@@ -22,6 +22,7 @@ RUN apt-get update && apt-get install -y \
     git \
     musl-tools \
     ninja-build \
+    upx-ucl \
     yarn \
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -55,7 +56,7 @@ COPY ./tmp/presenter/src/ ./src/
 
 # Build presenter
 RUN cargo install --target x86_64-unknown-linux-musl --path . \
-  && cargo clean && strip `which presenter`
+  && cargo clean && strip `which presenter` && upx -9q `which presenter`
 
 # Copy the wildcat files
 WORKDIR /home/docker/shared
