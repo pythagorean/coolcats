@@ -1,10 +1,11 @@
 [package]
-name = "coolcats-utils"
+name = "coolcats-ui-shared"
 version = "0.2.0"
 authors = ["Michael Goldman <mike.goldman@allstreets.org>"]
 edition = "2018"
 
 [dependencies]
+json = "0.11.15"
 lazy_static = "1.4.0"
 serde = { version = "1.0.101", features = ["derive"] }
 stdweb = "0.4.18"

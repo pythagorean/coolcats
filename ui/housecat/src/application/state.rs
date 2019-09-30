@@ -1,6 +1,6 @@
 use serde::{Serialize, Deserialize};
 
-use coolcats_utils::{Dict, DictKey};
+use coolcats_ui_shared::{Dict, DictKey};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct State(Dict);

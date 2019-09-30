@@ -34,7 +34,7 @@ where
         Self {
             route: route.into(),
             route_param: route_param.into(),
-            state: T::default()
+            state: T::default(),
         }
     }
 }

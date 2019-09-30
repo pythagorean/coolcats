@@ -12,7 +12,7 @@ codegen-units = 1
 opt-level = 's'
 
 [dependencies]
-coolcats-utils = { path = "../utils" }
+coolcats-ui-shared = { path = "../shared" }
 fluent = "0.7.1"
 lazy_static = "1.4.0"
 serde = { version = "1.0.101", features = ["derive"] }

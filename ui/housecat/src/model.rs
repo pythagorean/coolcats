@@ -1,6 +1,6 @@
 use yew::{prelude::*, html::Scope};
 
-use coolcats_holoclient::{self as holoclient, Holoclient, ToHoloclient, ToApplication};
+use coolcats_ui_shared::holoclient::{self as holoclient, Holoclient, ToHoloclient, ToApplication};
 use crate::application::{self, Application};
 
 pub enum ModelType {

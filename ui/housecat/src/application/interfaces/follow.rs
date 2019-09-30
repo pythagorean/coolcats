@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use coolcats_utils::Dict;
+use coolcats_ui_shared::Dict;
 use crate::application::{
     Action,
     context::{self, ContextAgent},

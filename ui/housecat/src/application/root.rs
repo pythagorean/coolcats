@@ -10,8 +10,11 @@ use yew::{
     services::{ConsoleService, DialogService, IntervalService, Task},
 };
 
-use coolcats_holoclient::{ToHoloclient, ToApplication};
-use coolcats_utils::{Dict, DictItem, router::{self, Router, Route}};
+use coolcats_ui_shared::{
+    Dict, DictItem,
+    holoclient::{ToHoloclient, ToApplication},
+    router::{self, Router, Route},
+};
 
 use super::{
     context::{self, ContextAgent},
@@ -524,14 +527,14 @@ impl Root {
         let call = ToHoloclient::Call(
             (&[self.conductor.as_str(), "coolcats", method][..], params, redux, meta).into(),
         );
-        self.update(call.into());;
+        self.update(call.into());
     }
 
     fn coolcats(&mut self, method: &str, params: &[DictItem], redux: &str) {
         let call = ToHoloclient::Call(
             (&[self.conductor.as_str(), "coolcats", method][..], params, redux).into(),
         );
-        self.update(call.into());;
+        self.update(call.into());
     }
 
     fn get_my_handle(&mut self) {

@@ -1,7 +1,7 @@
 use yew::prelude::*;
 use serde::Deserialize;
 
-use coolcats_utils::DictItem;
+use crate::DictItem;
 
 use super::{
     websocket::{WebSocketService, WebSocketStatus},

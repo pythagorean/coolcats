@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use coolcats_utils::router::RouteService;
+use coolcats_ui_shared::router::RouteService;
 use crate::application::{
     Action,
     context::{self, ContextAgent},

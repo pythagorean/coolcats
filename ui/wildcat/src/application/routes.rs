@@ -2,7 +2,7 @@ use std::str::FromStr;
 use strum_macros::{EnumString, IntoStaticStr};
 use yew::prelude::*;
 
-use coolcats_utils::router::RouteService;
+use coolcats_ui_shared::router::RouteService;
 use wildcat_macros::ImplComponent;
 use super::pages::home_page::HomePage;
 

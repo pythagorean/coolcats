@@ -58,8 +58,8 @@ RUN cargo install --target x86_64-unknown-linux-musl --path . \
   && cargo clean && strip `which presenter`
 
 # Copy the wildcat files
-WORKDIR /home/docker/utils
-COPY ./tmp/utils/ ./
+WORKDIR /home/docker/shared
+COPY ./tmp/shared/ ./
 WORKDIR /home/docker/wildcat
 COPY Cargo.toml bootstrap.js package.json tsconfig.json webpack.config.js ./
 COPY ./src/ ./src/

@@ -8,8 +8,7 @@ edition = "2018"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-coolcats-holoclient = { path = "../holoclient" }
-coolcats-utils = { path = "../utils" }
+coolcats-ui-shared = { path = "../shared" }
 json = "0.11.15"
 lazy_static = "1.4.0"
 serde = { version = "1.0.101", features = ["derive"] }
