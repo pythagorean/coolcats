@@ -132,7 +132,6 @@ pub enum ToHoloclient {
 
 #[derive(PartialEq, Properties)]
 pub struct Props {
-    #[props(required)]
     pub ws_server: String,
     #[props(required)]
     pub params: Params,
@@ -151,7 +150,14 @@ impl Component for Holoclient {
             callback: props.callback,
             rpc_id: 0,
         };
-        holoclient.update(WsAction::Connect(props.ws_server).into());
+        holoclient.update(
+            WsAction::Connect(if !props.ws_server.is_empty() {
+                props.ws_server
+            } else {
+                "ws://localhost:8888".into()
+            })
+            .into(),
+        );
         holoclient
     }
 

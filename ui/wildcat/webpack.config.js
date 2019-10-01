@@ -72,7 +72,7 @@ module.exports = createConfig([
       filename: 'index.html',
       title: 'wildcat-ui',
       favicon: 'public/favicon.png',
-      appMountIds: ['application'],
+      appMountIds: ['holoclient', 'application'],
       scripts: ['/wildcat-ui.js'],
       chunks: []
     }),

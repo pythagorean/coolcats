@@ -6,4 +6,4 @@ pub mod resources;
 pub mod routes;
 pub mod state;
 
-pub use self::routes::Routes as Application;
+pub use self::routes::{Routes as Application, Params};

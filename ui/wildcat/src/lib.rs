@@ -6,13 +6,16 @@ use yew::{html::Scope, prelude::App};
 mod application;
 
 mod model;
-use model::Model;
+use model::{Model, ModelType, Msg as ModelMsg};
 
 // This is the entry point for the web app
 #[wasm_bindgen]
 pub fn run_app() -> Result<(), JsValue> {
     yew::initialize();
-    mount_new_app("#application");
+    let mut to_holoclient = mount_new_app("#holoclient");
+    let mut to_application = mount_new_app("#application");
+    to_holoclient.send_message(ModelMsg::SetModel(ModelType::Holoclient, to_application.clone()));
+    to_application.send_message(ModelMsg::SetModel(ModelType::Application, to_holoclient));
     yew::run_loop();
     Ok(())
 }
