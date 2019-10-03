@@ -35,7 +35,7 @@ impl Renderable<HomePage> for HomePage {
         if app_properties.string("Agent_Handle").is_empty() {
             let route: Route<()> = Route::set(RouterTarget::SettingsPage.into(), "");
             Router::dispatcher().send(RouterRequest::ChangeRoute(route));
-            return html! {{"Redirected"}};
+            return html! {};
         }
 
         let account = "";

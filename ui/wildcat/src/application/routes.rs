@@ -1,10 +1,10 @@
 use std::str::FromStr;
 use strum_macros::{EnumString, IntoStaticStr};
-use yew::prelude::*;
+use yew::{prelude::*, agent::Dispatched};
 
 use coolcats_ui_shared::{
     holoclient::{ToHoloclient, ToApplication},
-    router::{RouteService, Router, Route, Request as RouterRequest},
+    router::{Router, Route, Request as RouterRequest},
 };
 use super::pages::{home_page::HomePage, settings_page::SettingsPage};
 
@@ -32,9 +32,9 @@ impl Renderable<Routes> for RouterTarget {
     fn view(&self) -> Html<Routes> {
         match self {
             RouterTarget::SiteRoot => {
-                // Child has no router of its own
-                RouteService::new().set_route(RouterTarget::HomePage.into(), ());
-                RouterTarget::HomePage.view()
+                let route: Route<()> = Route::set(RouterTarget::HomePage.into(), "");
+                Router::dispatcher().send(RouterRequest::ChangeRoute(route));
+                html! {}
             }
             RouterTarget::HomePage => html! {
                 <HomePage />
