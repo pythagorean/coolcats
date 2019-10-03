@@ -9,13 +9,13 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 coolcats-ui-shared = { path = "../shared" }
-fluent = "0.7.1"
+fluent = "0.7.2"
 lazy_static = "1.4.0"
 serde = { version = "1.0.101", features = ["derive"] }
 stdweb = "0.4.19"
 strum = "0.16.0"
 strum_macros = "0.16.0"
-unic-langid = "0.4.2"
+unic-langid = { version = "0.5.2", features = ["macros"] }
 wasm-bindgen = "=0.2.42"
 wildcat-macros = { path = "macros" }
 yew = "0.9.0"
