@@ -36,7 +36,7 @@ impl State {
         }
     }
 
-    pub fn set(&self) -> bool {
+    pub fn is_set(&self) -> bool {
         self.status != Status::Unset
     }
 
@@ -49,6 +49,10 @@ impl State {
                 dict: self.dict.subset(keys),
             }
         }
+    }
+
+    pub fn get_dict(&self, key: &str) -> &Dict {
+        self.dict.get_dict(key)
     }
 
     pub fn strings(&self, key: &str) -> &Vec<String> {

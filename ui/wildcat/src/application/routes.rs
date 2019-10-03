@@ -4,10 +4,9 @@ use yew::prelude::*;
 
 use coolcats_ui_shared::{
     holoclient::{ToHoloclient, ToApplication},
-    router::RouteService,
+    router::{RouteService, Router, Route, Request as RouterRequest},
 };
-use wildcat_macros::PropsComponent;
-use super::pages::home_page::HomePage;
+use super::pages::{home_page::HomePage, settings_page::SettingsPage};
 
 #[derive(PartialEq, Properties)]
 pub struct Props {
@@ -17,28 +16,36 @@ pub struct Props {
     pub callback: Callback<ToHoloclient>,
 }
 
-#[derive(PropsComponent)]
 pub struct Routes {
     props: Props,
+    router: Box<dyn Bridge<Router<()>>>,
+    child: RouterTarget,
 }
 
 impl Renderable<Routes> for Routes {
     fn view(&self) -> Html<Self> {
-        let route_service: RouteService<()> = RouteService::new();
-        let (route, _) = route_service.get_route_and_param();
-        match Route::from_str(&route) {
-            Ok(route) => match route {
-                Route::SiteRoot => {
-                    route_service.set_route(Route::HomePage.into(), ());
-                    self.view()
-                }
-                Route::HomePage => html! {
-                    <HomePage />
-                }
+        self.child.view()
+    }
+}
+
+impl Renderable<Routes> for RouterTarget {
+    fn view(&self) -> Html<Routes> {
+        match self {
+            RouterTarget::SiteRoot => {
+                // Child has no router of its own
+                RouteService::new().set_route(RouterTarget::HomePage.into(), ());
+                RouterTarget::HomePage.view()
             }
-            Err(_) => html! {
+            RouterTarget::HomePage => html! {
+                <HomePage />
+            },
+            RouterTarget::SettingsPage => html! {
+                <SettingsPage />
+            },
+            RouterTarget::Error => html! {
                 <h1>{"404"}</h1>
             },
+            RouterTarget::Unset => html! {},
         }
     }
 }
@@ -47,9 +54,53 @@ impl Renderable<Routes> for Routes {
 pub struct Params(pub ToApplication);
 
 #[derive(EnumString, IntoStaticStr)]
-enum Route {
+pub enum RouterTarget {
     #[strum(serialize = "/")]
     SiteRoot,
     #[strum(serialize = "/home")]
     HomePage,
+    #[strum(serialize = "/settings")]
+    SettingsPage,
+    #[strum(disabled = "true")]
+    Error,
+    #[strum(disabled = "true")]
+    Unset,
+}
+
+pub enum Msg {
+    Route(Route<()>),
+}
+
+impl Component for Routes {
+    type Message = Msg;
+    type Properties = Props;
+
+    fn create(props: Self::Properties, mut link: ComponentLink<Self>) -> Self {
+        let router = Router::bridge(link.send_back(Msg::Route));
+        let child = RouterTarget::Unset;
+        Self {
+            props,
+            router,
+            child,
+        }
+    }
+
+    fn mounted(&mut self) -> ShouldRender {
+        self.router.send(RouterRequest::GetCurrentRoute);
+        false
+    }
+
+    fn update(&mut self, msg: Self::Message) -> ShouldRender {
+        match msg {
+            Msg::Route(route) => {
+                self.child = RouterTarget::from_str(&route.route).unwrap_or(RouterTarget::Error);
+                true
+            }
+        }
+    }
+
+    fn change(&mut self, props: Self::Properties) -> ShouldRender {
+        self.props = props;
+        true
+    }
 }

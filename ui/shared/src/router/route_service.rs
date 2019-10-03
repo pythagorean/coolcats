@@ -56,10 +56,14 @@ where
     }
 
     pub fn set_route_and_param(&self, route: &str, route_param: &str, state: T) {
-        self.history.push_state(state, "", Some(&[route, route_param].join("/")));
+        if route_param.is_empty() {
+            self.set_route(route, state);
+        } else {
+            self.history.push_state(state, "", Some(&[route, route_param].join("/")));
+        }
     }
 
     pub fn set_route(&self, route: &str, state: T) {
-        self.set_route_and_param(route, "", state)
+        self.history.push_state(state, "", Some(route));
     }
 }

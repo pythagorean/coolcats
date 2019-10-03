@@ -1,7 +1,11 @@
-use yew::prelude::*;
+use yew::{prelude::*, agent::Dispatched};
 
-use wildcat_macros::ImplComponent;
+use coolcats_ui_shared::router::{Router, Route, Request as RouterRequest};
+use wildcat_macros::{StateComponent, UsesStateValues, use_state_values};
 use crate::application::{
+    context,
+    state::State,
+    routes::RouterTarget,
     facilities::avatar::Avatar,
     features::{
         compose::compose_form::ComposeForm,
@@ -13,13 +17,28 @@ use crate::application::{
     },
 };
 
-#[derive(ImplComponent)]
-pub struct HomePage;
+use_state_values!("app_properties");
+
+#[derive(UsesStateValues, StateComponent)]
+pub struct HomePage {
+    context: Box<dyn Bridge<context::Worker>>,
+    substate: State,
+}
 
 impl Renderable<HomePage> for HomePage {
     fn view(&self) -> Html<Self> {
-        let account = "";
+        if !self.substate.is_set() {
+            return html! {};
+        }
+        let app_properties = self.substate.get_dict("app_properties");
 
+        if app_properties.string("Agent_Handle").is_empty() {
+            let route: Route<()> = Route::set(RouterTarget::SettingsPage.into(), "");
+            Router::dispatcher().send(RouterRequest::ChangeRoute(route));
+            return html! {{"Redirected"}};
+        }
+
+        let account = "";
         html! {
             <div class = "page">
                 <div class = "page__columns">

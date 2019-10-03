@@ -13,7 +13,7 @@ pub struct UploadProgress {
 
 impl Renderable<UploadProgress> for UploadProgress {
     fn view(&self) -> Html<Self> {
-        if !self.substate.set() {
+        if !self.substate.is_set() {
             return html! {};
         }
 
