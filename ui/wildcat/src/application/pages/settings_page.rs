@@ -12,12 +12,18 @@ struct SimpleForm {
 
 impl SimpleForm {
     fn input(&self, name: &str, maxlength: u16) -> Html<SettingsPage> {
-        let (name, render) = if name.contains(":") {
+        let (name, render) = if name.contains(':') {
             let v: Vec<&str> = name.splitn(2, ':').collect();
             (v[0], v[1])
-        } else { (name, name) };
+        } else {
+            (name, name)
+        };
         let form_for = self.form_for.clone() + "_" + name;
-        let input_class = if maxlength < 500 { "string optional" } else { "text optional" };
+        let input_class = if maxlength < 500 {
+            "string optional"
+        } else {
+            "text optional"
+        };
 
         html! {
             <div class = format!("input with_label {} {}", input_class, form_for)>
@@ -53,7 +59,9 @@ impl SimpleForm {
 
 impl Renderable<SettingsPage> for SettingsPage {
     fn view(&self) -> Html<Self> {
-        let f = SimpleForm { form_for: "account".into() };
+        let f = SimpleForm {
+            form_for: "account".into(),
+        };
         html! { <div> //From mastodon app/views/settings/profiles/show.html.haml
             /*
             //<% content_for :page_title do %>
@@ -69,7 +77,7 @@ impl Renderable<SettingsPage> for SettingsPage {
                         //<%= f.input :display_name, wrapper: :with_label, input_html: { maxlength: 30 }, hint: false %>
                         {f.input("display_name", 30)}
                         //<%= f.input :note, wrapper: :with_label, input_html: { maxlength: 500 }, hint: false %>
-                        {f.input("note:Bio", 500)}
+                        {f.input("note:bio", 500)}
                     </div>
                 </div>
 
