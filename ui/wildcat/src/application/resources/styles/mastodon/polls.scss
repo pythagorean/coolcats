@@ -5,7 +5,6 @@
   li {
     margin-bottom: 10px;
     position: relative;
-    height: 18px + 12px;
   }
 
   &__chart {
@@ -15,21 +14,21 @@
     height: 100%;
     display: inline-block;
     border-radius: 4px;
-    background: rgba($gab-placeholder-accent, .3);
-    &.leading {background: rgba($gab-placeholder-accent, .6);}
+    background: darken($ui-primary-color, 14%);
+
+    &.leading {
+      background: $ui-highlight-color;
+    }
   }
 
   &__text {
     position: relative;
-    display: inline-block;
+    display: flex;
     padding: 6px 0;
     line-height: 18px;
     cursor: default;
-    white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;
-    color: #fff;
-    body.theme-gabsocial-light & {color: $gab-default-text-light;}
+
     input[type=radio],
     input[type=checkbox] {
       display: none;
@@ -45,7 +44,6 @@
       width: 100%;
       font-size: 14px;
       color: $inverted-text-color;
-      display: block;
       outline: 0;
       font-family: inherit;
       background: $simple-background-color;
@@ -81,6 +79,9 @@
     top: -1px;
     border-radius: 50%;
     vertical-align: middle;
+    margin-top: auto;
+    margin-bottom: auto;
+    flex: 0 0 18px;
 
     &.checkbox {
       border-radius: 4px;
@@ -94,10 +95,19 @@
 
   &__number {
     display: inline-block;
-    width: 36px;
+    width: 48px;
     font-weight: 700;
     padding: 0 10px;
     text-align: right;
+    margin-top: auto;
+    margin-bottom: auto;
+    flex: 0 0 48px;
+  }
+
+  &__vote__mark {
+    float: left;
+    color: $valid-value-color;
+    line-height: 18px;
   }
 
   &__footer {

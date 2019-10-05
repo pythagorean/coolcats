@@ -6,6 +6,19 @@
   padding: 0;
 }
 
+.modal-layout__mastodon {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: flex-end;
+
+  > * {
+    flex: 1;
+    max-height: 235px;
+    background: url('../images/elephant_ui_plane.svg') no-repeat left bottom / contain;
+  }
+}
+
 @media screen and (max-width: 600px) {
   .account-header {
     margin-top: 0;

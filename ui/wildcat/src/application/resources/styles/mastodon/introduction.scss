@@ -1,8 +1,8 @@
 .introduction {
-  display: flex !important;
-  flex-direction: column !important;
-  justify-content: center !important;
-  align-items: center !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 
   @media screen and (max-width: 920px) {
     background: darken($ui-base-color, 8%);
@@ -60,6 +60,8 @@
   }
 
   &__text {
+    border-top: 2px solid $ui-highlight-color;
+
     &--columnized {
       display: flex;
 

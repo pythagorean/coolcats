@@ -1,7 +1,5 @@
-@import 'gabsocial/variables';
-
-//Check this out later - replace with 'gabsocial/fonts'
-//@import 'fonts/roboto';
+@import 'mastodon/variables';
+@import 'fonts/roboto';
 
 table,
 td,
@@ -180,7 +178,7 @@ p {
 p {
   font-size: 15px;
   line-height: 23px;
-  color: #fff;
+  color: $ui-primary-color;
   mso-line-height-rule: exactly;
   text-rendering: optimizelegibility;
 }
@@ -281,6 +279,8 @@ h5 {
 }
 
 .hero-with-button {
+  padding-bottom: 16px;
+
   h1 {
     margin-bottom: 4px;
   }
@@ -288,8 +288,6 @@ h5 {
   p.lead {
     margin-bottom: 32px;
   }
-
-  padding-bottom: 16px;
 }
 
 .header {
@@ -459,6 +457,13 @@ h5 {
 .status {
   padding-bottom: 32px;
 
+  &--highlighted {
+    border: 1px solid lighten($ui-base-color, 8%);
+    border-radius: 4px;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+  }
+
   .status-header {
     td {
       font-size: 14px;
@@ -514,7 +519,7 @@ ul {
     color: lighten($ui-base-color, 26%);
 
     span {
-      color: #fff;
+      color: $ui-primary-color;
     }
   }
 }

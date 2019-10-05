@@ -1,73 +1,16 @@
-// Going to create a Gab Specific color stack and gracefully remove the existing stack
-// We know what colors we want to use for everything in the UI
-// The existing color stack is based on propagating color tint variants of a few basic colors
-
-////////// GAB SPECIFIC VARIABLE STACK //////////
-
-// NOTE - will eventually create a systematic approach of setting color variables to easily change instance themes
-
-// STATIC COLORS
-
-$gab-brand-default: #21cf7a;
-$gab-alert-red: #cc6643;
-$gab-secondary-text: #999;
-$gab-text-highlight: $gab-brand-default;
-$gab-small-cta-primary: #607CF5;
-
-
-// THEME COLORS
-
-// default theme (dark)
-$gab-background-base: #333;
-$gab-background-container: #222;
-$gab-placeholder-accent: #666;
-
-
-// light theme
-$gab-background-base-light: #f2f3f6;
-$gab-background-container-light: #fff;
-$gab-default-text-light: #6c6c6c;
-
-
-
-
-
-// BREAKPOINT SETS
-
-// navigation breakpoints - by default show all elements and link names along with icons
-
-// turns navigation links into icon-only buttons
-$nav-breakpoint-1: 850px;
-// search field hidden and replaced with search icon link
-$nav-breakpoint-2: 650px;
-// "Gab" button hidden and replaced with floating button on bottom corner
-$nav-breakpoint-3: 450px;
-// Gab Logo hidden - bare minimum navigation for smallest width devices
-$nav-breakpoint-4: 375px;
-
-
-
-
-////////// EXISTING VARIABLE STACK (with modifications) //////////
-
 // Commonly used web colors
-
-// We certainly don't need variables for white and black.
-// you can declare color: white; color: black; or #fff; #000;
 $black: #000000;            // Black
 $white: #ffffff;            // White
-
-
 $success-green: #79bd9a !default;    // Padua
 $error-red: #df405a !default;        // Cerise
 $warning-red: #ff5050 !default;      // Sunset Orange
 $gold-star: #ca8f04 !default;        // Dark Goldenrod
 
-// Values from the classic Gab Social UI
-$classic-base-color: $gab-background-base;
-$classic-primary-color: $gab-background-base;
-$classic-secondary-color: $gab-placeholder-accent;
-$classic-highlight-color: $gab-text-highlight;
+// Values from the classic Mastodon UI
+$classic-base-color: #282c37;         // Midnight Express
+$classic-primary-color: #9baec8;      // Echo Blue
+$classic-secondary-color: #d9e1e8;    // Pattens Blue
+$classic-highlight-color: #2b90d9;    // Summer Sky
 
 // Variables for defaults in UI
 $base-shadow-color: $black !default;
@@ -86,7 +29,7 @@ $ui-highlight-color: $classic-highlight-color !default;
 
 // Variables for texts
 $primary-text-color: $white !default;
-$darker-text-color: $gab-secondary-text !default;
+$darker-text-color: $ui-primary-color !default;
 $dark-text-color: $ui-base-lighter-color !default;
 $secondary-text-color: $ui-secondary-color !default;
 $highlight-text-color: $ui-highlight-color !default;
@@ -106,6 +49,6 @@ $media-modal-media-max-height: 80%;
 
 $no-gap-breakpoint: 415px;
 
-$font-sans-serif: 'gabsocial-font-sans-serif' !default;
-$font-display: 'gabsocial-font-display' !default;
-$font-monospace: 'gabsocial-font-monospace' !default;
+$font-sans-serif: 'mastodon-font-sans-serif' !default;
+$font-display: 'mastodon-font-display' !default;
+$font-monospace: 'mastodon-font-monospace' !default;
