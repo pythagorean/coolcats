@@ -6,70 +6,17 @@ use wildcat_macros::ImplComponent;
 #[derive(ImplComponent)]
 pub struct SettingsPage;
 
-struct SimpleForm {
-    form_for: String,
-}
-
-impl SimpleForm {
-    fn input(&self, name: &str, maxlength: u16) -> Html<SettingsPage> {
-        let (name, render) = if name.contains(':') {
-            let v: Vec<&str> = name.splitn(2, ':').collect();
-            (v[0], v[1])
-        } else {
-            (name, name)
-        };
-        let form_for = self.form_for.clone() + "_" + name;
-        let input_class = if maxlength < 500 {
-            "string optional"
-        } else {
-            "text optional"
-        };
-
-        html! {
-            <div class = format!("input with_label {} {}", input_class, form_for)>
-                <div class = "label_input">
-                    <label class = input_class, for = form_for>
-                        {titlecase(render).replace("_", " ")}
-                    </label>
-                    <div class = "label_input__wrapper">
-                        {if maxlength < 500 { html! {
-                            <input
-                                name = format!("{}[{}]", self.form_for, name),
-                                id = form_for,
-                                maxlength = maxlength,
-                                class = input_class,
-                                size = maxlength,
-                                type = "text"
-                            />
-                        }} else { html! {
-                            <textarea
-                                name = format!("{}[{}]", self.form_for, name),
-                                id = form_for,
-                                maxlength = maxlength,
-                                class = input_class,
-                                type = "text"
-                            />
-                        }}}
-                    </div>
-                </div>
-            </div>
-        }
-    }
-}
-
 impl Renderable<SettingsPage> for SettingsPage {
     fn view(&self) -> Html<Self> {
         let f = SimpleForm {
             form_for: "account".into(),
         };
-        html! { <div> //From mastodon app/views/settings/profiles/show.html.haml
-            /*
-            //<% content_for :page_title do %>
-                //<%= t('settings.edit_profile') %>
-            //<% end %>*/
+        //From mastodon app/views/settings/profiles/show.html.haml
+        //<% content_for :page_title do %>
+        content_for("edit_profile", html! { <>
+            //<%= t('settings.edit_profile') %>
 
             //<%= simple_form_for @account, url: settings_profile_path, html: { method: :put } do |f| %>
-
             //<form>
                 //<%= render 'shared/error_messages', object: @account %>
                 <div class = "fields-row">
@@ -173,6 +120,68 @@ impl Renderable<SettingsPage> for SettingsPage {
                     //<%= t('auth.delete_account_html', path: settings_delete_path) %>
                 </p>
             //<% end %>
-        </div> }
+        </> })
+    }
+}
+
+fn content_for(name: &str, html: Html<SettingsPage>) -> Html<SettingsPage> {
+    html! {
+        <div class = "content-wrapper">
+            <div class = "content">
+                <h2>{titlecase(name).replace("_", " ")}</h2>
+                {html}
+            </div>
+        </div>
+    }
+}
+
+struct SimpleForm {
+    form_for: String,
+}
+
+impl SimpleForm {
+    fn input(&self, name: &str, maxlength: u16) -> Html<SettingsPage> {
+        let (name, render) = if name.contains(':') {
+            let v: Vec<&str> = name.splitn(2, ':').collect();
+            (v[0], v[1])
+        } else {
+            (name, name)
+        };
+        let form_for = self.form_for.clone() + "_" + name;
+        let input_class = if maxlength < 500 {
+            "string optional"
+        } else {
+            "text optional"
+        };
+
+        html! {
+            <div class = format!("input with_label {} {}", input_class, form_for)>
+                <div class = "label_input">
+                    <label class = input_class, for = form_for>
+                        {titlecase(render).replace("_", " ")}
+                    </label>
+                    <div class = "label_input__wrapper">
+                        {if maxlength < 500 { html! {
+                            <input
+                                name = format!("{}[{}]", self.form_for, name),
+                                id = form_for,
+                                maxlength = maxlength,
+                                class = input_class,
+                                size = maxlength,
+                                type = "text"
+                            />
+                        }} else { html! {
+                            <textarea
+                                name = format!("{}[{}]", self.form_for, name),
+                                id = form_for,
+                                maxlength = maxlength,
+                                class = input_class,
+                                type = "text"
+                            />
+                        }}}
+                    </div>
+                </div>
+            </div>
+        }
     }
 }
