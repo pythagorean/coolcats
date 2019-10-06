@@ -1,7 +1,10 @@
-use titlecase::titlecase;
 use yew::prelude::*;
 
 use wildcat_macros::ImplComponent;
+use crate::application::{
+    facilities::simple_form::SimpleForm,
+    layouts::{admin::admin_wrap, content_for::content_for},
+};
 
 #[derive(ImplComponent)]
 pub struct SettingsPage;
@@ -13,7 +16,7 @@ impl Renderable<SettingsPage> for SettingsPage {
         };
         //From mastodon app/views/settings/profiles/show.html.haml
         //<% content_for :page_title do %>
-        content_for("edit_profile", html! { <>
+        admin_wrap(content_for("edit_profile", html! { <>
             //<%= t('settings.edit_profile') %>
 
             //<%= simple_form_for @account, url: settings_profile_path, html: { method: :put } do |f| %>
@@ -120,68 +123,6 @@ impl Renderable<SettingsPage> for SettingsPage {
                     //<%= t('auth.delete_account_html', path: settings_delete_path) %>
                 </p>
             //<% end %>
-        </> })
-    }
-}
-
-fn content_for(name: &str, html: Html<SettingsPage>) -> Html<SettingsPage> {
-    html! {
-        <div class = "content-wrapper">
-            <div class = "content">
-                <h2>{titlecase(name).replace("_", " ")}</h2>
-                {html}
-            </div>
-        </div>
-    }
-}
-
-struct SimpleForm {
-    form_for: String,
-}
-
-impl SimpleForm {
-    fn input(&self, name: &str, maxlength: u16) -> Html<SettingsPage> {
-        let (name, render) = if name.contains(':') {
-            let v: Vec<&str> = name.splitn(2, ':').collect();
-            (v[0], v[1])
-        } else {
-            (name, name)
-        };
-        let form_for = self.form_for.clone() + "_" + name;
-        let input_class = if maxlength < 500 {
-            "string optional"
-        } else {
-            "text optional"
-        };
-
-        html! {
-            <div class = format!("input with_label {} {}", input_class, form_for)>
-                <div class = "label_input">
-                    <label class = input_class, for = form_for>
-                        {titlecase(render).replace("_", " ")}
-                    </label>
-                    <div class = "label_input__wrapper">
-                        {if maxlength < 500 { html! {
-                            <input
-                                name = format!("{}[{}]", self.form_for, name),
-                                id = form_for,
-                                maxlength = maxlength,
-                                class = input_class,
-                                size = maxlength,
-                                type = "text"
-                            />
-                        }} else { html! {
-                            <textarea
-                                name = format!("{}[{}]", self.form_for, name),
-                                id = form_for,
-                                maxlength = maxlength,
-                                class = input_class,
-                                type = "text"
-                            />
-                        }}}
-                    </div>
-                </div>
-            </div>
-        }
+        </> }))
     }
 }
