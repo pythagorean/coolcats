@@ -3,7 +3,7 @@ use yew::prelude::*;
 use wildcat_macros::ImplComponent;
 use crate::application::{
     facilities::simple_form::SimpleForm,
-    layouts::{admin::admin_wrap, content_for::content_for},
+    layouts::admin::admin_wrap,
 };
 
 #[derive(ImplComponent)]
@@ -11,15 +11,12 @@ pub struct SettingsPage;
 
 impl Renderable<SettingsPage> for SettingsPage {
     fn view(&self) -> Html<Self> {
+        //From mastodon app/views/settings/profiles/show.html.haml
+        //<%= simple_form_for @account, url: settings_profile_path, html: { method: :put } do |f| %>
         let f = SimpleForm {
             form_for: "account".into(),
         };
-        //From mastodon app/views/settings/profiles/show.html.haml
-        //<% content_for :page_title do %>
-        admin_wrap(content_for("edit_profile", html! { <>
-            //<%= t('settings.edit_profile') %>
-
-            //<%= simple_form_for @account, url: settings_profile_path, html: { method: :put } do |f| %>
+        let content = html! { <>
             //<form>
                 //<%= render 'shared/error_messages', object: @account %>
                 <div class = "fields-row">
@@ -123,6 +120,9 @@ impl Renderable<SettingsPage> for SettingsPage {
                     //<%= t('auth.delete_account_html', path: settings_delete_path) %>
                 </p>
             //<% end %>
-        </> }))
+        </> };
+        //<% content_for :page_title do %>
+            //<%= t('settings.edit_profile') %>
+        admin_wrap("edit_profile", content)
     }
 }
