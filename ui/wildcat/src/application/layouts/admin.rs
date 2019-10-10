@@ -1,6 +1,8 @@
 use titlecase::titlecase;
 use yew::prelude::*;
 
+use crate::application::helpers::{link_to::link_to, statuses_helper::svg_logo_full};
+
 pub fn admin_wrap<T: Component>(page_title: &str, html: Html<T>) -> Html<T> {
     //From mastodon app/views/layouts/admin.html.haml
     html! {
@@ -12,18 +14,18 @@ pub fn admin_wrap<T: Component>(page_title: &str, html: Html<T>) -> Html<T> {
             <div class = "sidebar-wrapper">
                 <div class = "sidebar-wrapper__inner">
                     <div class = "sidebar">
-                        //<%= link_to root_path do %>
+                        {link_to("/", html! {
                             //<%= image_pack_tag 'logo.svg', class: 'logo', alt: 'Mastodon' %>
-                        //<% end %>
+                        })}
                         <div class = "sidebar__toggle">
                             <div class = "sidebar__toggle__logo">
-                                //<%= link_to root_path do %>
-                                    //<%= svg_logo_full %>
-                                //<% end %>
+                                {link_to("/", svg_logo_full())}
                             </div>
                             //<%= link_to '#', class: 'sidebar__toggle__icon' do %>
+                            <a href = "#", class = "sidebar__toggle__icon">
                                 //<%= fa_icon 'bars' %>
-                            //<% end %>
+                                <i class = "fa fa-bars"></i>
+                            </a>
                         </div>
                         //<%= render_navigation %>
                     </div>
