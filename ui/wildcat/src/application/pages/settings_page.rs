@@ -1,10 +1,7 @@
 use yew::prelude::*;
 
 use wildcat_macros::ImplComponent;
-use crate::application::{
-    facilities::simple_form::SimpleForm,
-    layouts::admin::admin_wrap,
-};
+use crate::application::{facilities::simple_form::SimpleForm, layouts::admin::admin_wrap};
 
 #[derive(ImplComponent)]
 pub struct SettingsPage;
@@ -122,7 +119,7 @@ impl Renderable<SettingsPage> for SettingsPage {
             //<% end %>
         </> };
         //<% content_for :page_title do %>
-            //<%= t('settings.edit_profile') %>
+        //<%= t('settings.edit_profile') %>
         admin_wrap("edit_profile", content)
     }
 }

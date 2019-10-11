@@ -12,7 +12,7 @@ coolcats-ui-shared = { path = "../shared" }
 fluent = "0.8.0"
 lazy_static = "1.4.0"
 serde = { version = "1.0.101", features = ["derive"] }
-stdweb = "0.4.19"
+stdweb = "0.4.20"
 strum = "0.16.0"
 strum_macros = "0.16.0"
 titlecase = "0.10.0"

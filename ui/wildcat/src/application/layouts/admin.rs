@@ -1,10 +1,17 @@
 use titlecase::titlecase;
+use stdweb::web::document;
 use yew::prelude::*;
 
-use crate::application::helpers::{link_to::link_to, statuses_helper::svg_logo_full};
+use crate::application::{
+    helpers::{link_to::*, application_helper::fa_icon, statuses_helper::svg_logo_full},
+    navigation::Navigation,
+    routes::RouterTarget,
+};
 
 pub fn admin_wrap<T: Component>(page_title: &str, html: Html<T>) -> Html<T> {
     //From mastodon app/views/layouts/admin.html.haml
+    let page_title = titlecase(page_title).replace("_", " ");
+    document().set_title(&format!("{} - Coolcats", page_title));
     html! {
         //<% content_for :header_tags do %>
             //<%= javascript_pack_tag 'public', integrity: true, crossorigin: 'anonymous' %>
@@ -14,28 +21,23 @@ pub fn admin_wrap<T: Component>(page_title: &str, html: Html<T>) -> Html<T> {
             <div class = "sidebar-wrapper">
                 <div class = "sidebar-wrapper__inner">
                     <div class = "sidebar">
-                        {link_to("/", html! {
-                            //<%= image_pack_tag 'logo.svg', class: 'logo', alt: 'Mastodon' %>
+                        {link_to(RouterTarget::SiteRoot, html! {
+                            <img class = "logo", alt = "Coolcats", src = "/images/logo.svg"/>
                         })}
                         <div class = "sidebar__toggle">
                             <div class = "sidebar__toggle__logo">
-                                {link_to("/", svg_logo_full())}
+                                {link_to(RouterTarget::SiteRoot, svg_logo_full())}
                             </div>
-                            //<%= link_to '#', class: 'sidebar__toggle__icon' do %>
-                            <a href = "#", class = "sidebar__toggle__icon">
-                                //<%= fa_icon 'bars' %>
-                                <i class = "fa fa-bars"></i>
-                            </a>
+                            {link_to_class("sidebar__toggle__icon", fa_icon("bars"))}
                         </div>
-                        //<%= render_navigation %>
+                        <Navigation />
                     </div>
                 </div>
             </div>
             <div class = "content-wrapper">
                 <div class = "content">
                     <h2>
-                        //<%= yield :page_title %>
-                        {titlecase(page_title).replace("_", " ")}
+                        {page_title}
                     </h2>
                     //<%= render 'application/flashes' %>
                     //<%= yield %>

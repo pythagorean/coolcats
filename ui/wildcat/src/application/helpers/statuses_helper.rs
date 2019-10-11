@@ -15,6 +15,5 @@ pub fn svg_logo_full<T: Component>() -> Html<T> {
         return div;
     };
     let node = Node::try_from(js_svg).expect("convert js_svg");
-    let vnode = VNode::VRef(node);
-    vnode
+    VNode::VRef(node)
 }
