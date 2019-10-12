@@ -6,6 +6,14 @@ pub struct SimpleForm {
 }
 
 impl SimpleForm {
+    pub fn button<T: Component>(&self, name: &str, text: &str, button_type: &str) -> Html<T> {
+        html! {
+            <button name = name, type = button_type, class = "btn">
+                {text}
+            </button>
+        }
+    }
+
     pub fn input<T: Component>(&self, name: &str, maxlength: u16) -> Html<T> {
         let (name, render) = if name.contains(':') {
             let v: Vec<&str> = name.splitn(2, ':').collect();

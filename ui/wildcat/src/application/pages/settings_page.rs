@@ -9,9 +9,13 @@ use crate::application::{
 
 use_locale_values![
     "auth-delete_account",
+    "auth-delete_account_html",
     "auth-migrate_account",
+    "auth-migrate_account_html",
     "generic-copy",
+    "generic-save_changes",
     "migrations-incoming_migrations",
+    "migrations-incoming_migrations_html",
     "simple_form-labels-defaults-fields",
     "simple_form-hints-defaults-fields",
     "verification-explanation_html",
@@ -99,18 +103,17 @@ impl Renderable<SettingsPage> for SettingsPage {
                         <div class = "input-copy">
                             <div class = "input-copy__wrapper">
                                 <input type = "text", maxlength = 999, spellcheck = false, readonly = true/>
-                                    //{type: :text, maxlength: '999', spellcheck: 'false', readonly: 'true', value: link_to('Mastodon', ActivityPub::TagManager.instance.url_for(@account), rel: 'me').to_str }
+                                    //{type: :text, maxlength: '999', spellcheck: 'false', readonly: 'true',
+                                        //value: link_to('Mastodon', ActivityPub::TagManager.instance.url_for(@account), rel: 'me').to_str }
                             </div>
-                            //<button type = "<%= :button %>">
-                            <button>
+                            <button type = "button">
                                 {t("generic-copy")}
                             </button>
                         </div>
                     </div>
                 </div>
                 <div class = "actions">
-                    //<%= f.button :button, t('generic.save_changes'), type: :submit %>
-                    <button name = "button", type = "submit"/>
+                    {f.button("button", t("generic-save_changes"), "submit")}
                 </div>
             //</form>
             <hr/>
@@ -118,14 +121,14 @@ impl Renderable<SettingsPage> for SettingsPage {
                 {t("auth-migrate_account")}
             </h6>
             <p class = "muted-hint">
-                //<%= t('auth.migrate_account_html', path: settings_migration_path) %>
+                {htmlize(&t("auth-migrate_account_html").replace("%{path}", "/settings/migration"))}
             </p>
             <hr class = "spacer"/>
             <h6>
                 {t("migrations-incoming_migrations")}
             </h6>
             <p class = "muted-hint">
-                //<%= t('migrations.incoming_migrations_html', path: settings_aliases_path) %>
+                {htmlize(&t("migrations-incoming_migrations_html").replace("%{path}", "/settings/aliases"))}
             </p>
             //<% if open_deletion? %>
                 <hr class = "spacer"/>
@@ -133,7 +136,7 @@ impl Renderable<SettingsPage> for SettingsPage {
                     {t("auth-delete_account")}
                 </h6>
                 <p class = "muted-hint">
-                    //<%= t('auth.delete_account_html', path: settings_delete_path) %>
+                    {htmlize(&t("auth-delete_account_html").replace("%{path}", "/settings/delete"))}
                 </p>
             //<% end %>
         </> };
