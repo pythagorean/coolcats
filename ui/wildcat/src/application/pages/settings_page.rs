@@ -1,13 +1,32 @@
+use std::collections::HashMap;
 use yew::prelude::*;
 
-use wildcat_macros::ImplComponent;
-use crate::application::{facilities::simple_form::SimpleForm, layouts::admin::admin_wrap};
+use wildcat_macros::{LocaleComponent, UsesLocaleValues, use_locale_values};
+use crate::application::{
+    context, facilities::simple_form::SimpleForm, helpers::htmlize::htmlize,
+    layouts::admin::admin_wrap,
+};
 
-#[derive(ImplComponent)]
-pub struct SettingsPage;
+use_locale_values![
+    "auth-delete_account",
+    "auth-migrate_account",
+    "generic-copy",
+    "migrations-incoming_migrations",
+    "simple_form-labels-defaults-fields",
+    "simple_form-hints-defaults-fields",
+    "verification-explanation_html",
+    "verification-verification"
+];
+
+#[derive(LocaleComponent, UsesLocaleValues)]
+pub struct SettingsPage {
+    context: Box<dyn Bridge<context::Worker>>,
+    locale_values: HashMap<String, String>,
+}
 
 impl Renderable<SettingsPage> for SettingsPage {
     fn view(&self) -> Html<Self> {
+        let t = |message_id| self.get_locale_value(message_id);
         //From mastodon app/views/settings/profiles/show.html.haml
         //<%= simple_form_for @account, url: settings_profile_path, html: { method: :put } do |f| %>
         let f = SimpleForm {
@@ -57,10 +76,10 @@ impl Renderable<SettingsPage> for SettingsPage {
                     <div class = "fields-row__column fields-group fields-row__column-6">
                         <div class = "input with_block_label">
                             <label>
-                                //<%= t('simple_form.labels.defaults.fields') %>
+                                {t("simple_form-labels-defaults-fields")}
                             </label>
                             <span class = "hint">
-                                //<%= t('simple_form.hints.defaults.fields') %>
+                                {t("simple_form-hints-defaults-fields")}
                             </span>
                             //<%= f.simple_fields_for :fields do |fields_f| %>
                                 <div class = "row">
@@ -72,10 +91,10 @@ impl Renderable<SettingsPage> for SettingsPage {
                     </div>
                     <div class = "fields-row__column fields-group fields-row__column-6">
                         <h6>
-                            //<%= t('verification.verification') %>
+                            {t("verification-verification")}
                         </h6>
                         <p class = "hint">
-                            //<%= t('verification.explanation_html') %>
+                            {htmlize(t("verification-explanation_html"))}
                         </p>
                         <div class = "input-copy">
                             <div class = "input-copy__wrapper">
@@ -84,7 +103,7 @@ impl Renderable<SettingsPage> for SettingsPage {
                             </div>
                             //<button type = "<%= :button %>">
                             <button>
-                                //<%= t('generic.copy') %>
+                                {t("generic-copy")}
                             </button>
                         </div>
                     </div>
@@ -96,14 +115,14 @@ impl Renderable<SettingsPage> for SettingsPage {
             //</form>
             <hr/>
             <h6>
-                //<%= t('auth.migrate_account') %>
+                {t("auth-migrate_account")}
             </h6>
             <p class = "muted-hint">
                 //<%= t('auth.migrate_account_html', path: settings_migration_path) %>
             </p>
             <hr class = "spacer"/>
             <h6>
-                //<%= t 'migrations.incoming_migrations' %>
+                {t("migrations-incoming_migrations")}
             </h6>
             <p class = "muted-hint">
                 //<%= t('migrations.incoming_migrations_html', path: settings_aliases_path) %>
@@ -111,7 +130,7 @@ impl Renderable<SettingsPage> for SettingsPage {
             //<% if open_deletion? %>
                 <hr class = "spacer"/>
                 <h6>
-                    //<%= t('auth.delete_account') %>
+                    {t("auth-delete_account")}
                 </h6>
                 <p class = "muted-hint">
                     //<%= t('auth.delete_account_html', path: settings_delete_path) %>
@@ -119,7 +138,7 @@ impl Renderable<SettingsPage> for SettingsPage {
             //<% end %>
         </> };
         //<% content_for :page_title do %>
-        //<%= t('settings.edit_profile') %>
+            //<%= t('settings.edit_profile') %>
         admin_wrap("edit_profile", content)
     }
 }
