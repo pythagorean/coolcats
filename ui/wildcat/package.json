@@ -20,6 +20,7 @@
     "webpack-dev-server": "^3.8.2"
   },
   "dependencies": {
+    "font-awesome": "^4.7.0",
     "text-encoder-lite": "^2.0.0"
   }
 }
