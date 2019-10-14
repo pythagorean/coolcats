@@ -43,13 +43,13 @@ module.exports = createConfig([
     }),
     sass()
   ]),
-  match(['*.png', '*.svg'], [
+  match(['*.png', '*.svg', '!*-webfont.svg'], [
     file({
       name: '[name].[ext]',
       outputPath: 'images/'
     })
   ]),
-  match(['*.eot', '*.ttf', '*.woff', '*.woff2'], [
+  match(['*.eot', '*.ttf', '*.woff', '*.woff2', '*-webfont.svg'], [
     file({
       name: '[name].[ext]',
       outputPath: 'fonts/'

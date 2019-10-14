@@ -78,7 +78,7 @@ WORKDIR /home/docker/target/deploy
 RUN for file in *.wasm; do \
     ~/wasm-opt -Os -o $file.new $file && mv -f $file.new $file; \
   done; \
-  gzip -9 *.wasm *.js fonts/* */*.svg
+  gzip -9 *.wasm *.js fonts/* images/*.svg
 
 # Reduce our docker image to the built targets and prepare for docker run
 FROM scratch

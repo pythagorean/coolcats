@@ -115,7 +115,7 @@ presenter-start-housecat: presenter ui-deploy-housecat
 
 presenter-start-wildcat: presenter ui-deploy-wildcat
 	@echo "Compressing files to reduce bandwidth:"
-	@(cd ui/target/deploy; gzip -9 *.wasm *.js fonts/* */*.svg)
+	@(cd ui/target/deploy; gzip -9 *.wasm *.js fonts/* images/*.svg)
 	@wc -c ui/target/deploy/*.gz
 	presenter/target/release/presenter ui/target/deploy &
 	@sleep 1
