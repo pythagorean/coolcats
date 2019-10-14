@@ -37,7 +37,15 @@ impl Renderable<SettingsPage> for SettingsPage {
             form_for: "account".into(),
         };
         let content = html! { <>
-            //<form>
+            <form
+                class = "simple_form edit_account",
+                id = "edit_account_1",
+                novalidate = "novalidate",
+                enctype = "multipart/form-data",
+                action = "/settings/profile",
+                accept-charset = "UTF-8",
+                method = "post"
+            >
                 //<%= render 'shared/error_messages', object: @account %>
                 <div class = "fields-row">
                     <div class = "fields-row__column fields-group fields-row__column-6">
@@ -115,7 +123,7 @@ impl Renderable<SettingsPage> for SettingsPage {
                 <div class = "actions">
                     {f.button("button", t("generic-save_changes"), "submit")}
                 </div>
-            //</form>
+            </form>
             <hr/>
             <h6>
                 {t("auth-migrate_account")}

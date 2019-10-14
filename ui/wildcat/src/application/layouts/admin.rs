@@ -1,5 +1,5 @@
 use titlecase::titlecase;
-use stdweb::web::document;
+use stdweb::{js, web::document};
 use yew::prelude::*;
 
 use crate::application::{
@@ -12,6 +12,7 @@ pub fn admin_wrap<T: Component>(page_title: &str, html: Html<T>) -> Html<T> {
     //From mastodon app/views/layouts/admin.html.haml
     let page_title = titlecase(page_title).replace("_", " ");
     document().set_title(&format!("{} - Coolcats", page_title));
+    js! {  @(no_return) document.body.className = "admin theme-default no-reduce-motion" };
     html! {
         //<% content_for :header_tags do %>
             //<%= javascript_pack_tag 'public', integrity: true, crossorigin: 'anonymous' %>
