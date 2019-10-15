@@ -35,9 +35,7 @@ impl Renderable<SettingsPage> for SettingsPage {
         let t = |message_id| self.get_locale_value(message_id);
         //From mastodon app/views/settings/profiles/show.html.haml
         //<%= simple_form_for @account, url: settings_profile_path, html: { method: :put } do |f| %>
-        let f = SimpleForm {
-            form_for: "account".into(),
-        };
+        let f = SimpleForm::new("account");
         let content = html! { <>
             <form
                 class = "simple_form edit_account",
@@ -96,12 +94,14 @@ impl Renderable<SettingsPage> for SettingsPage {
                                 {t("simple_form-hints-defaults-fields")}
                             </span>
                             //<%= f.simple_fields_for :fields do |fields_f| %>
+                            {for (0..4).map(|fields_f| html! {
                                 <div class = "row">
                                     //<%= fields_f.input :name, placeholder: t('simple_form.labels.account.fields.name'), input_html: { maxlength: 255 } %>
-                                    {f.fields_input("name", t("simple_form-labels-account-fields-name"))}
+                                    {f.fields_input(fields_f, "name", t("simple_form-labels-account-fields-name"))}
                                     //<%= fields_f.input :value, placeholder: t('simple_form.labels.account.fields.value'), input_html: { maxlength: 255 } %>
-                                    {f.fields_input("value", t("simple_form-labels-account-fields-value"))}
+                                    {f.fields_input(fields_f, "value", t("simple_form-labels-account-fields-value"))}
                                 </div>
+                            })}
                             //<% end %>
                         </div>
                     </div>
