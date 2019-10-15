@@ -16,6 +16,8 @@ use_locale_values![
     "generic-save_changes",
     "migrations-incoming_migrations",
     "migrations-incoming_migrations_html",
+    "simple_form-labels-account-fields-name",
+    "simple_form-labels-account-fields-value",
     "simple_form-labels-defaults-fields",
     "simple_form-hints-defaults-fields",
     "verification-explanation_html",
@@ -96,7 +98,9 @@ impl Renderable<SettingsPage> for SettingsPage {
                             //<%= f.simple_fields_for :fields do |fields_f| %>
                                 <div class = "row">
                                     //<%= fields_f.input :name, placeholder: t('simple_form.labels.account.fields.name'), input_html: { maxlength: 255 } %>
+                                    {f.fields_input("name", t("simple_form-labels-account-fields-name"))}
                                     //<%= fields_f.input :value, placeholder: t('simple_form.labels.account.fields.value'), input_html: { maxlength: 255 } %>
+                                    {f.fields_input("value", t("simple_form-labels-account-fields-value"))}
                                 </div>
                             //<% end %>
                         </div>

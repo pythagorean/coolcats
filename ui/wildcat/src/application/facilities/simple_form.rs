@@ -58,4 +58,23 @@ impl SimpleForm {
             </div>
         }
     }
+
+    pub fn fields_input<T: Component>(&self, name: &str, placeholder: &str) -> Html<T> {
+        let form_for = &self.form_for;
+
+        html! {
+            <div class = format!("input string optional {}_fields_{}", form_for, name)>
+                <input
+                    maxlength = 255,
+                    class = "string optional",
+                    placeholder = placeholder,
+                    size = 255,
+                    type = "text",
+                    value = "",
+                    name = format!("{}[fields_attributes][0][{}]", form_for, name),
+                    id = format!("{}_fields_attributes_0_{}", form_for, name)
+                />
+            </div>
+        }
+    }
 }
