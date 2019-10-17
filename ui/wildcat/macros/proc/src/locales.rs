@@ -1,5 +1,5 @@
 use crate::proc_macro::TokenStream;
-use quote::quote;
+use proc_quote::quote;
 
 pub fn impl_uses_locale_values(ast: &syn::DeriveInput) -> TokenStream {
     let name = &ast.ident;

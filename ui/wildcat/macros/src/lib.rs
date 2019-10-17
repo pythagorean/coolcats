@@ -2,7 +2,7 @@ mod class_names;
 mod locales;
 mod state;
 
-pub use wildcat_macros_derive::*;
+pub use wildcat_proc_macros::*;
 
 // Derivable traits and their methods
 

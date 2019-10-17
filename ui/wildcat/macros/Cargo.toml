@@ -5,4 +5,4 @@ authors = ["Michael Goldman <mike.goldman@allstreets.org>"]
 edition = "2018"
 
 [dependencies]
-wildcat-macros-derive = { path = "derive" }
+wildcat-proc-macros = { path = "proc" }
