@@ -102,7 +102,6 @@ impl Renderable<SettingsPage> for SettingsPage {
                                     {f.fields_input(fields_f, "value", t("simple_form-labels-account-fields-value"))}
                                 </div>
                             })}
-                            //<% end %>
                         </div>
                     </div>
                     <div class = "fields-row__column fields-group fields-row__column-6">

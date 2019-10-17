@@ -7,7 +7,9 @@ pub struct SimpleForm {
 
 impl SimpleForm {
     pub fn new(form_for: &str) -> Self {
-        Self { form_for: form_for.into() }
+        Self {
+            form_for: form_for.into(),
+        }
     }
 
     pub fn button<T: Component>(&self, name: &str, text: &str, button_type: &str) -> Html<T> {
@@ -63,7 +65,12 @@ impl SimpleForm {
         }
     }
 
-    pub fn fields_input<T: Component>(&self, fields_for: u32, name: &str, placeholder: &str) -> Html<T> {
+    pub fn fields_input<T: Component>(
+        &self,
+        fields_for: u32,
+        name: &str,
+        placeholder: &str,
+    ) -> Html<T> {
         let form_for = &self.form_for;
 
         html! {
