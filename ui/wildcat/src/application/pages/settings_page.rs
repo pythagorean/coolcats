@@ -4,7 +4,7 @@ use yew::prelude::*;
 use wildcat_macros::{LocaleComponent, UsesLocaleValues, use_locale_values};
 use crate::application::{
     context, facilities::simple_form::SimpleForm, helpers::htmlize::htmlize,
-    layouts::admin::admin_wrap,
+    layouts::admin::admin_wrap, views::application_card::ApplicationCard
 };
 
 use_locale_values![
@@ -19,7 +19,10 @@ use_locale_values![
     "simple_form-labels-account-fields-name",
     "simple_form-labels-account-fields-value",
     "simple_form-labels-defaults-fields",
+    "simple_form-hints-defaults-bot",
+    "simple_form-hints-defaults-discoverable",
     "simple_form-hints-defaults-fields",
+    "simple_form-hints-defaults-locked",
     "verification-explanation_html",
     "verification-verification"
 ];
@@ -59,6 +62,7 @@ impl Renderable<SettingsPage> for SettingsPage {
                 <div class = "fields-row">
                     <div class = "fields-row__column fields-row__column-6">
                         //<%= render 'application/card', account: @account %>
+                        <ApplicationCard/>
                     </div>
                     <div class = "fields-row__column fields-group fields-row__column-6">
                         //<%= f.input :header, wrapper: :with_label, input_html: { accept: AccountHeader::IMAGE_MIME_TYPES.join(',') }, hint: t('simple_form.hints.defaults.header', dimensions: '1500x500', size: number_to_human_size(AccountHeader::LIMIT)) %>
@@ -71,16 +75,16 @@ impl Renderable<SettingsPage> for SettingsPage {
 
                 <div class = "fields-group">
                     //<%= f.input :locked, as: :boolean, wrapper: :with_label, hint: t('simple_form.hints.defaults.locked') %>
-                    {f.input("locked", 0)}
+                    {f.input_boolean("locked", t("simple_form-hints-defaults-locked"))}
                 </div>
                 <div class = "fields-group">
                     //<%= f.input :bot, as: :boolean, wrapper: :with_label, hint: t('simple_form.hints.defaults.bot') %>
-                    {f.input("bot", 0)}
+                    {f.input_boolean("bot", t("simple_form-hints-defaults-bot"))}
                 </div>
                 //<% if Setting.profile_directory %>
                     <div class = "fields-group">
                         //<%= f.input :discoverable, as: :boolean, wrapper: :with_label, hint: t('simple_form.hints.defaults.discoverable'), recommended: true %>
-                        {f.input("discoverable", 0)}
+                        {f.input_boolean("discoverable", t("simple_form-hints-defaults-discoverable"))}
                     </div>
                 //<% end %>
                 <hr class = "spacer"/>
