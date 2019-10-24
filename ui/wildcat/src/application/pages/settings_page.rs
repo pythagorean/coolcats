@@ -4,7 +4,7 @@ use yew::prelude::*;
 use wildcat_macros::{LocaleComponent, UsesLocaleValues, use_locale_values};
 use crate::application::{
     context, facilities::simple_form::SimpleForm, helpers::htmlize::htmlize,
-    layouts::admin::admin_wrap, views::application_card::ApplicationCard
+    layouts::admin::admin_wrap, views::application_card::ApplicationCard,
 };
 
 use_locale_values![
@@ -156,7 +156,7 @@ impl Renderable<SettingsPage> for SettingsPage {
             //<% end %>
         </> };
         //<% content_for :page_title do %>
-            //<%= t('settings.edit_profile') %>
+        //  <%= t('settings.edit_profile') %>
         admin_wrap("edit_profile", content)
     }
 }

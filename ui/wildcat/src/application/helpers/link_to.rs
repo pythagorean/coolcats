@@ -2,7 +2,7 @@ use yew::prelude::*;
 
 use crate::application::routes::RouterTarget;
 
-pub fn link_to<T: Component>(target: RouterTarget, html: Html<T>) -> Html<T> {
+pub fn link_to_target<T: Component>(target: RouterTarget, html: Html<T>) -> Html<T> {
     let path: &str = target.into();
     html! {
         <a href = path>

@@ -24,7 +24,7 @@ impl Renderable<Navigation> for Navigation {
                 // n.item :web, safe_join([fa_icon('chevron-left fw'), t('settings.back')]), root_url
             <ul>
                 <li id = "web">
-                    {link_to(RouterTarget::SiteRoot, html! {<>
+                    {link_to_target(RouterTarget::SiteRoot, html! {<>
                         {fa_icon("chevron-left fw")}
                         {t("settings-back")}
                     </>})}

@@ -22,12 +22,12 @@ pub fn admin_wrap<T: Component>(page_title: &str, html: Html<T>) -> Html<T> {
             <div class = "sidebar-wrapper">
                 <div class = "sidebar-wrapper__inner">
                     <div class = "sidebar">
-                        {link_to(RouterTarget::SiteRoot, html! {
+                        {link_to_target(RouterTarget::SiteRoot, html! {
                             <img class = "logo", alt = "Coolcats", src = "/images/logo.svg"/>
                         })}
                         <div class = "sidebar__toggle">
                             <div class = "sidebar__toggle__logo">
-                                {link_to(RouterTarget::SiteRoot, svg_logo_full())}
+                                {link_to_target(RouterTarget::SiteRoot, svg_logo_full())}
                             </div>
                             {link_to_class("sidebar__toggle__icon", fa_icon("bars"))}
                         </div>
