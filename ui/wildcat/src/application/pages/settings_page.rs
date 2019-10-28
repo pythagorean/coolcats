@@ -75,16 +75,16 @@ impl Renderable<SettingsPage> for SettingsPage {
 
                 <div class = "fields-group">
                     //<%= f.input :locked, as: :boolean, wrapper: :with_label, hint: t('simple_form.hints.defaults.locked') %>
-                    {f.input_boolean("locked", t("simple_form-hints-defaults-locked"))}
+                    {f.input_boolean("locked:lock_account", t("simple_form-hints-defaults-locked"))}
                 </div>
                 <div class = "fields-group">
                     //<%= f.input :bot, as: :boolean, wrapper: :with_label, hint: t('simple_form.hints.defaults.bot') %>
-                    {f.input_boolean("bot", t("simple_form-hints-defaults-bot"))}
+                    {f.input_boolean("bot:this_is_a_bot_account", t("simple_form-hints-defaults-bot"))}
                 </div>
                 //<% if Setting.profile_directory %>
                     <div class = "fields-group">
                         //<%= f.input :discoverable, as: :boolean, wrapper: :with_label, hint: t('simple_form.hints.defaults.discoverable'), recommended: true %>
-                        {f.input_boolean("discoverable", t("simple_form-hints-defaults-discoverable"))}
+                        {f.input_boolean("discoverable:list_this_account_on_the_directory", t("simple_form-hints-defaults-discoverable"))}
                     </div>
                 //<% end %>
                 <hr class = "spacer"/>

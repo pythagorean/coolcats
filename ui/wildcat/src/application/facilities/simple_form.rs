@@ -30,14 +30,20 @@ impl SimpleForm {
         let form_for = self.form_for.clone() + "_" + name;
         let input_class = "boolean optional";
         html! {
-            <div class = format!("input with_label {} {}", input_class, form_for)>
+            <div class = format!("input with_label {} {} field_with_hint", input_class, form_for)>
                 <div class = "label_input">
                     <label class = input_class, for = form_for>
                         {titlecase(render).replace("_", " ")}
                     </label>
                     <div class = "label_input__wrapper">
+                        <input
+                            value = "0",
+                            name = format!("{}[{}]", self.form_for, name),
+                            type = "hidden"
+                        />
                         <label class = "checkbox">
                             <input
+                                value = "1",
                                 name = format!("{}[{}]", self.form_for, name),
                                 id = form_for,
                                 class = input_class,
@@ -45,10 +51,10 @@ impl SimpleForm {
                             />
                         </label>
                     </div>
-                    <span class = "hint">
-                        {hint}
-                    </span>
                 </div>
+                <span class = "hint">
+                    {hint}
+                </span>
             </div>
         }
     }

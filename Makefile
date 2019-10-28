@@ -12,12 +12,16 @@ test: dna-test
 upgrade:
 	git pull
 	make rust-upgrade
+	make yarn-upgrade
 	make update
 
 rust-upgrade:
 	rustup toolchain install $(RUST_NIGHTLY)
 	rustup target add wasm32-unknown-unknown --toolchain $(RUST_NIGHTLY)
 	rustup component add clippy --toolchain $(RUST_NIGHTLY)
+
+yarn-upgrade: YARN-required
+	curl --compressed -o- -L https://yarnpkg.com/install.sh | bash
 
 update: dna-update ui-update CARGO-UPDATE-required
 	if [ `holochain --version | cut -d ' ' -f 2` != $(HC_VERSION) ]; then make update-conductor; fi
