@@ -16,6 +16,7 @@ const {
 const {
   CleanWebpackPlugin
 } = require('clean-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 const WasmPackPlugin = require('@wasm-tool/wasm-pack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlBeautifyPlugin = require('html-beautify-webpack-plugin');
@@ -62,6 +63,10 @@ module.exports = createConfig([
       cleanOnceBeforeBuildPatterns: [distPath],
       dangerouslyAllowCleanPatternsOutsideProject: true,
     }),
+    new CopyPlugin([{
+      from: 'public',
+      to: distPath
+    }]),
     new WasmPackPlugin({
       crateDirectory: '.',
       extraArgs: '--no-typescript'

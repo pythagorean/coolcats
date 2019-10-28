@@ -20,7 +20,12 @@ impl SimpleForm {
         }
     }
 
-    pub fn input_boolean<T: Component>(&self, name: &str, hint: &str) -> Html<T> {
+    pub fn input_boolean<T: Component>(
+        &self,
+        name: &str,
+        hint: &str,
+        recommended: bool,
+    ) -> Html<T> {
         let (name, render) = if name.contains(':') {
             let v: Vec<&str> = name.splitn(2, ':').collect();
             (v[0], v[1])
@@ -34,6 +39,11 @@ impl SimpleForm {
                 <div class = "label_input">
                     <label class = input_class, for = form_for>
                         {titlecase(render).replace("_", " ")}
+                        {if recommended { html! {
+                            <span class = "recommended">
+                                {"Recommended"}
+                            </span>
+                        }} else { html! {} }}
                     </label>
                     <div class = "label_input__wrapper">
                         <input

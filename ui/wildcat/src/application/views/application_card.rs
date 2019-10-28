@@ -1,18 +1,31 @@
 use yew::prelude::*;
 
-use wildcat_macros::ImplComponent;
+use wildcat_macros::PropsComponent;
+use crate::application::helpers::image_tag::*;
 
-#[derive(ImplComponent)]
-pub struct ApplicationCard;
+#[derive(PartialEq, Properties)]
+pub struct Props {
+    #[props(required)]
+    pub account: String,
+}
+
+#[derive(PropsComponent)]
+pub struct ApplicationCard {
+    props: Props,
+}
 
 impl Renderable<ApplicationCard> for ApplicationCard {
     fn view(&self) -> Html<Self> {
+        let account = &self.props.account;
+        let account_url = format!("/@{}", account);
+
         html! {
-            // <% account_url = local_assigns[:admin] ? admin_account_path(account.id) : ActivityPub::TagManager.instance.url_for(account) %>
             <div class = "card h-card">
                 //<%= link_to account_url, target: '_blank', rel: 'noopener' do %>
+                <a href = account_url, target = "_blank", rel = "noopener">
                     <div class = "card__img">
                         //<%= image_tag account.header.url, alt: '' %>
+                        {image_tag("/headers/original/missing.png", "")}
                     </div>
                     <div class = "card__bar">
                         <div class = "avatar">
@@ -33,7 +46,7 @@ impl Renderable<ApplicationCard> for ApplicationCard {
                             </span>
                         </div>
                     </div>
-                //<% end %>
+                </a>
             </div>
         }
     }

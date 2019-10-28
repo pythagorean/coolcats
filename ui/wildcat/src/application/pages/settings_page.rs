@@ -62,7 +62,7 @@ impl Renderable<SettingsPage> for SettingsPage {
                 <div class = "fields-row">
                     <div class = "fields-row__column fields-row__column-6">
                         //<%= render 'application/card', account: @account %>
-                        <ApplicationCard/>
+                        <ApplicationCard account = "admin"/>
                     </div>
                     <div class = "fields-row__column fields-group fields-row__column-6">
                         //<%= f.input :header, wrapper: :with_label, input_html: { accept: AccountHeader::IMAGE_MIME_TYPES.join(',') }, hint: t('simple_form.hints.defaults.header', dimensions: '1500x500', size: number_to_human_size(AccountHeader::LIMIT)) %>
@@ -75,16 +75,16 @@ impl Renderable<SettingsPage> for SettingsPage {
 
                 <div class = "fields-group">
                     //<%= f.input :locked, as: :boolean, wrapper: :with_label, hint: t('simple_form.hints.defaults.locked') %>
-                    {f.input_boolean("locked:lock_account", t("simple_form-hints-defaults-locked"))}
+                    {f.input_boolean("locked:lock_account", t("simple_form-hints-defaults-locked"), false)}
                 </div>
                 <div class = "fields-group">
                     //<%= f.input :bot, as: :boolean, wrapper: :with_label, hint: t('simple_form.hints.defaults.bot') %>
-                    {f.input_boolean("bot:this_is_a_bot_account", t("simple_form-hints-defaults-bot"))}
+                    {f.input_boolean("bot:this_is_a_bot_account", t("simple_form-hints-defaults-bot"), false)}
                 </div>
                 //<% if Setting.profile_directory %>
                     <div class = "fields-group">
                         //<%= f.input :discoverable, as: :boolean, wrapper: :with_label, hint: t('simple_form.hints.defaults.discoverable'), recommended: true %>
-                        {f.input_boolean("discoverable:list_this_account_on_the_directory", t("simple_form-hints-defaults-discoverable"))}
+                        {f.input_boolean("discoverable:list_this_account_on_the_directory", t("simple_form-hints-defaults-discoverable"), true)}
                     </div>
                 //<% end %>
                 <hr class = "spacer"/>
