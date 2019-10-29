@@ -30,6 +30,11 @@ impl Renderable<ApplicationCard> for ApplicationCard {
                     <div class = "card__bar">
                         <div class = "avatar">
                             //<%= image_tag account.avatar.url, alt: '', width: 48, height: 48, class: 'u-photo' %>
+                            <img
+                                class = "u-photo",
+                                src = "/avatars/original/missing.png",
+                                width = 48, height = 48, alt = ""
+                            />
                         </div>
                         <div class = "display-name">
                             <span id = "default_account_display_name" style = "display: none">
