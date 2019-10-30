@@ -69,6 +69,31 @@ impl SimpleForm {
         }
     }
 
+    pub fn input_file<T: Component>(&self, name: &str, accept: &str, hint: &str) -> Html<T> {
+        let form_for = self.form_for.clone() + "_" + name;
+        let input_class = "file optional";
+
+        html! {
+            <div class = format!("input with_label file optional {} {} field_with_hint", input_class, form_for)>
+                <div class = "label_input">
+                    <label class = input_class, for = form_for>
+                        {titlecase(name).replace("_", " ")}
+                    </label>
+                    <div class = "label_input__wrapper">
+                        <input
+                            accept = accept,
+                            class = input_class,
+                            type = "file",
+                            name = format!("{}[{}]", self.form_for, name),
+                            id = form_for
+                        />
+                    </div>
+                </div>
+                <span class = "hint">{hint}</span>
+            </div>
+        }
+    }
+
     pub fn input<T: Component>(&self, name: &str, maxlength: u16) -> Html<T> {
         let (name, render) = if name.contains(':') {
             let v: Vec<&str> = name.splitn(2, ':').collect();

@@ -19,9 +19,11 @@ use_locale_values![
     "simple_form-labels-account-fields-name",
     "simple_form-labels-account-fields-value",
     "simple_form-labels-defaults-fields",
+    "simple_form-hints-defaults-avatar",
     "simple_form-hints-defaults-bot",
     "simple_form-hints-defaults-discoverable",
     "simple_form-hints-defaults-fields",
+    "simple_form-hints-defaults-header",
     "simple_form-hints-defaults-locked",
     "verification-explanation_html",
     "verification-verification"
@@ -66,9 +68,9 @@ impl Renderable<SettingsPage> for SettingsPage {
                     </div>
                     <div class = "fields-row__column fields-group fields-row__column-6">
                         //<%= f.input :header, wrapper: :with_label, input_html: { accept: AccountHeader::IMAGE_MIME_TYPES.join(',') }, hint: t('simple_form.hints.defaults.header', dimensions: '1500x500', size: number_to_human_size(AccountHeader::LIMIT)) %>
-                        {f.input("header", 0)}
+                        {f.input_file("header", "image/jpeg,image/png,image/gif", &t("simple_form-hints-defaults-header").replace("%{dimensions}", "1500x500").replace("%{size}", "2 MB"))}
                         //<%= f.input :avatar, wrapper: :with_label, input_html: { accept: AccountAvatar::IMAGE_MIME_TYPES.join(',') }, hint: t('simple_form.hints.defaults.avatar', dimensions: '400x400', size: number_to_human_size(AccountAvatar::LIMIT)) %>
-                        {f.input("avatar", 0)}
+                        {f.input_file("avatar", "image/jpeg,image/png,image/gif", &t("simple_form-hints-defaults-avatar").replace("%{dimensions}", "400x400").replace("%{size}", "2 MB"))}
                     </div>
                 </div>
                 <hr class = "spacer"/>
@@ -117,9 +119,12 @@ impl Renderable<SettingsPage> for SettingsPage {
                         </p>
                         <div class = "input-copy">
                             <div class = "input-copy__wrapper">
-                                <input type = "text", maxlength = 999, spellcheck = false, readonly = true/>
-                                    //{type: :text, maxlength: '999', spellcheck: 'false', readonly: 'true',
-                                        //value: link_to('Mastodon', ActivityPub::TagManager.instance.url_for(@account), rel: 'me').to_str }
+                                //{type: :text, maxlength: '999', spellcheck: 'false', readonly: 'true',
+                                //  value: link_to('Mastodon', ActivityPub::TagManager.instance.url_for(@account), rel: 'me').to_str }
+                                <input
+                                    type = "text", maxlength = 999, spellcheck = false, readonly = true,
+                                    value = {format!("<a rel=\"me\" href=\"http://coolcats.local/@{}\">Coolcats</a>", "admin")}
+                                />
                             </div>
                             <button type = "button">
                                 {t("generic-copy")}

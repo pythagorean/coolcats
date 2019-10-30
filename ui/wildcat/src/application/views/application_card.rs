@@ -39,14 +39,17 @@ impl Renderable<ApplicationCard> for ApplicationCard {
                         <div class = "display-name">
                             <span id = "default_account_display_name" style = "display: none">
                                 //<%= account.username %>
+                                {account}
                             </span>
                             <bdi>
                                 <strong class = "emojify p-name">
                                     //<%= display_name(account, custom_emojify: true) %>
+                                    {account}
                                 </strong>
                             </bdi>
                             <span>
                                 //<%= acct(account) %>
+                                {format!("@{}@coolcats.local", account)}
                                 //<%= fa_icon('lock') if account.locked? %>
                             </span>
                         </div>

@@ -25,6 +25,8 @@ settings-profile = Profile
 settings-relationships = Follows and followers
 simple_form-labels-account-fields-name = Label
 simple_form-labels-account-fields-value = Content
+simple_form-hints-defaults-avatar = PNG, GIF or JPG. At most %{size}. Will be downscaled to
+  %{dimensions}px
 simple_form-hints-defaults-fields = You can have up to 4 items displayed as a table on your profile
 simple_form-hints-defaults-bot = This account mainly performs automated actions and might not be
   monitored
@@ -32,6 +34,8 @@ simple_form-hints-defaults-discoverable = The profile directory is another way b
   reach a wider audience
 simple_form-hints-defaults-locked = Requires you to manually approve followers
 simple_form-labels-defaults-fields = Profile metadata
+simple_form-hints-defaults-header = PNG, GIF or JPG. At most %{size}. Will be downscaled to
+  %{dimensions}px
 verification-explanation_html = You can <strong>verify yourself as the owner of the links in your
   profile metadata</strong>. For that, the linked website must contain a link back to your Coolcats
   profile. The link back <strong>must</strong> have a <code>rel="me"</code> attribute. The text content
