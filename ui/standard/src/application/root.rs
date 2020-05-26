@@ -527,14 +527,14 @@ impl Root {
         let call = ToHoloclient::Call(
             (&[self.conductor.as_str(), "coolcats", method][..], params, redux, meta).into(),
         );
-        self.update(call.into());;
+        self.update(call.into());
     }
 
     fn coolcats(&mut self, method: &str, params: &[DictItem], redux: &str) {
         let call = ToHoloclient::Call(
             (&[self.conductor.as_str(), "coolcats", method][..], params, redux).into(),
         );
-        self.update(call.into());;
+        self.update(call.into());
     }
 
     fn get_my_handle(&mut self) {

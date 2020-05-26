@@ -25,7 +25,7 @@ pub fn run_app() -> Result<(), JsValue> {
     let mut to_application = mount_new_app("#application");
     to_holoclient.send_message(Msg::SetServerPort(get_port() + 888));
     to_holoclient.send_message(Msg::SetModel(ModelType::Holoclient, to_application.clone()));
-    to_application.send_message(Msg::SetModel(ModelType::Application, to_holoclient.clone()));
+    to_application.send_message(Msg::SetModel(ModelType::Application, to_holoclient));
     yew::run_loop();
     Ok(())
 }
