@@ -33,11 +33,7 @@ module.exports = createConfig([
     webassemblyModuleFilename: 'coolcats-ui.wasm'
   }),
   typescript(),
-  css({
-    options: {
-      styleLoader: true
-    }
-  }),
+  css(),
   match(['*.png', '*.jpg', '*.gif'], [
     file({
       name: '[name].[ext]',
