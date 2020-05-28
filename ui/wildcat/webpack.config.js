@@ -19,7 +19,6 @@ const {
 const CopyPlugin = require('copy-webpack-plugin');
 const WasmPackPlugin = require('@wasm-tool/wasm-pack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const HtmlBeautifyPlugin = require('html-beautify-webpack-plugin');
 
 const path = require('path');
 const distPath = path.resolve(__dirname, "../target/deploy");
@@ -37,11 +36,7 @@ module.exports = createConfig([
   }),
   typescript(),
   match('*.scss', [
-    css({
-      options: {
-        styleLoader: true
-      }
-    }),
+    css(),
     sass()
   ]),
   match(['*.png', '*.svg', '!*-webfont.svg'], [
@@ -63,10 +58,9 @@ module.exports = createConfig([
       cleanOnceBeforeBuildPatterns: [distPath],
       dangerouslyAllowCleanPatternsOutsideProject: true,
     }),
-    new CopyPlugin([{
-      from: 'public',
-      to: distPath
-    }]),
+    new CopyPlugin({
+      patterns: [{ from: 'public', to: distPath }],
+    }),
     new WasmPackPlugin({
       crateDirectory: '.',
       extraArgs: '--no-typescript'
@@ -79,15 +73,8 @@ module.exports = createConfig([
       favicon: 'public/favicon.png',
       appMountIds: ['holoclient', 'application'],
       scripts: ['/wildcat-ui.js'],
-      chunks: []
-    }),
-    new HtmlBeautifyPlugin({
-      config: {
-        html: {
-          indent_size: 2,
-          end_with_newline: true,
-        }
-      }
+      chunks: [],
+      minify: false,
     })
   ]),
   env('development', [

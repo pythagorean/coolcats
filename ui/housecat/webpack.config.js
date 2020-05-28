@@ -17,7 +17,6 @@ const {
 } = require('clean-webpack-plugin');
 const WasmPackPlugin = require('@wasm-tool/wasm-pack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const HtmlBeautifyPlugin = require('html-beautify-webpack-plugin');
 
 const path = require('path');
 const distPath = path.resolve(__dirname, "../target/deploy");
@@ -33,11 +32,7 @@ module.exports = createConfig([
     webassemblyModuleFilename: 'housecat-ui.wasm'
   }),
   typescript(),
-  css({
-    options: {
-      styleLoader: true
-    }
-  }),
+  css(),
   match(['*.png', '*.jpg', '*.gif'], [
     file({
       name: '[name].[ext]',
@@ -73,14 +68,7 @@ module.exports = createConfig([
       appMountIds: ['holoclient', 'application'],
       scripts: ['housecat-ui.js'],
       chunks: [],
-    }),
-    new HtmlBeautifyPlugin({
-      config: {
-        html: {
-          indent_size: 2,
-          end_with_newline: true,
-        },
-      },
+      minify: false,
     })
   ]),
   env('development', [
